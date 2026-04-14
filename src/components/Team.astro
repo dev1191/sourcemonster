@@ -1,0 +1,67 @@
+---
+import { getCollection } from 'astro:content';
+const teamMembers = await getCollection('team');
+---
+<!-- Team Section -->
+<section id="team" class="py-32 bg-dark relative overflow-hidden">
+    <div class="absolute top-0 right-0 w-[500px] h-[500px] bg-primary/10 rounded-full blur-[120px] -mr-64 -mt-64"></div>
+    <div class="absolute bottom-0 left-0 w-[500px] h-[500px] bg-secondary/10 rounded-full blur-[120px] -ml-64 -mb-64"></div>
+
+    <div class="max-w-7xl mx-auto px-6 relative z-10">
+        <div class="text-center mb-24" data-aos="fade-up">
+            <div class="text-primary font-bold tracking-widest uppercase mb-4">The Alpha Task Force</div>
+            <h2 class="text-5xl font-black font-heading tracking-tight text-white">MEET THE <span class="text-gradient">PREDATORS.</span></h2>
+            <p class="mt-6 text-slate-400 max-w-2xl mx-auto text-lg leading-relaxed">
+                A collective of specialized experts executing complex digital missions with surgical precision.
+            </p>
+        </div>
+
+        <div class="swiper team-slider pb-20">
+            <div class="swiper-wrapper">
+                {teamMembers.map((member) => (
+                    <div class="swiper-slide group relative">
+                        <div class={`bg-slate-900/40 backdrop-blur-xl rounded-[2rem] p-5 border border-white/5 transition-all duration-500 hover:bg-slate-900 hover:border-${member.data.color}/30`}>
+                            <div class="relative w-full aspect-square overflow-hidden rounded-2xl mb-5">
+                                <img src={`/assets/images/resource/${member.data.img}`} class="w-full h-full object-cover grayscale transition-all duration-700 group-hover:grayscale-0 group-hover:scale-110" alt={member.data.name} />
+                            </div>
+                            <div class="text-center">
+                                <h4 class="text-lg font-bold font-heading text-white mb-1">{member.data.name}</h4>
+                                <p class={`text-${member.data.color} font-bold uppercase tracking-[0.2em] text-[8px] mb-3 opacity-80`}>{member.data.role}</p>
+                                <div class={`h-0.5 w-6 bg-white/10 mx-auto group-hover:w-12 group-hover:bg-${member.data.color} transition-all duration-500`}></div>
+                            </div>
+                        </div>
+                    </div>
+                ))}
+            </div>
+            <div class="swiper-pagination !bottom-0"></div>
+        </div>
+    </div>
+</section>
+
+<script is:inline>
+    document.addEventListener('DOMContentLoaded', () => {
+        if (typeof Swiper !== 'undefined') {
+            new Swiper(".team-slider", {
+                slidesPerView: 1,
+                spaceBetween: 30,
+                loop: true,
+                autoplay: { delay: 3000, disableOnInteraction: false },
+                pagination: { el: ".swiper-pagination", clickable: true },
+                breakpoints: {
+                    640: { slidesPerView: 2 },
+                    768: { slidesPerView: 3 },
+                    1024: { slidesPerView: 4 },
+                    1280: { slidesPerView: 5 },
+                },
+            });
+        }
+    });
+</script>
+
+<style>
+	.text-gradient {
+		background: linear-gradient(to right, #FF4D1C, #FF8E6E);
+		-webkit-background-clip: text;
+		-webkit-text-fill-color: transparent;
+	}
+</style>

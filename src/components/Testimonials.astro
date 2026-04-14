@@ -1,0 +1,46 @@
+---
+import { getCollection } from 'astro:content';
+const testimonials = await getCollection('testimonials');
+---
+<!-- Testimonials Section -->
+<section id="testimonials" class="py-32 bg-slate-50 relative overflow-hidden">
+    <div class="max-w-7xl mx-auto px-6">
+        <div class="text-center mb-24" data-aos="fade-up">
+            <div class="text-primary font-bold tracking-widest uppercase mb-4">Voice of the Market</div>
+            <h2 class="text-5xl font-black font-heading tracking-tight">TRUSTED BY <span class="text-gradient">INDUSTRY LEADERS.</span></h2>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+            {testimonials.map((item) => (
+                <div class="glass-card p-10 rounded-[3rem] hover:translate-y-[-10px] transition-all duration-500" data-aos="fade-up" data-aos-delay={item.data.delay}>
+                    <div class="flex text-primary mb-6">
+                        <i data-lucide="star" class="w-5 h-5 fill-current"></i><i data-lucide="star" class="w-5 h-5 fill-current"></i><i data-lucide="star" class="w-5 h-5 fill-current"></i><i data-lucide="star" class="w-5 h-5 fill-current"></i><i data-lucide="star" class="w-5 h-5 fill-current"></i>
+                    </div>
+                    <p class="text-lg text-slate-600 italic leading-relaxed mb-10">
+                        "{item.data.quote}"
+                    </p>
+                    <div class="flex items-center space-x-4 border-t border-slate-100 pt-8">
+                        <div class={`w-14 h-14 bg-${item.data.color}/10 rounded-2xl flex items-center justify-center text-${item.data.color}`}><i data-lucide="user-check" class="w-8 h-8"></i></div>
+                        <div>
+                            <h4 class="font-bold text-slate-900 text-xl">{item.data.name}</h4>
+                            <p class="text-sm text-slate-400 font-bold uppercase tracking-widest">{item.data.role}</p>
+                        </div>
+                    </div>
+                </div>
+            ))}
+        </div>
+    </div>
+</section>
+
+<style>
+	.text-gradient {
+		background: linear-gradient(to right, #FF4D1C, #FF8E6E);
+		-webkit-background-clip: text;
+		-webkit-text-fill-color: transparent;
+	}
+    .glass-card {
+        background: rgba(255, 255, 255, 0.7);
+        backdrop-filter: blur(10px);
+        border: 1px solid rgba(255, 255, 255, 0.2);
+    }
+</style>

@@ -1,0 +1,114 @@
+@import url("https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Outfit:wght@600;700;800;900&display=swap");
+
+:root {
+  --primary: #ff4d1c;
+  --secondary: #0028a2;
+  --dark: #0f172a;
+  --glass: rgba(255, 255, 255, 0.7);
+  --glass-border: rgba(0, 0, 0, 0.05);
+}
+
+body {
+  font-family: "Inter", sans-serif;
+  background-color: #f8fafc;
+  color: #1e293b;
+  overflow-x: hidden;
+}
+
+h1,
+h2,
+h3,
+h4,
+.font-heading {
+  font-family: "Outfit", sans-serif;
+  color: #0f172a;
+}
+
+.text-gradient {
+  background: linear-gradient(135deg, #ff4d1c 0%, #ff8a65 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.bg-mesh {
+  background-image:
+    radial-gradient(at 0% 0%, hsla(210, 40%, 96%, 1) 0, transparent 50%),
+    radial-gradient(at 50% 0%, hsla(11, 81%, 55%, 0.1) 0, transparent 50%),
+    radial-gradient(at 100% 0%, hsla(225, 100%, 32%, 0.05) 0, transparent 50%);
+}
+
+.glass-card {
+  background: var(--glass);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid var(--glass-border);
+  box-shadow: 0 10px 30px -10px rgba(0, 40, 162, 0.05);
+}
+
+.hero-glow {
+  position: absolute;
+  width: 600px;
+  height: 600px;
+  background: radial-gradient(
+    circle,
+    rgba(255, 77, 28, 0.15) 0%,
+    transparent 70%
+  );
+  filter: blur(100px);
+  z-index: -1;
+}
+
+@keyframes float {
+  0% {
+    transform: translateY(0px);
+  }
+  50% {
+    transform: translateY(-20px);
+  }
+  100% {
+    transform: translateY(0px);
+  }
+}
+
+.animate-float {
+  animation: float 6s ease-in-out infinite;
+}
+
+/* Custom Scrollbar */
+::-webkit-scrollbar {
+  width: 8px;
+}
+::-webkit-scrollbar-track {
+  background: #0f172a;
+}
+::-webkit-scrollbar-thumb {
+  background: #ff4d1c;
+  border-radius: 10px;
+}
+
+/* Swiper Customization */
+.swiper-pagination {
+  position: relative !important;
+  margin-top: 40px;
+}
+
+.swiper-pagination-bullet {
+  width: 10px;
+  height: 10px;
+  background: var(--dark) !important;
+  opacity: 0.1 !important;
+  transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275) !important;
+  border-radius: 20px !important;
+}
+
+.swiper-pagination-bullet-active {
+  width: 35px !important;
+  background: var(--primary) !important;
+  opacity: 1 !important;
+  box-shadow: 0 4px 15px rgba(255, 77, 28, 0.3);
+}
+
+.team-slider {
+  overflow: visible !important;
+}

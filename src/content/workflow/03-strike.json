@@ -1,0 +1,8 @@
+{
+    "step": "03",
+    "title": "Mission Strike",
+    "description": "Rapid, high-fidelity engineering phase. We write viciously clean code that is built for speed and infinite scaling.",
+    "icon": "code-2",
+    "color": "primary",
+    "delay": 200
+}

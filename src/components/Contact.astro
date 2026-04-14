@@ -1,0 +1,132 @@
+---
+---
+<section id="contact" class="pt-32 bg-white relative overflow-hidden">
+    <div class="hero-glow -bottom-60 left-1/2 -translate-x-1/2 opacity-30"></div>
+
+    <div class="max-w-7xl mx-auto px-6 relative z-10">
+        <div class="grid lg:grid-cols-2 gap-20 items-center mb-32">
+            <div data-aos="fade-right">
+                <h2 class="text-6xl font-black font-heading leading-tight mb-10">
+                    READY TO <br />
+                    <span class="text-gradient">START THE HUNT?</span>
+                </h2>
+                <p class="text-xl text-slate-400 mb-12 leading-relaxed">
+                    Don't let your competition evolve faster than you. Claim your territory in the digital wild right now.
+                </p>
+
+                <div class="space-y-6">
+                    <div class="flex items-center space-x-6">
+                        <div class="w-12 h-12 glass-card rounded-xl flex items-center justify-center text-primary">
+                            <i data-lucide="mail"></i>
+                        </div>
+                        <span class="text-lg font-bold">contact@sourcemonster.in</span>
+                    </div>
+                    <div class="flex items-center space-x-6">
+                        <div class="w-12 h-12 glass-card rounded-xl flex items-center justify-center text-primary">
+                            <i data-lucide="phone"></i>
+                        </div>
+                        <span class="text-lg font-bold">+91 86072 48802</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="glass-card p-12 rounded-[3.5rem] shadow-2xl shadow-slate-200/50" data-aos="fade-left">
+                <form id="contact-form" class="space-y-6">
+                    <div class="grid md:grid-cols-2 gap-6">
+                        <div>
+                            <label class="block text-[10px] uppercase tracking-widest font-bold text-slate-500 mb-2">Your Name</label>
+                            <input name="name" type="text" required class="w-full bg-slate-50 border border-slate-200 p-4 rounded-2xl focus:ring-2 focus:ring-primary outline-none transition-all" placeholder="John Wick" />
+                        </div>
+                        <div>
+                            <label class="block text-[10px] uppercase tracking-widest font-bold text-slate-500 mb-2">Email Address</label>
+                            <input name="email" type="email" required class="w-full bg-slate-50 border border-slate-200 p-4 rounded-2xl focus:ring-2 focus:ring-primary outline-none transition-all" placeholder="wick@continental.com" />
+                        </div>
+                    </div>
+                    <div>
+                        <label class="block text-[10px] uppercase tracking-widest font-bold text-slate-500 mb-2">Service Needed</label>
+                        <select name="service" required class="w-full bg-slate-50 border border-slate-200 p-4 rounded-2xl focus:ring-2 focus:ring-primary outline-none transition-all text-slate-900">
+                            <option value="Web Engineering">Web Engineering</option>
+                            <option value="Growth Strategy">Growth Strategy</option>
+                            <option value="App Development">App Development</option>
+                            <option value="Visual Identity">Visual Identity</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-[10px] uppercase tracking-widest font-bold text-slate-500 mb-2">Message</label>
+                        <textarea name="message" rows="4" required class="w-full bg-slate-50 border border-slate-200 p-4 rounded-2xl focus:ring-2 focus:ring-primary outline-none transition-all" placeholder="Tell us about the beast we're building..."></textarea>
+                    </div>
+                    <button type="submit" class="w-full bg-primary text-white py-5 rounded-2xl font-bold text-xl hover:shadow-2xl hover:shadow-primary/30 active:scale-[0.98] transition-all flex items-center justify-center space-x-3">
+                        <span class="btn-text">INITIALIZE PROJECT</span>
+                        <div class="spinner hidden w-6 h-6 border-4 border-white border-t-transparent rounded-full animate-spin"></div>
+                    </button>
+                    <div id="form-status" class="hidden text-center p-4 rounded-2xl font-bold"></div>
+                </form>
+            </div>
+        </div>
+    </div>
+</section>
+
+<script>
+    import { actions, isInputError } from 'astro:actions';
+
+
+    const form = document.getElementById('contact-form') as HTMLFormElement;
+    const status = document.getElementById('form-status');
+    const button = form?.querySelector('button[type="submit"]');
+    const btnText = button?.querySelector('.btn-text');
+    const spinner = button?.querySelector('.spinner');
+
+    form?.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        
+        if (!status || !button || !btnText || !spinner) return;
+
+        // Reset status
+        status.classList.add('hidden');
+        status.classList.remove('bg-green-100', 'text-green-800', 'bg-red-100', 'text-red-800');
+        
+        // Loading state
+        button.setAttribute('disabled', 'true');
+        btnText.classList.add('hidden');
+        spinner.classList.remove('hidden');
+
+        const formData = new FormData(form);
+        const { data, error } = await actions.sendEmail(formData);
+
+        // Reset state
+        button.removeAttribute('disabled');
+        btnText.classList.remove('hidden');
+        spinner.classList.add('hidden');
+
+        if (error) {
+            if (isInputError(error)) {
+                // Collect all validation messages
+                const messages = Object.values(error.fields).flat().join(', ');
+                status.textContent = "Validation Error: " + messages;
+            } else {
+                status.textContent = "Error: " + error.message;
+            }
+            status.classList.add('bg-red-100', 'text-red-800');
+            status.classList.remove('hidden');
+        } else {
+
+            status.textContent = "Mission Initialized! We'll reach out soon.";
+            status.classList.add('bg-green-100', 'text-green-800');
+            status.classList.remove('hidden');
+            form.reset();
+        }
+    });
+</script>
+
+<style>
+	.text-gradient {
+		background: linear-gradient(to right, #FF4D1C, #FF8E6E);
+		-webkit-background-clip: text;
+		-webkit-text-fill-color: transparent;
+	}
+    .glass-card {
+        background: rgba(255, 255, 255, 0.7);
+        backdrop-filter: blur(10px);
+        border: 1px solid rgba(255, 255, 255, 0.2);
+    }
+</style>

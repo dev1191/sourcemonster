@@ -1,0 +1,46 @@
+---
+import { getCollection } from 'astro:content';
+const steps = await getCollection('workflow');
+const sortedSteps = steps.sort((a, b) => parseInt(a.data.step) - parseInt(b.data.step));
+---
+<!-- Workflow Section -->
+<section id="workflow" class="py-32 bg-slate-50 relative overflow-hidden">
+    <div class="max-w-7xl mx-auto px-6 relative z-10">
+        <div class="text-center mb-24" data-aos="fade-up">
+            <div class="text-primary font-bold tracking-widest uppercase mb-4">The Predator Process</div>
+            <h2 class="text-5xl font-black font-heading tracking-tight">THE <span class="text-gradient">TACTICAL PATH.</span></h2>
+        </div>
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
+            {sortedSteps.map((item, index) => (
+                <div class="relative group" data-aos="fade-up" data-aos-delay={item.data.delay}>
+                    <div class={`glass-card p-10 rounded-[3rem] h-full transition-all duration-500 hover:shadow-2xl hover:shadow-${item.data.color}/10 border-b-4 border-b-transparent hover:border-b-${item.data.color} hover:-translate-y-2`}>
+                        <div class="flex justify-between items-start mb-8">
+                            <div class={`w-16 h-16 bg-${item.data.color}/10 rounded-2xl flex items-center justify-center text-${item.data.color} transition-transform group-hover:scale-110 group-hover:rotate-6`}><i data-lucide={item.data.icon} class="w-8 h-8"></i></div>
+                            <span class={`text-5xl font-black text-slate-100 transition-colors group-hover:text-${item.data.color}/10`}>{item.data.step}</span>
+                        </div>
+                        <h4 class="text-2xl font-black mb-4 font-heading">{item.data.title}</h4>
+                        <p class="text-slate-500 leading-relaxed text-sm">{item.data.description}</p>
+                    </div>
+                    {index < sortedSteps.length - 1 && (
+                        <div class="hidden lg:block absolute top-1/2 -right-4 -translate-y-1/2 z-20 text-slate-200">
+                            <i data-lucide="chevron-right" class="w-8 h-8"></i>
+                        </div>
+                    )}
+                </div>
+            ))}
+        </div>
+    </div>
+</section>
+
+<style>
+	.text-gradient {
+		background: linear-gradient(to right, #FF4D1C, #FF8E6E);
+		-webkit-background-clip: text;
+		-webkit-text-fill-color: transparent;
+	}
+    .glass-card {
+        background: rgba(255, 255, 255, 0.7);
+        backdrop-filter: blur(10px);
+        border: 1px solid rgba(255, 255, 255, 0.2);
+    }
+</style>
