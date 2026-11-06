@@ -1,0 +1,10 @@
+services:
+  db:
+    ports: [] # Do not expose database port to host in production
+    restart: always
+
+  app:
+    restart: always
+    environment:
+      RUN_MIGRATIONS: "false"
+

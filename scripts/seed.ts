@@ -1,0 +1,31 @@
+import "dotenv/config";
+import { client } from "../src/lib/db/client";
+import { seedAdminUser } from "./seeders/admin-user";
+
+async function main() {
+  const args = process.argv.slice(2);
+  const onlyArg = args.find((arg) => arg.startsWith("--only="))?.split("=")[1];
+  const resetPassword = args.includes("--reset-password");
+
+  console.log("🚀 Starting database seeding...");
+
+  try {
+    if (!onlyArg || onlyArg === "admin") {
+      await seedAdminUser({ resetPassword });
+    }
+
+    if (!onlyArg || onlyArg === "content") {
+      console.log("ℹ️  Content seeder hook ready (will import products in Phase 3).");
+    }
+
+    console.log("🎉 Seeding completed successfully!");
+  } catch (error) {
+    console.error("❌ Seeding failed:", error);
+    process.exit(1);
+  } finally {
+    await client.end({ timeout: 5 });
+  }
+}
+
+main();
+
