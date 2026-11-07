@@ -2,59 +2,155 @@
 import AdminLayout from "../../../layouts/AdminLayout.astro";
 import { db } from "../../../lib/db";
 import { leads } from "../../../lib/db/schema";
-import { desc } from "drizzle-orm";
+import { desc, eq, and, sql } from "drizzle-orm";
+
+const statusFilter = Astro.url.searchParams.get("status") || "all";
+const searchQuery = Astro.url.searchParams.get("q")?.trim() || "";
+
+let conditions = [];
+
+if (statusFilter !== "all") {
+  conditions.push(eq(leads.status, statusFilter));
+}
+
+if (searchQuery) {
+  conditions.push(
+    sql`(${leads.name} ILIKE ${`%${searchQuery}%`} OR ${leads.email} ILIKE ${`%${searchQuery}%`} OR ${leads.company} ILIKE ${`%${searchQuery}%`})`
+  );
+}
 
 let allLeads: Array<typeof leads.$inferSelect> = [];
 try {
-  allLeads = await db.select().from(leads).orderBy(desc(leads.createdAt));
+  allLeads = await db
+    .select()
+    .from(leads)
+    .where(conditions.length > 0 ? and(...conditions) : undefined)
+    .orderBy(desc(leads.createdAt));
 } catch (e) {
-  console.error("Failed to load leads:", e);
+  console.error("Failed to load leads list:", e);
 }
+
+const statusOptions = [
+  { value: "all", label: "All Inquiries" },
+  { value: "new", label: "New / Unread" },
+  { value: "contacted", label: "Contacted" },
+  { value: "qualified", label: "Qualified" },
+  { value: "converted", label: "Converted" },
+  { value: "rejected", label: "Rejected" },
+];
 ---
 
 <AdminLayout title="Leads & Inquiries | SourceMonster Admin" activeNav="leads">
-  <div class="flex items-center justify-between pb-6 border-b border-slate-800">
+  <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-6 border-b border-slate-800">
     <div>
       <h1 class="text-2xl font-black text-white tracking-tight">Leads & Inquiries</h1>
-      <p class="text-xs text-slate-400 mt-1">Review contact requests and product customization leads.</p>
+      <p class="text-xs text-slate-400 mt-1">Review contact inquiries, customization requests, and manage pipeline status.</p>
     </div>
   </div>
 
-  <div class="my-6 bg-slate-900/70 border border-slate-800/80 rounded-2xl overflow-hidden">
+  <!-- Filters & Search Bar -->
+  <div class="my-6 flex flex-col md:flex-row items-stretch md:items-center justify-between gap-4">
+    <!-- Status Filter Pills -->
+    <div class="flex items-center gap-1.5 overflow-x-auto pb-2 md:pb-0">
+      {statusOptions.map((opt) => (
+        <a
+          href={`/admin/leads?status=${opt.value}${searchQuery ? `&q=${encodeURIComponent(searchQuery)}` : ""}`}
+          class={`px-3 py-1.5 rounded-xl text-xs font-semibold whitespace-nowrap transition ${
+            statusFilter === opt.value
+              ? "bg-primary text-white shadow-md shadow-primary/20"
+              : "bg-slate-900 border border-slate-800 text-slate-400 hover:text-white hover:bg-slate-800"
+          }`}
+        >
+          {opt.label}
+        </a>
+      ))}
+    </div>
+
+    <!-- Search Box -->
+    <form method="GET" class="relative shrink-0">
+      <input type="hidden" name="status" value={statusFilter} />
+      <input
+        type="text"
+        name="q"
+        value={searchQuery}
+        placeholder="Search name, email, company..."
+        class="w-full sm:w-64 pl-9 pr-4 py-2 bg-slate-900/90 border border-slate-800 rounded-xl text-xs text-white placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-primary"
+      />
+      <div class="absolute left-3 top-2.5 text-slate-500 pointer-events-none">
+        <i data-lucide="search" class="w-3.5 h-3.5"></i>
+      </div>
+    </form>
+  </div>
+
+  <!-- Leads Table -->
+  <div class="bg-slate-900/70 border border-slate-800/80 rounded-2xl overflow-hidden shadow-xl shadow-black/40">
     {allLeads.length === 0 ? (
       <div class="py-16 text-center text-slate-500 text-xs">
-        <i data-lucide="inbox" class="w-10 h-10 mx-auto mb-3 text-slate-600"></i>
-        No incoming leads recorded yet.
+        <i data-lucide="inbox" class="w-12 h-12 mx-auto mb-3 text-slate-600"></i>
+        <div class="font-semibold text-slate-300 text-sm">No inquiries match the current filter</div>
+        <div class="mt-1">Try selecting a different status filter or clearing your search query.</div>
       </div>
     ) : (
       <div class="overflow-x-auto">
         <table class="w-full text-left text-xs text-slate-300">
           <thead class="bg-slate-950/80 text-[11px] uppercase tracking-wider text-slate-400 border-b border-slate-800">
             <tr>
-              <th class="px-4 py-3">Contact</th>
-              <th class="px-4 py-3">Subject / Service</th>
-              <th class="px-4 py-3">Status</th>
-              <th class="px-4 py-3">Date</th>
+              <th class="px-4 py-3.5">Contact Prospect</th>
+              <th class="px-4 py-3.5">Company</th>
+              <th class="px-4 py-3.5">Service / Subject</th>
+              <th class="px-4 py-3.5">Status</th>
+              <th class="px-4 py-3.5">Date Received</th>
+              <th class="px-4 py-3.5 text-right">Action</th>
             </tr>
           </thead>
           <tbody class="divide-y divide-slate-800/60">
             {allLeads.map((lead) => (
               <tr class="hover:bg-slate-800/30 transition">
-                <td class="px-4 py-3 font-medium text-white">
-                  <div>{lead.name}</div>
-                  <div class="text-[11px] text-slate-400">{lead.email}</div>
+                <td class="px-4 py-3.5">
+                  <a href={`/admin/leads/${lead.id}`} class="font-bold text-white hover:text-primary transition block text-sm">
+                    {lead.name}
+                  </a>
+                  <a href={`mailto:${lead.email}`} class="text-[11px] text-slate-400 hover:text-slate-200 transition font-mono">
+                    {lead.email}
+                  </a>
                 </td>
-                <td class="px-4 py-3">
-                  <div>{lead.subject || lead.serviceId || "General Inquiry"}</div>
-                  <div class="text-[11px] text-slate-500 line-clamp-1">{lead.message}</div>
+                <td class="px-4 py-3.5 text-slate-400">
+                  {lead.company || "—"}
                 </td>
-                <td class="px-4 py-3">
-                  <span class="px-2 py-0.5 rounded-full text-[10px] font-bold uppercase bg-primary/10 text-primary border border-primary/20">
+                <td class="px-4 py-3.5">
+                  <div class="text-slate-200 font-semibold">{lead.subject || lead.serviceId || "Inquiry"}</div>
+                  <div class="text-[11px] text-slate-500 line-clamp-1 max-w-xs">{lead.message}</div>
+                </td>
+                <td class="px-4 py-3.5">
+                  <span class={`px-2.5 py-0.5 rounded-full text-[10px] font-bold uppercase ${
+                    lead.status === "new"
+                      ? "bg-primary/10 text-primary border border-primary/20 animate-pulse"
+                      : lead.status === "contacted"
+                      ? "bg-blue-500/10 text-blue-400 border border-blue-500/20"
+                      : lead.status === "qualified"
+                      ? "bg-emerald-500/10 text-emerald-400 border border-emerald-500/20"
+                      : lead.status === "converted"
+                      ? "bg-purple-500/10 text-purple-400 border border-purple-500/20"
+                      : "bg-slate-800 text-slate-400 border border-slate-700"
+                  }`}>
                     {lead.status}
                   </span>
                 </td>
-                <td class="px-4 py-3 text-slate-400">
-                  {new Date(lead.createdAt).toLocaleDateString()}
+                <td class="px-4 py-3.5 text-slate-400 font-mono">
+                  {new Date(lead.createdAt).toLocaleDateString("en-US", {
+                    month: "short",
+                    day: "numeric",
+                    year: "numeric",
+                  })}
+                </td>
+                <td class="px-4 py-3.5 text-right">
+                  <a
+                    href={`/admin/leads/${lead.id}`}
+                    class="inline-flex items-center gap-1.5 px-3 py-1.5 bg-slate-800 hover:bg-slate-700 text-slate-200 rounded-lg hover:text-white transition text-xs font-semibold"
+                  >
+                    <span>Inspect</span>
+                    <i data-lucide="chevron-right" class="w-3.5 h-3.5"></i>
+                  </a>
                 </td>
               </tr>
             ))}
@@ -64,4 +160,3 @@ try {
     )}
   </div>
 </AdminLayout>
-

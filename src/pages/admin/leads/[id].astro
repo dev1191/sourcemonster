@@ -1,0 +1,276 @@
+---
+import AdminLayout from "../../../layouts/AdminLayout.astro";
+import { db } from "../../../lib/db";
+import { leads, products } from "../../../lib/db/schema";
+import { eq } from "drizzle-orm";
+import { leadStatusSchema } from "../../../lib/validation/lead";
+
+const { id } = Astro.params;
+
+if (!id) {
+  return Astro.redirect("/admin/leads");
+}
+
+let feedbackMessage = "";
+let isError = false;
+
+// Handle status or notes update / deletion
+if (Astro.request.method === "POST") {
+  try {
+    const formData = await Astro.request.formData();
+    const action = formData.get("_action")?.toString();
+
+    if (action === "delete") {
+      await db.delete(leads).where(eq(leads.id, id));
+      return Astro.redirect("/admin/leads");
+    }
+
+    if (action === "update") {
+      const statusRaw = formData.get("status")?.toString() || "new";
+      const adminNotes = formData.get("adminNotes")?.toString() || null;
+
+      const parsedStatus = leadStatusSchema.safeParse(statusRaw);
+      if (parsedStatus.success) {
+        await db
+          .update(leads)
+          .set({
+            status: parsedStatus.data,
+            adminNotes,
+            updatedAt: new Date(),
+          })
+          .where(eq(leads.id, id));
+
+        feedbackMessage = "Lead updated successfully!";
+      } else {
+        isError = true;
+        feedbackMessage = "Invalid lead status provided.";
+      }
+    }
+  } catch (err) {
+    console.error("Failed to update lead:", err);
+    isError = true;
+    feedbackMessage = "Failed to update lead.";
+  }
+}
+
+// Query lead record
+const [lead] = await db
+  .select()
+  .from(leads)
+  .where(eq(leads.id, id))
+  .limit(1);
+
+if (!lead) {
+  return Astro.redirect("/admin/leads");
+}
+
+// Query related product if any
+let relatedProduct: typeof products.$inferSelect | null = null;
+if (lead.productId) {
+  const [prod] = await db
+    .select()
+    .from(products)
+    .where(eq(products.id, lead.productId))
+    .limit(1);
+  relatedProduct = prod || null;
+}
+---
+
+<AdminLayout title={`Lead: ${lead.name} | SourceMonster Admin`} activeNav="leads">
+  <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-6 border-b border-slate-800">
+    <div>
+      <div class="flex items-center gap-2 text-xs text-slate-400 mb-1">
+        <a href="/admin/leads" class="hover:text-white transition">Leads</a>
+        <span>/</span>
+        <span class="text-white">Inspect Lead</span>
+      </div>
+      <h1 class="text-2xl font-black text-white tracking-tight flex items-center gap-3">
+        <span>{lead.name}</span>
+        <span class={`text-[11px] px-2.5 py-0.5 rounded-full font-bold uppercase tracking-wider ${
+          lead.status === "new"
+            ? "bg-primary/10 text-primary border border-primary/20"
+            : lead.status === "contacted"
+            ? "bg-blue-500/10 text-blue-400 border border-blue-500/20"
+            : lead.status === "qualified"
+            ? "bg-emerald-500/10 text-emerald-400 border border-emerald-500/20"
+            : lead.status === "converted"
+            ? "bg-purple-500/10 text-purple-400 border border-purple-500/20"
+            : "bg-slate-800 text-slate-400 border border-slate-700"
+        }`}>
+          {lead.status}
+        </span>
+      </h1>
+    </div>
+
+    <div class="flex items-center gap-2">
+      <a
+        href={`mailto:${lead.email}?subject=${encodeURIComponent(`Re: ${lead.subject || "Your Inquiry to SourceMonster"}`)}`}
+        class="px-4 py-2 bg-primary hover:bg-orange-600 text-white rounded-xl text-xs font-semibold flex items-center gap-2 shadow-md shadow-primary/25 transition"
+      >
+        <i data-lucide="mail" class="w-3.5 h-3.5"></i>
+        Reply via Email
+      </a>
+      <a
+        href="/admin/leads"
+        class="px-4 py-2 bg-slate-800 hover:bg-slate-700 text-slate-300 rounded-xl text-xs font-semibold transition"
+      >
+        Back to list
+      </a>
+    </div>
+  </div>
+
+  {feedbackMessage && (
+    <div class={`my-6 p-4 rounded-xl text-xs flex items-center gap-2 border ${
+      isError
+        ? "bg-rose-500/10 border-rose-500/20 text-rose-400"
+        : "bg-emerald-500/10 border-emerald-500/20 text-emerald-400"
+    }`}>
+      <i data-lucide={isError ? "alert-circle" : "check-circle"} class="w-4 h-4 shrink-0"></i>
+      <span>{feedbackMessage}</span>
+    </div>
+  )}
+
+  <div class="my-6 grid grid-cols-1 lg:grid-cols-3 gap-6">
+    <!-- Main Column: Message & Details -->
+    <div class="lg:col-span-2 space-y-6">
+      <!-- Full Inquiry Message -->
+      <div class="bg-slate-900/70 border border-slate-800/80 rounded-2xl p-6">
+        <h2 class="text-xs font-bold text-slate-400 uppercase tracking-wider mb-4 flex items-center gap-2">
+          <i data-lucide="message-square" class="w-4 h-4 text-primary"></i>
+          Inquiry Message
+        </h2>
+        <div class="p-5 bg-slate-950/80 border border-slate-800 rounded-xl text-slate-200 text-sm leading-relaxed whitespace-pre-line font-sans">
+          {lead.message}
+        </div>
+      </div>
+
+      <!-- Prospect Context & Metadata -->
+      <div class="bg-slate-900/70 border border-slate-800/80 rounded-2xl p-6">
+        <h2 class="text-xs font-bold text-slate-400 uppercase tracking-wider mb-4 flex items-center gap-2">
+          <i data-lucide="user-check" class="w-4 h-4 text-blue-400"></i>
+          Contact & Source Metadata
+        </h2>
+
+        <dl class="grid grid-cols-1 sm:grid-cols-2 gap-4 text-xs">
+          <div>
+            <dt class="text-slate-500 uppercase tracking-wider font-semibold">Email Address</dt>
+            <dd class="mt-1 font-mono text-white text-sm">
+              <a href={`mailto:${lead.email}`} class="hover:text-primary transition underline">
+                {lead.email}
+              </a>
+            </dd>
+          </div>
+
+          <div>
+            <dt class="text-slate-500 uppercase tracking-wider font-semibold">Company / Organization</dt>
+            <dd class="mt-1 text-white font-medium">{lead.company || "Not provided"}</dd>
+          </div>
+
+          <div>
+            <dt class="text-slate-500 uppercase tracking-wider font-semibold">Service / Interest</dt>
+            <dd class="mt-1 text-white font-medium">{lead.serviceId || lead.subject || "General"}</dd>
+          </div>
+
+          <div>
+            <dt class="text-slate-500 uppercase tracking-wider font-semibold">Budget Range</dt>
+            <dd class="mt-1 text-white font-medium">{lead.budget || "Not provided"}</dd>
+          </div>
+
+          <div>
+            <dt class="text-slate-500 uppercase tracking-wider font-semibold">Source Page Attribution</dt>
+            <dd class="mt-1 font-mono text-slate-400 truncate">{lead.sourcePage || "/"}</dd>
+          </div>
+
+          <div>
+            <dt class="text-slate-500 uppercase tracking-wider font-semibold">Timestamp Received</dt>
+            <dd class="mt-1 font-mono text-slate-400">
+              {new Date(lead.createdAt).toLocaleString()}
+            </dd>
+          </div>
+        </dl>
+
+        {relatedProduct && (
+          <div class="mt-6 pt-6 border-t border-slate-800 flex items-center justify-between p-3.5 bg-slate-950/60 rounded-xl border border-slate-800/80">
+            <div>
+              <div class="text-[10px] text-slate-400 uppercase tracking-wider font-bold">Associated Product</div>
+              <div class="text-sm font-bold text-white">{relatedProduct.title}</div>
+            </div>
+            <a
+              href={`/products/${relatedProduct.slug}`}
+              target="_blank"
+              class="px-3 py-1.5 bg-slate-800 hover:bg-slate-700 text-slate-300 rounded-lg text-xs font-semibold flex items-center gap-1.5 transition"
+            >
+              <span>View Product</span>
+              <i data-lucide="external-link" class="w-3.5 h-3.5"></i>
+            </a>
+          </div>
+        )}
+      </div>
+    </div>
+
+    <!-- Sidebar Column: Management & Notes -->
+    <div class="space-y-6">
+      <form method="POST" class="bg-slate-900/70 border border-slate-800/80 rounded-2xl p-6 space-y-5">
+        <input type="hidden" name="_action" value="update" />
+
+        <h2 class="text-xs font-bold text-slate-400 uppercase tracking-wider flex items-center gap-2">
+          <i data-lucide="sliders" class="w-4 h-4 text-emerald-400"></i>
+          Pipeline Status
+        </h2>
+
+        <div>
+          <label class="block text-[11px] font-semibold text-slate-400 uppercase tracking-wider mb-1.5">
+            Current Stage
+          </label>
+          <select
+            name="status"
+            class="w-full px-3.5 py-2.5 bg-slate-950 border border-slate-700 rounded-xl text-white text-xs font-semibold focus:outline-none focus:ring-2 focus:ring-primary"
+          >
+            <option value="new" selected={lead.status === "new"}>New / Unread</option>
+            <option value="contacted" selected={lead.status === "contacted"}>Contacted</option>
+            <option value="qualified" selected={lead.status === "qualified"}>Qualified Prospect</option>
+            <option value="converted" selected={lead.status === "converted"}>Converted Client</option>
+            <option value="rejected" selected={lead.status === "rejected"}>Rejected / Closed</option>
+          </select>
+        </div>
+
+        <div>
+          <label class="block text-[11px] font-semibold text-slate-400 uppercase tracking-wider mb-1.5">
+            Internal Private Notes (Admin Only)
+          </label>
+          <textarea
+            name="adminNotes"
+            rows="6"
+            placeholder="Add internal notes about client meeting, pricing discussions, or custom development requirements..."
+            class="w-full px-3.5 py-2.5 bg-slate-950 border border-slate-700 rounded-xl text-white text-xs focus:outline-none focus:ring-2 focus:ring-primary leading-relaxed"
+          >{lead.adminNotes || ""}</textarea>
+        </div>
+
+        <button
+          type="submit"
+          class="w-full py-2.5 bg-primary hover:bg-orange-600 text-white rounded-xl text-xs font-bold shadow-md shadow-primary/25 transition"
+        >
+          Save Pipeline Updates
+        </button>
+      </form>
+
+      <!-- Delete Lead Action -->
+      <div class="bg-slate-900/70 border border-slate-800/80 rounded-2xl p-6">
+        <h3 class="text-xs font-bold text-slate-400 uppercase tracking-wider mb-2">Danger Zone</h3>
+        <p class="text-[11px] text-slate-500 mb-4">
+          Permanently remove this inquiry from your database. This action cannot be reversed.
+        </p>
+        <form method="POST">
+          <input type="hidden" name="_action" value="delete" />
+          <button
+            type="submit"
+            onclick="return confirm('Are you sure you want to permanently delete this lead?');"
+            class="w-full py-2 bg-rose-500/10 hover:bg-rose-500/20 text-rose-400 border border-rose-500/30 rounded-xl text-xs font-semibold transition"
+          >
+            Delete Lead Record
+          </button>
+        </form>
+      </div>
+    </div>
+  </div>
+</AdminLayout>
