@@ -1,0 +1,80 @@
+---
+import { Image } from "astro:assets";
+import logoImg from "../../assets/images/logo.png";
+import logo2Img from "../../assets/images/logo-2.png";
+import { ThemeToggle } from "@/components/starwind/theme-toggle";
+
+interface Props {
+  activeNav?: string;
+  user?: {
+    id: string;
+    email: string;
+    name?: string | null;
+  } | null;
+}
+
+const { activeNav = "dashboard", user } = Astro.props;
+---
+
+<!-- Mobile Top Header Bar -->
+<header class="md:hidden flex items-center justify-between px-4 py-3 bg-white dark:bg-slate-900 border-b border-slate-200 dark:border-slate-800 transition-colors duration-200">
+  <a href="/admin" class="flex items-center gap-2">
+    <Image src={logoImg} alt="SourceMonster" class="h-7 w-auto dark:hidden" />
+    <Image src={logo2Img} alt="SourceMonster" class="h-7 w-auto hidden dark:block" />
+  </a>
+  <div class="flex items-center gap-2">
+    <ThemeToggle
+      size="sm"
+      class="border-slate-300 dark:border-slate-800 text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800/80 rounded-lg"
+    />
+    <button
+      id="mobile-menu-btn"
+      class="p-2 text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white focus:outline-none"
+      aria-label="Open Navigation Menu"
+    >
+      <i data-lucide="menu" class="w-6 h-6"></i>
+    </button>
+  </div>
+</header>
+
+<!-- Desktop Top Header Bar -->
+<header class="sticky top-0 z-20 hidden md:flex items-center justify-between px-6 lg:px-8 py-3.5 bg-white/80 dark:bg-slate-900/80 backdrop-blur-md border-b border-slate-200 dark:border-slate-800/80 shadow-xs">
+  <!-- Breadcrumbs / Nav Context -->
+  <div class="flex items-center gap-2 text-xs text-slate-500 dark:text-slate-400">
+    <span class="font-medium text-slate-700 dark:text-slate-300">Admin Control Center</span>
+    <span class="text-slate-300 dark:text-slate-700">/</span>
+    <span class="capitalize text-primary font-semibold tracking-wide">{activeNav}</span>
+  </div>
+
+  <!-- Right Side Header Actions -->
+  <div class="flex items-center gap-3">
+    <a
+      href="/"
+      target="_blank"
+      class="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white bg-slate-100 dark:bg-slate-800/60 hover:bg-slate-200 dark:hover:bg-slate-800 border border-slate-200 dark:border-slate-700/60 rounded-lg transition"
+      title="View Live Public Site"
+    >
+      <i data-lucide="external-link" class="w-3.5 h-3.5"></i>
+      <span>Live Site</span>
+    </a>
+
+    <!-- Theme Toggle -->
+    <ThemeToggle
+      size="sm"
+      class="border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-950/60 text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800/80 rounded-lg shadow-xs"
+    />
+
+    <!-- Admin User Badge -->
+    <div class="flex items-center gap-2.5 pl-3 border-l border-slate-200 dark:border-slate-800">
+      <div class="w-7 h-7 rounded-full bg-gradient-to-tr from-primary to-orange-500 flex items-center justify-center text-xs font-black text-white shadow-sm shadow-primary/20">
+        {(user?.name || "A")[0].toUpperCase()}
+      </div>
+      <div class="hidden lg:block text-left">
+        <div class="text-xs font-semibold text-slate-800 dark:text-white truncate max-w-[130px]">
+          {user?.name || "Administrator"}
+        </div>
+      </div>
+    </div>
+  </div>
+</header>
+

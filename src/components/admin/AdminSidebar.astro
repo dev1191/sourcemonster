@@ -1,0 +1,258 @@
+---
+import { Image } from "astro:assets";
+import logo2Img from "../../assets/images/logo-2.png";
+
+interface Props {
+  activeNav?: string;
+  user?: {
+    id: string;
+    email: string;
+    name?: string | null;
+  } | null;
+}
+
+const { activeNav = "dashboard", user } = Astro.props;
+const currentPath = Astro.url.pathname;
+const isProductActive = activeNav === "products" || activeNav === "addons" || currentPath.startsWith("/admin/products");
+---
+
+<!-- Desktop Sidebar -->
+<aside id="sidebar" class="hidden md:flex flex-col w-64 bg-slate-900/95 backdrop-blur-md border-r border-slate-800/80 p-5 shrink-0 min-h-screen">
+  <!-- Brand Logo Header -->
+  <div class="flex items-center justify-between pb-6 border-b border-slate-800">
+    <a href="/admin" class="flex items-center gap-2" title="Admin Dashboard">
+      <Image src={logo2Img} alt="SourceMonster" class="h-8 w-auto object-contain" />
+    </a>
+    <span class="text-[10px] uppercase font-bold tracking-wider px-2 py-0.5 rounded bg-primary/10 text-primary border border-primary/20 font-mono">
+      Admin
+    </span>
+  </div>
+
+  <!-- Navigation Links -->
+  <nav class="flex-1 mt-6 space-y-1.5 overflow-y-auto">
+    <!-- Dashboard -->
+    <a
+      href="/admin"
+      class={`flex items-center gap-3 px-3.5 py-2.5 rounded-lg text-sm font-medium transition-all ${
+        activeNav === "dashboard" && currentPath === "/admin"
+          ? "bg-primary text-white shadow-md shadow-primary/25"
+          : "text-slate-400 hover:text-slate-100 hover:bg-slate-800/60"
+      }`}
+    >
+      <i data-lucide="layout-dashboard" class="w-4 h-4"></i>
+      <span>Dashboard</span>
+    </a>
+
+    <!-- Products & Add-ons Dropdown Menu -->
+    <details open={isProductActive} class="group/prod">
+      <summary
+        class={`flex items-center justify-between px-3.5 py-2.5 rounded-lg text-sm font-medium transition-all cursor-pointer list-none select-none ${
+          isProductActive
+            ? "bg-primary/15 text-primary font-semibold border border-primary/25"
+            : "text-slate-400 hover:text-slate-100 hover:bg-slate-800/60"
+        }`}
+      >
+        <div class="flex items-center gap-3">
+          <i data-lucide="package" class="w-4 h-4"></i>
+          <span>Products</span>
+        </div>
+        <i data-lucide="chevron-down" class="w-3.5 h-3.5 transition-transform duration-200 group-open/prod:rotate-180 opacity-70"></i>
+      </summary>
+
+      <!-- Submenu items -->
+      <div class="pl-6 pr-1 py-1.5 mt-1 space-y-1 border-l-2 border-slate-800 ml-4">
+        <a
+          href="/admin/products"
+          class={`flex items-center gap-2 px-3 py-1.5 rounded-md text-xs transition ${
+            currentPath === "/admin/products"
+              ? "bg-primary text-white font-semibold shadow-xs"
+              : "text-slate-400 hover:text-white hover:bg-slate-800/50"
+          }`}
+        >
+          <i data-lucide="list" class="w-3.5 h-3.5"></i>
+          <span>All Products</span>
+        </a>
+        <a
+          href="/admin/products/new"
+          class={`flex items-center gap-2 px-3 py-1.5 rounded-md text-xs transition ${
+            currentPath === "/admin/products/new"
+              ? "bg-primary text-white font-semibold shadow-xs"
+              : "text-slate-400 hover:text-white hover:bg-slate-800/50"
+          }`}
+        >
+          <i data-lucide="plus-circle" class="w-3.5 h-3.5"></i>
+          <span>Add New Product</span>
+        </a>
+        <a
+          href="/admin/products/addons"
+          class={`flex items-center gap-2 px-3 py-1.5 rounded-md text-xs transition ${
+            currentPath.startsWith("/admin/products/addons") || activeNav === "addons"
+              ? "bg-primary text-white font-semibold shadow-xs"
+              : "text-slate-400 hover:text-white hover:bg-slate-800/50"
+          }`}
+        >
+          <i data-lucide="puzzle" class="w-3.5 h-3.5"></i>
+          <span>Product Add-ons</span>
+        </a>
+      </div>
+    </details>
+
+    <!-- Leads -->
+    <a
+      href="/admin/leads"
+      class={`flex items-center gap-3 px-3.5 py-2.5 rounded-lg text-sm font-medium transition-all ${
+        activeNav === "leads"
+          ? "bg-primary text-white shadow-md shadow-primary/25"
+          : "text-slate-400 hover:text-slate-100 hover:bg-slate-800/60"
+      }`}
+    >
+      <i data-lucide="inbox" class="w-4 h-4"></i>
+      <span>Leads &amp; Inquiries</span>
+    </a>
+
+    <!-- Services -->
+    <a
+      href="/admin/services"
+      class={`flex items-center gap-3 px-3.5 py-2.5 rounded-lg text-sm font-medium transition-all ${
+        activeNav === "services"
+          ? "bg-primary text-white shadow-md shadow-primary/25"
+          : "text-slate-400 hover:text-slate-100 hover:bg-slate-800/60"
+      }`}
+    >
+      <i data-lucide="layers" class="w-4 h-4"></i>
+      <span>Services</span>
+    </a>
+
+    <!-- Testimonials -->
+    <a
+      href="/admin/testimonials"
+      class={`flex items-center gap-3 px-3.5 py-2.5 rounded-lg text-sm font-medium transition-all ${
+        activeNav === "testimonials"
+          ? "bg-primary text-white shadow-md shadow-primary/25"
+          : "text-slate-400 hover:text-slate-100 hover:bg-slate-800/60"
+      }`}
+    >
+      <i data-lucide="message-circle" class="w-4 h-4"></i>
+      <span>Testimonials</span>
+    </a>
+
+    <!-- Site Settings -->
+    <a
+      href="/admin/settings"
+      class={`flex items-center gap-3 px-3.5 py-2.5 rounded-lg text-sm font-medium transition-all ${
+        activeNav === "settings"
+          ? "bg-primary text-white shadow-md shadow-primary/25"
+          : "text-slate-400 hover:text-slate-100 hover:bg-slate-800/60"
+      }`}
+    >
+      <i data-lucide="sliders" class="w-4 h-4"></i>
+      <span>Site Settings</span>
+    </a>
+  </nav>
+
+  <!-- Sidebar Footer -->
+  <div class="pt-4 border-t border-slate-800/80 space-y-3 mt-auto">
+    <a
+      href="/"
+      target="_blank"
+      class="flex items-center justify-between px-3 py-2 text-xs text-slate-400 hover:text-white rounded-lg hover:bg-slate-800/40 transition"
+    >
+      <span class="flex items-center gap-2">
+        <i data-lucide="external-link" class="w-3.5 h-3.5"></i>
+        <span>View Live Site</span>
+      </span>
+      <i data-lucide="chevron-right" class="w-3.5 h-3.5 opacity-50"></i>
+    </a>
+
+    <div class="p-3 bg-slate-950/60 rounded-xl border border-slate-800/60 flex items-center justify-between">
+      <div class="overflow-hidden pr-2">
+        <div class="text-xs font-semibold text-white truncate">{user?.name || "Administrator"}</div>
+        <div class="text-[11px] text-slate-400 truncate">{user?.email || "admin@sourcemonster.in"}</div>
+      </div>
+      <form method="POST" action="/admin/logout">
+        <button
+          type="submit"
+          title="Logout"
+          class="p-1.5 text-slate-400 hover:text-rose-400 hover:bg-rose-500/10 rounded-lg transition"
+        >
+          <i data-lucide="log-out" class="w-4 h-4"></i>
+        </button>
+      </form>
+    </div>
+  </div>
+</aside>
+
+<!-- Mobile Navigation Drawer -->
+<div id="mobile-drawer" class="md:hidden fixed inset-0 z-50 bg-slate-950/80 backdrop-blur-sm hidden">
+  <div class="w-72 max-w-[80vw] h-full bg-slate-900 border-r border-slate-800 p-5 flex flex-col justify-between overflow-y-auto">
+    <div>
+      <div class="flex items-center justify-between pb-5 border-b border-slate-800">
+        <a href="/admin" class="flex items-center gap-2">
+          <Image src={logo2Img} alt="SourceMonster" class="h-7 w-auto object-contain" />
+        </a>
+        <button id="close-drawer-btn" class="p-1 text-slate-400 hover:text-white" aria-label="Close menu">
+          <i data-lucide="x" class="w-5 h-5"></i>
+        </button>
+      </div>
+
+      <nav class="mt-6 space-y-2">
+        <a href="/admin" class="flex items-center gap-3 px-3 py-2 rounded-lg text-slate-200 hover:bg-slate-800">
+          <i data-lucide="layout-dashboard" class="w-4 h-4"></i>
+          <span>Dashboard</span>
+        </a>
+
+        <!-- Mobile Products Dropdown -->
+        <details open={isProductActive} class="group/mobprod">
+          <summary class="flex items-center justify-between px-3 py-2 rounded-lg text-slate-200 hover:bg-slate-800 cursor-pointer list-none">
+            <div class="flex items-center gap-3">
+              <i data-lucide="package" class="w-4 h-4"></i>
+              <span>Products</span>
+            </div>
+            <i data-lucide="chevron-down" class="w-3.5 h-3.5 transition-transform duration-200 group-open/mobprod:rotate-180 opacity-70"></i>
+          </summary>
+          <div class="pl-6 py-1 space-y-1 border-l border-slate-800 ml-4">
+            <a href="/admin/products" class="flex items-center gap-2 px-3 py-1.5 rounded-md text-xs text-slate-300 hover:bg-slate-800">
+              <i data-lucide="list" class="w-3 h-3"></i>
+              <span>All Products</span>
+            </a>
+            <a href="/admin/products/new" class="flex items-center gap-2 px-3 py-1.5 rounded-md text-xs text-slate-300 hover:bg-slate-800">
+              <i data-lucide="plus-circle" class="w-3 h-3"></i>
+              <span>Add New Product</span>
+            </a>
+            <a href="/admin/products/addons" class="flex items-center gap-2 px-3 py-1.5 rounded-md text-xs text-slate-300 hover:bg-slate-800">
+              <i data-lucide="puzzle" class="w-3 h-3"></i>
+              <span>Product Add-ons</span>
+            </a>
+          </div>
+        </details>
+
+        <a href="/admin/leads" class="flex items-center gap-3 px-3 py-2 rounded-lg text-slate-200 hover:bg-slate-800">
+          <i data-lucide="inbox" class="w-4 h-4"></i>
+          <span>Leads</span>
+        </a>
+        <a href="/admin/services" class="flex items-center gap-3 px-3 py-2 rounded-lg text-slate-200 hover:bg-slate-800">
+          <i data-lucide="layers" class="w-4 h-4"></i>
+          <span>Services</span>
+        </a>
+        <a href="/admin/testimonials" class="flex items-center gap-3 px-3 py-2 rounded-lg text-slate-200 hover:bg-slate-800">
+          <i data-lucide="message-circle" class="w-4 h-4"></i>
+          <span>Testimonials</span>
+        </a>
+        <a href="/admin/settings" class="flex items-center gap-3 px-3 py-2 rounded-lg text-slate-200 hover:bg-slate-800">
+          <i data-lucide="sliders" class="w-4 h-4"></i>
+          <span>Settings</span>
+        </a>
+      </nav>
+    </div>
+
+    <div class="pt-4 border-t border-slate-800 mt-6">
+      <form method="POST" action="/admin/logout">
+        <button type="submit" class="w-full flex items-center justify-center gap-2 px-3 py-2 bg-rose-500/10 text-rose-400 rounded-lg hover:bg-rose-500/20 text-sm">
+          <i data-lucide="log-out" class="w-4 h-4"></i>
+          <span>Log Out</span>
+        </button>
+      </form>
+    </div>
+  </div>
+</div>
+

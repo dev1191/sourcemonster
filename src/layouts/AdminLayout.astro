@@ -1,14 +1,12 @@
 ---
 import "@/styles/starwind.css";
-import { Image } from "astro:assets";
-import logoImg from "../assets/images/logo.png";
-import logo2Img from "../assets/images/logo-2.png";
 import { ThemeInitScript } from "@starwind-ui/astro/theme";
-import { ThemeToggle } from "@/components/starwind/theme-toggle";
+import AdminHeader from "@/components/admin/AdminHeader.astro";
+import AdminSidebar from "@/components/admin/AdminSidebar.astro";
 
 interface Props {
   title?: string;
-  activeNav?: "dashboard" | "products" | "leads" | "services" | "testimonials" | "settings";
+  activeNav?: "dashboard" | "products" | "addons" | "leads" | "services" | "testimonials" | "settings";
 }
 
 const { title = "Admin Portal | SourceMonster", activeNav = "dashboard" } = Astro.props;
@@ -27,230 +25,40 @@ const user = Astro.locals.adminUser;
     <script is:inline src="https://unpkg.com/lucide@latest"></script>
   </head>
   <body class="h-full flex flex-col md:flex-row bg-slate-50 dark:bg-[#030712] font-sans antialiased text-slate-800 dark:text-slate-200 transition-colors duration-200">
-    <!-- Mobile Header -->
-    <header class="md:hidden flex items-center justify-between px-4 py-3 bg-white dark:bg-slate-900 border-b border-slate-200 dark:border-slate-800 transition-colors duration-200">
-      <a href="/admin" class="flex items-center gap-2">
-        <Image src={logoImg} alt="SourceMonster" class="h-7 w-auto dark:hidden" />
-        <Image src={logo2Img} alt="SourceMonster" class="h-7 w-auto hidden dark:block" />
-      </a>
-      <div class="flex items-center gap-2">
-        <ThemeToggle size="sm" class="border-slate-300 dark:border-slate-800 text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800/80 rounded-lg" />
-        <button id="mobile-menu-btn" class="p-2 text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white focus:outline-none">
-          <i data-lucide="menu" class="w-6 h-6"></i>
-        </button>
-      </div>
-    </header>
-
-    <!-- Sidebar -->
-    <aside id="sidebar" class="hidden md:flex flex-col w-64 bg-slate-900/90 backdrop-blur-md border-r border-slate-800/80 p-5 shrink-0 min-h-screen">
-      <div class="flex items-center justify-between pb-6 border-b border-slate-800">
-        <a href="/admin" class="flex items-center gap-2" title="Admin Dashboard">
-          <Image src={logo2Img} alt="SourceMonster" class="h-8 w-auto object-contain" />
-        </a>
-        <span class="text-[10px] uppercase font-bold tracking-wider px-2 py-0.5 rounded bg-primary/10 text-primary border border-primary/20">
-          Admin
-        </span>
-      </div>
-
-      <!-- Navigation Links -->
-      <nav class="flex-1 mt-6 space-y-1.5">
-        <a
-          href="/admin"
-          class={`flex items-center gap-3 px-3.5 py-2.5 rounded-lg text-sm font-medium transition-all ${
-            activeNav === "dashboard"
-              ? "bg-primary text-white shadow-md shadow-primary/25"
-              : "text-slate-400 hover:text-slate-100 hover:bg-slate-800/60"
-          }`}
-        >
-          <i data-lucide="layout-dashboard" class="w-4 h-4"></i>
-          <span>Dashboard</span>
-        </a>
-
-        <a
-          href="/admin/products"
-          class={`flex items-center gap-3 px-3.5 py-2.5 rounded-lg text-sm font-medium transition-all ${
-            activeNav === "products"
-              ? "bg-primary text-white shadow-md shadow-primary/25"
-              : "text-slate-400 hover:text-slate-100 hover:bg-slate-800/60"
-          }`}
-        >
-          <i data-lucide="package" class="w-4 h-4"></i>
-          <span>Products</span>
-        </a>
-
-        <a
-          href="/admin/leads"
-          class={`flex items-center gap-3 px-3.5 py-2.5 rounded-lg text-sm font-medium transition-all ${
-            activeNav === "leads"
-              ? "bg-primary text-white shadow-md shadow-primary/25"
-              : "text-slate-400 hover:text-slate-100 hover:bg-slate-800/60"
-          }`}
-        >
-          <i data-lucide="inbox" class="w-4 h-4"></i>
-          <span>Leads & Inquiries</span>
-        </a>
-
-        <a
-          href="/admin/services"
-          class={`flex items-center gap-3 px-3.5 py-2.5 rounded-lg text-sm font-medium transition-all ${
-            activeNav === "services"
-              ? "bg-primary text-white shadow-md shadow-primary/25"
-              : "text-slate-400 hover:text-slate-100 hover:bg-slate-800/60"
-          }`}
-        >
-          <i data-lucide="layers" class="w-4 h-4"></i>
-          <span>Services</span>
-        </a>
-
-        <a
-          href="/admin/testimonials"
-          class={`flex items-center gap-3 px-3.5 py-2.5 rounded-lg text-sm font-medium transition-all ${
-            activeNav === "testimonials"
-              ? "bg-primary text-white shadow-md shadow-primary/25"
-              : "text-slate-400 hover:text-slate-100 hover:bg-slate-800/60"
-          }`}
-        >
-          <i data-lucide="message-circle" class="w-4 h-4"></i>
-          <span>Testimonials</span>
-        </a>
-
-        <a
-          href="/admin/settings"
-          class={`flex items-center gap-3 px-3.5 py-2.5 rounded-lg text-sm font-medium transition-all ${
-            activeNav === "settings"
-              ? "bg-primary text-white shadow-md shadow-primary/25"
-              : "text-slate-400 hover:text-slate-100 hover:bg-slate-800/60"
-          }`}
-        >
-          <i data-lucide="sliders" class="w-4 h-4"></i>
-          <span>Site Settings</span>
-        </a>
-      </nav>
-
-      <!-- Sidebar Footer -->
-      <div class="pt-4 border-t border-slate-800/80 space-y-3">
-        <a
-          href="/"
-          target="_blank"
-          class="flex items-center justify-between px-3 py-2 text-xs text-slate-400 hover:text-white rounded-lg hover:bg-slate-800/40 transition"
-        >
-          <span class="flex items-center gap-2">
-            <i data-lucide="external-link" class="w-3.5 h-3.5"></i>
-            View Live Site
-          </span>
-          <i data-lucide="chevron-right" class="w-3.5 h-3.5 opacity-50"></i>
-        </a>
-
-        <div class="p-3 bg-slate-950/60 rounded-xl border border-slate-800/60 flex items-center justify-between">
-          <div class="overflow-hidden pr-2">
-            <div class="text-xs font-semibold text-white truncate">{user?.name || "Administrator"}</div>
-            <div class="text-[11px] text-slate-400 truncate">{user?.email || "admin@sourcemonster.in"}</div>
-          </div>
-          <form method="POST" action="/admin/logout">
-            <button
-              type="submit"
-              title="Logout"
-              class="p-1.5 text-slate-400 hover:text-rose-400 hover:bg-rose-500/10 rounded-lg transition"
-            >
-              <i data-lucide="log-out" class="w-4 h-4"></i>
-            </button>
-          </form>
-        </div>
-      </div>
-    </aside>
-
-    <!-- Mobile Drawer (hidden by default) -->
-    <div id="mobile-drawer" class="md:hidden fixed inset-0 z-50 bg-slate-950/80 backdrop-blur-sm hidden">
-      <div class="w-72 max-w-[80vw] h-full bg-slate-900 border-r border-slate-800 p-5 flex flex-col justify-between">
-        <div>
-          <div class="flex items-center justify-between pb-5 border-b border-slate-800">
-            <a href="/admin" class="flex items-center gap-2">
-              <Image src={logo2Img} alt="SourceMonster" class="h-7 w-auto object-contain" />
-            </a>
-            <button id="close-drawer-btn" class="p-1 text-slate-400 hover:text-white">
-              <i data-lucide="x" class="w-5 h-5"></i>
-            </button>
-          </div>
-          <nav class="mt-6 space-y-2">
-            <a href="/admin" class="flex items-center gap-3 px-3 py-2 rounded-lg text-slate-200 hover:bg-slate-800">
-              <i data-lucide="layout-dashboard" class="w-4 h-4"></i>
-              Dashboard
-            </a>
-            <a href="/admin/products" class="flex items-center gap-3 px-3 py-2 rounded-lg text-slate-200 hover:bg-slate-800">
-              <i data-lucide="package" class="w-4 h-4"></i>
-              Products
-            </a>
-            <a href="/admin/leads" class="flex items-center gap-3 px-3 py-2 rounded-lg text-slate-200 hover:bg-slate-800">
-              <i data-lucide="inbox" class="w-4 h-4"></i>
-              Leads
-            </a>
-            <a href="/admin/services" class="flex items-center gap-3 px-3 py-2 rounded-lg text-slate-200 hover:bg-slate-800">
-              <i data-lucide="layers" class="w-4 h-4"></i>
-              Services
-            </a>
-            <a href="/admin/testimonials" class="flex items-center gap-3 px-3 py-2 rounded-lg text-slate-200 hover:bg-slate-800">
-              <i data-lucide="message-circle" class="w-4 h-4"></i>
-              Testimonials
-            </a>
-            <a href="/admin/settings" class="flex items-center gap-3 px-3 py-2 rounded-lg text-slate-200 hover:bg-slate-800">
-              <i data-lucide="sliders" class="w-4 h-4"></i>
-              Settings
-            </a>
-          </nav>
-        </div>
-        <div class="pt-4 border-t border-slate-800">
-          <form method="POST" action="/admin/logout">
-            <button type="submit" class="w-full flex items-center justify-center gap-2 px-3 py-2 bg-rose-500/10 text-rose-400 rounded-lg hover:bg-rose-500/20 text-sm">
-              <i data-lucide="log-out" class="w-4 h-4"></i>
-              Log Out
-            </button>
-          </form>
-        </div>
-      </div>
-    </div>
+    <!-- Admin Sidebar (Desktop sidebar + Mobile drawer) -->
+    <AdminSidebar activeNav={activeNav} user={user} />
 
     <!-- Right-Side Main Content Container -->
     <div class="flex-1 flex flex-col min-w-0 min-h-screen overflow-y-auto bg-slate-100/70 dark:bg-[#030712] transition-colors duration-200">
-      <!-- Right Side Top Header Bar -->
-      <header class="sticky top-0 z-20 hidden md:flex items-center justify-between px-6 lg:px-8 py-3.5 bg-white/80 dark:bg-slate-900/80 backdrop-blur-md border-b border-slate-200 dark:border-slate-800/80 shadow-xs">
-        <!-- Breadcrumbs / Nav Context -->
-        <div class="flex items-center gap-2 text-xs text-slate-500 dark:text-slate-400">
-          <span class="font-medium text-slate-700 dark:text-slate-300">Admin Control Center</span>
-          <span class="text-slate-300 dark:text-slate-700">/</span>
-          <span class="capitalize text-primary font-semibold tracking-wide">{activeNav}</span>
+      <!-- Admin Header (Mobile header bar + Desktop top header bar) -->
+      <AdminHeader activeNav={activeNav} user={user} />
+
+      <!-- Main Content Area -->
+      <main class="flex-1 p-4 sm:p-6 lg:p-8">
+        <div class="max-w-7xl mx-auto">
+          <slot />
         </div>
+      </main>
+    </div>
 
-        <!-- Right Side Header Actions: Live Site, Theme Toggle, Profile -->
-        <div class="flex items-center gap-3">
-          <a
-            href="/"
-            target="_blank"
-            class="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white bg-slate-100 dark:bg-slate-800/60 hover:bg-slate-200 dark:hover:bg-slate-800 border border-slate-200 dark:border-slate-700/60 rounded-lg transition"
-            title="View Live Public Site"
-          >
-            <i data-lucide="external-link" class="w-3.5 h-3.5"></i>
-            <span>Live Site</span>
-          </a>
+    <script is:inline>
+      document.addEventListener("DOMContentLoaded", () => {
+        if (typeof lucide !== "undefined") {
+          lucide.createIcons();
+        }
 
-          <!-- Starwind Theme Toggle -->
-          <ThemeToggle
-            size="sm"
-            class="border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-950/60 text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800/80 rounded-lg shadow-xs"
-          />
+        const menuBtn = document.getElementById("mobile-menu-btn");
+        const drawer = document.getElementById("mobile-drawer");
+        const closeBtn = document.getElementById("close-drawer-btn");
 
-          <!-- Admin User Badge -->
-          <div class="flex items-center gap-2.5 pl-3 border-l border-slate-200 dark:border-slate-800">
-            <div class="w-7 h-7 rounded-full bg-gradient-to-tr from-primary to-orange-500 flex items-center justify-center text-xs font-black text-white shadow-sm shadow-primary/20">
-              {(user?.name || "A")[0].toUpperCase()}
-            </div>
-            <div class="hidden lg:block text-left">
-              <div class="text-xs font-semibold text-slate-800 dark:text-white truncate max-w-[130px]">
-                {user?.name || "Administrator"}
-              </div>
-            </div>
-          </div>
-        </div>
-      </header>
+        if (menuBtn && drawer && closeBtn) {
+          menuBtn.addEventListener("click", () => drawer.classList.remove("hidden"));
+          closeBtn.addEventListener("click", () => drawer.classList.add("hidden"));
+        }
+      });
+    </script>
+  </body>
+</html>
 
       <!-- Main Content Area -->
       <main class="flex-1 p-4 sm:p-6 lg:p-8">
