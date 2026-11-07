@@ -1,0 +1,87 @@
+---
+import type { HTMLAttributes } from "astro/types";
+import {
+  Card as StarwindCard,
+  CardHeader,
+  CardTitle,
+  CardDescription,
+  CardContent,
+  CardFooter,
+  CardAction,
+} from "../starwind/card";
+
+interface Props extends HTMLAttributes<"div"> {
+  title?: string;
+  subtitle?: string;
+  icon?: string;
+  iconColor?: string;
+  size?: "sm" | "md" | "lg";
+  class?: string;
+}
+
+const {
+  title,
+  subtitle,
+  icon,
+  iconColor = "text-primary",
+  size = "md",
+  class: className = "",
+  ...rest
+} = Astro.props;
+
+const hasHeader = Boolean(title || subtitle || icon || Astro.slots.has("action"));
+const hasFooter = Astro.slots.has("footer");
+---
+
+<StarwindCard
+  size={size}
+  class:list={[
+    "bg-slate-900/70 border-slate-800/80 rounded-2xl shadow-xl shadow-black/30",
+    className,
+  ]}
+  {...rest}
+>
+  {hasHeader ? (
+    <>
+      <CardHeader class="flex flex-row items-center justify-between pb-3 border-b border-slate-800/80">
+        <div class="flex items-center gap-2.5 min-w-0">
+          {icon && (
+            <div class:list={["shrink-0", iconColor]}>
+              <i data-lucide={icon} class="w-4 h-4"></i>
+            </div>
+          )}
+          <div class="min-w-0">
+            {title && (
+              <CardTitle class="text-sm font-bold text-white uppercase tracking-wider truncate">
+                {title}
+              </CardTitle>
+            )}
+            {subtitle && (
+              <CardDescription class="text-xs text-slate-400 mt-0.5 truncate">
+                {subtitle}
+              </CardDescription>
+            )}
+          </div>
+        </div>
+
+        {Astro.slots.has("action") && (
+          <CardAction class="shrink-0">
+            <slot name="action" />
+          </CardAction>
+        )}
+      </CardHeader>
+
+      <CardContent class="pt-4">
+        <slot />
+      </CardContent>
+    </>
+  ) : (
+    <slot />
+  )}
+
+  {hasFooter && (
+    <CardFooter class="pt-3 border-t border-slate-800/80">
+      <slot name="footer" />
+    </CardFooter>
+  )}
+</StarwindCard>
