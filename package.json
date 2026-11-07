@@ -21,6 +21,7 @@
   "dependencies": {
     "@astrojs/node": "^10.0.4",
     "@astrojs/tailwind": "^6.0.2",
+    "@aws-sdk/client-s3": "^3.1163.0",
     "@tailwindcss/postcss": "^4.2.2",
     "@tailwindcss/vite": "^4.2.2",
     "aos": "^2.3.4",
