@@ -1,9 +1,13 @@
 import fs from "node:fs/promises";
 import path from "node:path";
+import { fileURLToPath } from "node:url";
 import { eq } from "drizzle-orm";
 import { db } from "../../src/lib/db";
 import { products, services, testimonials } from "../../src/lib/db/schema";
 import { productSchema } from "../../src/lib/validation/product";
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 export async function seedStaticContent(options: { force?: boolean } = {}) {
   console.log("📦 Starting static content migration to database...");
