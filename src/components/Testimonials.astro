@@ -1,6 +1,44 @@
 ---
 import { getCollection } from 'astro:content';
-const testimonials = await getCollection('testimonials');
+import { db } from '../lib/db';
+import { testimonials as testimonialsTable } from '../lib/db/schema';
+import { eq, desc } from 'drizzle-orm';
+
+let testimonialsList: Array<{
+  data: {
+    name: string;
+    role: string;
+    quote: string;
+    color?: string;
+    delay?: number;
+  };
+}> = [];
+
+try {
+  const dbTestimonials = await db
+    .select()
+    .from(testimonialsTable)
+    .where(eq(testimonialsTable.status, 'published'))
+    .orderBy(desc(testimonialsTable.sortOrder), testimonialsTable.createdAt);
+
+  if (dbTestimonials.length > 0) {
+    testimonialsList = dbTestimonials.map((t) => ({
+      data: {
+        name: t.name,
+        role: t.role,
+        quote: t.quote,
+        color: t.color || 'primary',
+        delay: t.delay,
+      },
+    }));
+  } else {
+    const rawTestimonials = await getCollection('testimonials');
+    testimonialsList = rawTestimonials.map((r) => ({ data: r.data }));
+  }
+} catch {
+  const rawTestimonials = await getCollection('testimonials');
+  testimonialsList = rawTestimonials.map((r) => ({ data: r.data }));
+}
 ---
 <!-- Testimonials Section -->
 <section id="testimonials" class="py-32 bg-slate-50 relative overflow-hidden">
@@ -11,7 +49,7 @@ const testimonials = await getCollection('testimonials');
         </div>
 
         <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
-            {testimonials.map((item) => (
+            {testimonialsList.map((item) => (
                 <div class="glass-card p-10 rounded-[3rem] hover:translate-y-[-10px] transition-all duration-500" data-aos="fade-up" data-aos-delay={item.data.delay}>
                     <div class="flex text-primary mb-6">
                         <i data-lucide="star" class="w-5 h-5 fill-current"></i><i data-lucide="star" class="w-5 h-5 fill-current"></i><i data-lucide="star" class="w-5 h-5 fill-current"></i><i data-lucide="star" class="w-5 h-5 fill-current"></i><i data-lucide="star" class="w-5 h-5 fill-current"></i>

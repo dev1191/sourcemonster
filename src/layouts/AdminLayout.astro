@@ -1,7 +1,7 @@
 ---
 interface Props {
   title?: string;
-  activeNav?: "dashboard" | "products" | "leads" | "settings";
+  activeNav?: "dashboard" | "products" | "leads" | "services" | "testimonials" | "settings";
 }
 
 const { title = "Admin Portal | SourceMonster", activeNav = "dashboard" } = Astro.props;
@@ -81,6 +81,30 @@ const user = Astro.locals.adminUser;
         </a>
 
         <a
+          href="/admin/services"
+          class={`flex items-center gap-3 px-3.5 py-2.5 rounded-lg text-sm font-medium transition-all ${
+            activeNav === "services"
+              ? "bg-primary text-white shadow-md shadow-primary/25"
+              : "text-slate-400 hover:text-slate-100 hover:bg-slate-800/60"
+          }`}
+        >
+          <i data-lucide="layers" class="w-4 h-4"></i>
+          <span>Services</span>
+        </a>
+
+        <a
+          href="/admin/testimonials"
+          class={`flex items-center gap-3 px-3.5 py-2.5 rounded-lg text-sm font-medium transition-all ${
+            activeNav === "testimonials"
+              ? "bg-primary text-white shadow-md shadow-primary/25"
+              : "text-slate-400 hover:text-slate-100 hover:bg-slate-800/60"
+          }`}
+        >
+          <i data-lucide="message-circle" class="w-4 h-4"></i>
+          <span>Testimonials</span>
+        </a>
+
+        <a
           href="/admin/settings"
           class={`flex items-center gap-3 px-3.5 py-2.5 rounded-lg text-sm font-medium transition-all ${
             activeNav === "settings"
@@ -147,6 +171,14 @@ const user = Astro.locals.adminUser;
             <a href="/admin/leads" class="flex items-center gap-3 px-3 py-2 rounded-lg text-slate-200 hover:bg-slate-800">
               <i data-lucide="inbox" class="w-4 h-4"></i>
               Leads
+            </a>
+            <a href="/admin/services" class="flex items-center gap-3 px-3 py-2 rounded-lg text-slate-200 hover:bg-slate-800">
+              <i data-lucide="layers" class="w-4 h-4"></i>
+              Services
+            </a>
+            <a href="/admin/testimonials" class="flex items-center gap-3 px-3 py-2 rounded-lg text-slate-200 hover:bg-slate-800">
+              <i data-lucide="message-circle" class="w-4 h-4"></i>
+              Testimonials
             </a>
             <a href="/admin/settings" class="flex items-center gap-3 px-3 py-2 rounded-lg text-slate-200 hover:bg-slate-800">
               <i data-lucide="sliders" class="w-4 h-4"></i>

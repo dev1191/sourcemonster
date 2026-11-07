@@ -1,6 +1,44 @@
 ---
 import { getCollection } from 'astro:content';
-const services = await getCollection('services');
+import { db } from '../lib/db';
+import { services as servicesTable } from '../lib/db/schema';
+import { eq, desc } from 'drizzle-orm';
+
+let servicesList: Array<{
+  data: {
+    title: string;
+    description: string;
+    icon: string;
+    color: string;
+    delay?: number;
+  };
+}> = [];
+
+try {
+  const dbServices = await db
+    .select()
+    .from(servicesTable)
+    .where(eq(servicesTable.status, 'published'))
+    .orderBy(desc(servicesTable.sortOrder), servicesTable.createdAt);
+
+  if (dbServices.length > 0) {
+    servicesList = dbServices.map((s) => ({
+      data: {
+        title: s.title,
+        description: s.description,
+        icon: s.icon,
+        color: s.color,
+        delay: s.delay,
+      },
+    }));
+  } else {
+    const rawServices = await getCollection('services');
+    servicesList = rawServices.map((r) => ({ data: r.data }));
+  }
+} catch {
+  const rawServices = await getCollection('services');
+  servicesList = rawServices.map((r) => ({ data: r.data }));
+}
 ---
 <!-- Services Section -->
 <section id="services" class="py-32 relative bg-slate-50">
@@ -21,7 +59,7 @@ const services = await getCollection('services');
         </div>
 
         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-            {services.map((item) => (
+            {servicesList.map((item) => (
                 <div class={`group p-10 glass-card rounded-[3rem] hover:bg-${item.data.color} transition-all duration-500 cursor-pointer`} data-aos="fade-up" data-aos-delay={item.data.delay}>
                     <div class={`w-20 h-20 bg-${item.data.color}/10 rounded-2xl flex items-center justify-center mb-8 group-hover:bg-white transition-colors`}>
                         <i data-lucide={item.data.icon} class={`text-${item.data.color} w-10 h-10 transition-colors`}></i>

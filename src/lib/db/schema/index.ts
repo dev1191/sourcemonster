@@ -3,4 +3,6 @@ export * from "./admin-sessions";
 export * from "./media";
 export * from "./products";
 export * from "./leads";
-
+export * from "./services";
+export * from "./testimonials";
+export * from "./portfolio";

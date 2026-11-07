@@ -33,3 +33,4 @@ export function escapeHtml(unsafe: string): string {
     .replace(/"/g, "&quot;")
     .replace(/'/g, "&#039;");
 }
+
