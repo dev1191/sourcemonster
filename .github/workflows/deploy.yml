@@ -54,6 +54,7 @@ jobs:
             echo "🚀 Starting SourceMonster Deployment on VPS..."
 
             # 1. Navigate to target project directory
+            git config --global --add safe.directory /opt/docker-apps/sourcemonster || true
             cd /opt/docker-apps/sourcemonster
 
             # 2. Pull latest code from main
