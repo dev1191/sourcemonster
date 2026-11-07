@@ -12,8 +12,8 @@ RUN mkdir -p /pnpm && chmod 777 /pnpm \
 
 # ---- deps ----
 FROM base AS deps
-COPY package.json pnpm-lock.yaml pnpm-workspace.yaml* ./
-RUN pnpm install --frozen-lockfile
+COPY package.json pnpm-lock.yaml pnpm-workspace.yaml* .npmrc* ./
+RUN pnpm install
 
 # ---- build ----
 FROM deps AS build
@@ -26,7 +26,7 @@ WORKDIR /app
 
 ENV NODE_ENV=production HOST=0.0.0.0 PORT=4321
 
-COPY package.json pnpm-lock.yaml pnpm-workspace.yaml* ./
+COPY package.json pnpm-lock.yaml pnpm-workspace.yaml* .npmrc* ./
 COPY drizzle.config.ts tsconfig.json ./
 COPY --from=deps /app/node_modules ./node_modules
 COPY --from=build /app/dist ./dist

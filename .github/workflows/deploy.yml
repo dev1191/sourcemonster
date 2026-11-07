@@ -27,7 +27,7 @@ jobs:
           cache: "pnpm"
 
       - name: Install Dependencies
-        run: pnpm install --frozen-lockfile
+        run: pnpm install --no-frozen-lockfile
 
       - name: Run Test Suite
         run: pnpm test
@@ -70,7 +70,7 @@ jobs:
             else
               echo "⚡ Deploying with Node / PM2..."
               corepack enable
-              pnpm install --frozen-lockfile
+              pnpm install --no-frozen-lockfile
               pnpm db:migrate
               pnpm build
               pm2 reload ecosystem.config.cjs || pm2 start ecosystem.config.cjs
