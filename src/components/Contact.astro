@@ -30,36 +30,50 @@
                 </div>
             </div>
 
-            <div class="glass-card p-12 rounded-[3.5rem] shadow-2xl shadow-slate-200/50" data-aos="fade-left">
-                <form id="contact-form" class="space-y-6">
-                    <div class="grid md:grid-cols-2 gap-6">
+            <div class="glass-card p-8 sm:p-12 rounded-[2.5rem] sm:rounded-[3.5rem] shadow-2xl shadow-slate-200/50" data-aos="fade-left">
+                <form id="contact-form" class="space-y-5">
+                    <!-- Anti-spam Honeypot -->
+                    <input type="text" name="honeypot" class="hidden" tabindex="-1" autocomplete="off" />
+                    <input type="hidden" name="sourcePage" id="source-page-input" value="/" />
+
+                    <div class="grid md:grid-cols-2 gap-4 sm:gap-6">
                         <div>
-                            <label class="block text-[10px] uppercase tracking-widest font-bold text-slate-500 mb-2">Your Name</label>
-                            <input name="name" type="text" required class="w-full bg-slate-50 border border-slate-200 p-4 rounded-2xl focus:ring-2 focus:ring-primary outline-none transition-all" placeholder="John Wick" />
+                            <label class="block text-[10px] uppercase tracking-widest font-bold text-slate-500 mb-2">Your Name *</label>
+                            <input name="name" type="text" required class="w-full bg-slate-50 border border-slate-200 p-3.5 sm:p-4 rounded-2xl focus:ring-2 focus:ring-primary outline-none transition-all text-sm" placeholder="John Wick" />
                         </div>
                         <div>
-                            <label class="block text-[10px] uppercase tracking-widest font-bold text-slate-500 mb-2">Email Address</label>
-                            <input name="email" type="email" required class="w-full bg-slate-50 border border-slate-200 p-4 rounded-2xl focus:ring-2 focus:ring-primary outline-none transition-all" placeholder="wick@continental.com" />
+                            <label class="block text-[10px] uppercase tracking-widest font-bold text-slate-500 mb-2">Email Address *</label>
+                            <input name="email" type="email" required class="w-full bg-slate-50 border border-slate-200 p-3.5 sm:p-4 rounded-2xl focus:ring-2 focus:ring-primary outline-none transition-all text-sm" placeholder="wick@continental.com" />
                         </div>
                     </div>
-                    <div>
-                        <label class="block text-[10px] uppercase tracking-widest font-bold text-slate-500 mb-2">Service Needed</label>
-                        <select name="service" required class="w-full bg-slate-50 border border-slate-200 p-4 rounded-2xl focus:ring-2 focus:ring-primary outline-none transition-all text-slate-900">
-                            <option value="Web Engineering">Web Engineering</option>
-                            <option value="Growth Strategy">Growth Strategy</option>
-                            <option value="App Development">App Development</option>
-                            <option value="Visual Identity">Visual Identity</option>
-                        </select>
+
+                    <div class="grid md:grid-cols-2 gap-4 sm:gap-6">
+                        <div>
+                            <label class="block text-[10px] uppercase tracking-widest font-bold text-slate-500 mb-2">Company / Organization</label>
+                            <input name="company" type="text" class="w-full bg-slate-50 border border-slate-200 p-3.5 sm:p-4 rounded-2xl focus:ring-2 focus:ring-primary outline-none transition-all text-sm" placeholder="Continental Labs" />
+                        </div>
+                        <div>
+                            <label class="block text-[10px] uppercase tracking-widest font-bold text-slate-500 mb-2">Service / Product Needed</label>
+                            <select id="service-select" name="service" required class="w-full bg-slate-50 border border-slate-200 p-3.5 sm:p-4 rounded-2xl focus:ring-2 focus:ring-primary outline-none transition-all text-slate-900 text-sm">
+                                <option value="Custom Development">Custom Development</option>
+                                <option value="Product Customization">Product Customization</option>
+                                <option value="Web Engineering">Web Engineering</option>
+                                <option value="Growth Strategy">Growth Strategy</option>
+                                <option value="App Development">App Development</option>
+                                <option value="Visual Identity">Visual Identity</option>
+                            </select>
+                        </div>
                     </div>
+
                     <div>
-                        <label class="block text-[10px] uppercase tracking-widest font-bold text-slate-500 mb-2">Message</label>
-                        <textarea name="message" rows="4" required class="w-full bg-slate-50 border border-slate-200 p-4 rounded-2xl focus:ring-2 focus:ring-primary outline-none transition-all" placeholder="Tell us about the beast we're building..."></textarea>
+                        <label class="block text-[10px] uppercase tracking-widest font-bold text-slate-500 mb-2">Message *</label>
+                        <textarea name="message" id="contact-message" rows="4" required class="w-full bg-slate-50 border border-slate-200 p-3.5 sm:p-4 rounded-2xl focus:ring-2 focus:ring-primary outline-none transition-all text-sm" placeholder="Tell us about the beast we're building..."></textarea>
                     </div>
-                    <button type="submit" class="w-full bg-primary text-white py-5 rounded-2xl font-bold text-xl hover:shadow-2xl hover:shadow-primary/30 active:scale-[0.98] transition-all flex items-center justify-center space-x-3">
+                    <button type="submit" class="w-full bg-primary text-white py-4 sm:py-5 rounded-2xl font-bold text-lg sm:text-xl hover:shadow-2xl hover:shadow-primary/30 active:scale-[0.98] transition-all flex items-center justify-center space-x-3">
                         <span class="btn-text">INITIALIZE PROJECT</span>
                         <div class="spinner hidden w-6 h-6 border-4 border-white border-t-transparent rounded-full animate-spin"></div>
                     </button>
-                    <div id="form-status" class="hidden text-center p-4 rounded-2xl font-bold"></div>
+                    <div id="form-status" class="hidden text-center p-4 rounded-2xl font-bold text-sm"></div>
                 </form>
             </div>
         </div>
@@ -75,6 +89,39 @@
     const button = form?.querySelector('button[type="submit"]');
     const btnText = button?.querySelector('.btn-text');
     const spinner = button?.querySelector('.spinner');
+    const sourcePageInput = document.getElementById('source-page-input') as HTMLInputElement;
+    const serviceSelect = document.getElementById('service-select') as HTMLSelectElement;
+    const messageTextarea = document.getElementById('contact-message') as HTMLTextAreaElement;
+
+    // Check for query parameters (?product=... or ?service=...)
+    try {
+        if (typeof window !== "undefined") {
+            const urlParams = new URLSearchParams(window.location.search);
+            const productParam = urlParams.get('product');
+            const serviceParam = urlParams.get('service');
+
+            if (sourcePageInput) {
+                sourcePageInput.value = window.location.pathname + window.location.search;
+            }
+
+            if (productParam && serviceSelect) {
+                // Add product option if not present
+                const option = document.createElement("option");
+                option.value = `Customization: ${productParam}`;
+                option.text = `Customization: ${productParam}`;
+                option.selected = true;
+                serviceSelect.prepend(option);
+
+                if (messageTextarea && !messageTextarea.value) {
+                    messageTextarea.placeholder = `I am interested in customizing ${productParam}. Here are my requirements...`;
+                }
+            } else if (serviceParam && serviceSelect) {
+                serviceSelect.value = serviceParam;
+            }
+        }
+    } catch (e) {
+        // Fallback gracefully
+    }
 
     form?.addEventListener('submit', async (e) => {
         e.preventDefault();
