@@ -1,25 +1,8 @@
 ---
-import StarwindThemeToggle from "../starwind-vue/theme-toggle/ThemeToggle.vue";
+import { ThemeToggle as StarwindThemeToggle } from "../starwind/theme-toggle";
+import type { ComponentProps } from "astro/types";
 
-interface Props {
-  variant?: "outline" | "default";
-  size?: "sm" | "md" | "lg";
-  class?: string;
-  ariaLabel?: string;
-}
-
-const {
-  variant = "outline",
-  size = "sm",
-  class: className = "",
-  ariaLabel = "Toggle light / dark theme",
-} = Astro.props;
+type Props = ComponentProps<typeof StarwindThemeToggle>;
 ---
 
-<StarwindThemeToggle
-  client:load
-  variant={variant}
-  size={size}
-  ariaLabel={ariaLabel}
-  class={className}
-/>
+<StarwindThemeToggle {...Astro.props} />

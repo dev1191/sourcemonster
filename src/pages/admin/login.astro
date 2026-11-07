@@ -1,16 +1,15 @@
 ---
 import "@/styles/starwind.css";
-import { getThemeInitScript } from "@starwind-ui/vue/theme";
+import { ThemeInitScript } from "@starwind-ui/astro/theme";
 import { eq } from "drizzle-orm";
 import { db } from "../../lib/db";
 import { adminUsers } from "../../lib/db/schema";
 import { verifyPassword } from "../../lib/auth/password";
 import { createAdminSession } from "../../lib/auth/session";
 import { setSessionCookie } from "../../lib/auth/cookies";
-import { Button, FeedbackAlert, ThemeToggle } from "../../components/ui";
+import { Button, FeedbackAlert } from "../../components/ui";
+import { ThemeToggle } from "@/components/starwind/theme-toggle";
 import { Input } from "../../components/starwind/input";
-
-const themeInitScript = getThemeInitScript({ defaultTheme: "dark" });
 
 let errorMessage = "";
 const redirectUrl = Astro.url.searchParams.get("redirect") || "/admin";
@@ -68,8 +67,7 @@ if (Astro.request.method === "POST") {
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <link rel="icon" type="image/png" href="/favicon.png" />
     <title>Admin Login | SourceMonster</title>
-    <link rel="stylesheet" href="/css/main.css" />
-    <script is:inline set:html={themeInitScript} />
+    <ThemeInitScript defaultTheme="dark" />
   </head>
   <body
     class="h-full flex items-center justify-center p-4 bg-slate-50 dark:bg-[#020617] text-slate-900 dark:text-slate-100 relative overflow-hidden transition-colors duration-200"
@@ -106,7 +104,9 @@ if (Astro.request.method === "POST") {
           <h1 class="text-2xl font-black tracking-tight text-slate-900 dark:text-white">
             Admin Command Center
           </h1>
-          <p class="text-xs text-slate-500 dark:text-slate-400 mt-1 uppercase tracking-wider">
+          <p
+            class="text-xs text-slate-500 dark:text-slate-400 mt-1 uppercase tracking-wider"
+          >
             SourceMonster Core Administration
           </p>
         </div>
@@ -160,11 +160,13 @@ if (Astro.request.method === "POST") {
             class="w-full mt-2"
             icon="log-in"
           >
-            Authenticate & Enter
+            Authenticate
           </Button>
         </form>
 
-        <div class="mt-8 pt-6 border-t border-slate-200 dark:border-slate-800 text-center">
+        <div
+          class="mt-8 pt-6 border-t border-slate-200 dark:border-slate-800 text-center"
+        >
           <a
             href="/"
             class="text-xs text-slate-500 hover:text-slate-900 dark:text-slate-400 dark:hover:text-white transition font-medium"

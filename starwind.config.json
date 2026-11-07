@@ -72,6 +72,12 @@
       "version": "2.0.1",
       "framework": "vue",
       "registry": "default"
+    },
+    {
+      "name": "theme-toggle",
+      "version": "2.0.1",
+      "framework": "astro",
+      "registry": "default"
     }
   ],
   "tailwind": {

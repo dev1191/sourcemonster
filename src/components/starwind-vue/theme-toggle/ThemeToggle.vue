@@ -1,7 +1,6 @@
 <script setup lang="ts">
-import { initThemeController } from "@starwind-ui/vue/theme";
 import type { ClassValue, VariantProps } from "tailwind-variants";
-import { type ButtonHTMLAttributes, computed, onMounted, ref } from "vue";
+import { type ButtonHTMLAttributes, onMounted, onUnmounted, ref } from "vue";
 import { themeToggle } from "./variants";
 
 defineOptions({ inheritAttrs: false });
@@ -30,6 +29,7 @@ export type ThemeToggleProps = Omit<
     value?: string;
     class?: ClassValue;
   };
+
 type ThemeToggleDeclaredProps = {
   ariaLabel?: string;
   defaultPressed?: boolean;
@@ -42,29 +42,85 @@ type ThemeToggleDeclaredProps = {
   variant?: ThemeToggleProps["variant"];
   size?: ThemeToggleProps["size"];
 } & /* @vue-ignore */ Omit<ThemeToggleProps, "data-slot">;
+
 const {
   ariaLabel = "Toggle theme",
   variant = "outline",
-  size = "md",
-  defaultPressed = undefined,
+  size = "sm",
   disabled = false,
-  pressed = undefined,
-  syncGroup = "starwind-theme",
-  value,
   dataSlot = "theme-toggle",
   class: className,
 } = defineProps<ThemeToggleDeclaredProps>();
-defineSlots<{
-  default?: () => unknown;
-  "dark-icon"?: () => unknown;
-  "light-icon"?: () => unknown;
-}>();
-const initialPressed = computed(() => pressed ?? defaultPressed ?? false);
+
+const isDark = ref(true);
+const isReady = ref(false);
 const element = ref<HTMLButtonElement | null>(null);
 defineExpose({ element });
 
+let observer: MutationObserver | null = null;
+
+const syncTheme = () => {
+  if (typeof document === "undefined") return;
+  isDark.value = document.documentElement.classList.contains("dark");
+  isReady.value = true;
+};
+
+const toggleTheme = () => {
+  if (typeof document === "undefined") return;
+  const nextIsDark = !document.documentElement.classList.contains("dark");
+  
+  if (nextIsDark) {
+    document.documentElement.classList.add("dark");
+  } else {
+    document.documentElement.classList.remove("dark");
+  }
+
+  try {
+    localStorage.setItem("colorTheme", nextIsDark ? "dark" : "light");
+  } catch {}
+
+  isDark.value = nextIsDark;
+
+  // Dispatch event for any other listeners
+  document.dispatchEvent(
+    new CustomEvent("starwind:theme-change", {
+      detail: {
+        resolvedTheme: nextIsDark ? "dark" : "light",
+        theme: nextIsDark ? "dark" : "light",
+      },
+    })
+  );
+};
+
 onMounted(() => {
-  initThemeController();
+  syncTheme();
+
+  // Watch for class changes on <html>
+  observer = new MutationObserver(() => {
+    syncTheme();
+  });
+  observer.observe(document.documentElement, {
+    attributes: true,
+    attributeFilter: ["class"],
+  });
+
+  // Also listen for storage events across tabs
+  const handleStorage = (e: StorageEvent) => {
+    if (e.key === "colorTheme") {
+      const stored = e.newValue;
+      if (stored === "dark") {
+        document.documentElement.classList.add("dark");
+      } else if (stored === "light") {
+        document.documentElement.classList.remove("dark");
+      }
+      syncTheme();
+    }
+  };
+  window.addEventListener("storage", handleStorage);
+});
+
+onUnmounted(() => {
+  observer?.disconnect();
 });
 </script>
 
@@ -73,63 +129,45 @@ onMounted(() => {
     ref="element"
     :class="themeToggle({ variant, size, class: className })"
     :disabled="disabled"
-    :aria-label="ariaLabel"
-    :aria-pressed="initialPressed ? 'true' : 'false'"
-    :data-state="initialPressed ? 'on' : 'off'"
-    data-sw-toggle
-    data-sw-theme-toggle
-    data-sw-theme-control
-    data-theme-on="dark"
-    data-theme-off="light"
-    :data-sync-group="syncGroup"
-    :data-value="value"
-    :data-pressed="initialPressed ? '' : undefined"
-    :data-unpressed="initialPressed ? undefined : ''"
-    :data-disabled="disabled ? '' : undefined"
-    v-bind="$attrs"
+    :aria-label="isDark ? 'Switch to light mode' : 'Switch to dark mode'"
+    :aria-pressed="isDark ? 'true' : 'false'"
+    :data-state="isDark ? 'on' : 'off'"
     type="button"
     :data-slot="dataSlot || 'theme-toggle'"
+    @click="toggleTheme"
+    v-bind="$attrs"
   >
-    <slot>
-      <span class="size-5" data-theme-icon-wrapper>
-        <slot name="light-icon">
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="currentColor"
-            stroke-width="2"
-            stroke-linecap="round"
-            stroke-linejoin="round"
-            class="hidden size-5 group-data-[state=off]:data-ready:block"
-            aria-hidden="true"
-            data-theme-icon
-          >
-            <path d="M12 12m-4 0a4 4 0 1 0 8 0a4 4 0 1 0 -8 0" />
-            <path
-              d="M4 12h.01M12 4v.01M20 12h.01M12 20v.01M6.31 6.31l-.01 -.01M17.7 6.3l-.01 .01M17.7 17.7l-.01 -.01M6.3 17.7l.01 -.01"
-            />
-          </svg>
-        </slot>
-        <slot name="dark-icon">
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="currentColor"
-            stroke-width="2"
-            stroke-linecap="round"
-            stroke-linejoin="round"
-            class="hidden size-5 group-data-[state=on]:data-ready:block"
-            aria-hidden="true"
-            data-theme-icon
-          >
-            <path
-              d="M12 3c.132 0 .263 0 .393 .008a7.5 7.5 0 0 0 7.92 12.446a9 9 0 1 1 -8.313 -12.454z"
-            />
-          </svg>
-        </slot>
-      </span>
-    </slot>
+    <!-- Sun icon when dark (click to switch to light) -->
+    <svg
+      v-if="isDark"
+      xmlns="http://www.w3.org/2000/svg"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      stroke-width="2"
+      stroke-linecap="round"
+      stroke-linejoin="round"
+      class="size-4.5 text-amber-400 hover:text-amber-300 transition-transform duration-200 hover:rotate-45"
+      aria-hidden="true"
+    >
+      <circle cx="12" cy="12" r="4" />
+      <path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41" />
+    </svg>
+
+    <!-- Moon icon when light (click to switch to dark) -->
+    <svg
+      v-else
+      xmlns="http://www.w3.org/2000/svg"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      stroke-width="2"
+      stroke-linecap="round"
+      stroke-linejoin="round"
+      class="size-4.5 text-slate-700 hover:text-slate-900 transition-transform duration-200 hover:-rotate-12"
+      aria-hidden="true"
+    >
+      <path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z" />
+    </svg>
   </button>
 </template>

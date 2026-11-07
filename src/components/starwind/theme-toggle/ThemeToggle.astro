@@ -1,0 +1,103 @@
+---
+import type { HTMLAttributes } from "astro/types";
+import type { VariantProps } from "tailwind-variants";
+import { themeToggle } from "./variants";
+
+type Props = Omit<HTMLAttributes<"button">, "aria-pressed" | "defaultPressed" | "disabled" | "onChange" | "type" | "value"> & VariantProps<typeof themeToggle> & {
+  ariaLabel?: string;
+  defaultPressed?: boolean;
+  disabled?: boolean;
+  "data-slot"?: string;
+  pressed?: boolean;
+  syncGroup?: string;
+  value?: string;
+};
+
+const {
+  ariaLabel = "Toggle theme",
+  variant = "outline",
+  size = "md",
+  defaultPressed,
+  disabled = false,
+  pressed,
+  syncGroup = "starwind-theme",
+  value,
+  "data-slot": dataSlot = "theme-toggle",
+  class: className,
+  ...rest
+} = Astro.props;
+
+const initialPressed = pressed ?? defaultPressed ?? false;
+---
+
+<button
+  {...rest}
+  class={themeToggle({ variant, size, class: className })}
+  type="button"
+  disabled={disabled}
+  aria-label={ariaLabel}
+  aria-pressed={initialPressed ? "true" : "false"}
+  data-state={initialPressed ? "on" : "off"}
+  data-sw-toggle
+  data-sw-theme-toggle
+  data-sw-theme-control
+  data-theme-on="dark"
+  data-theme-off="light"
+  data-sync-group={syncGroup}
+  data-value={value}
+  data-pressed={initialPressed ? "" : undefined}
+  data-unpressed={initialPressed ? undefined : ""}
+  data-disabled={disabled ? "" : undefined}
+  data-slot={dataSlot}
+>
+  <slot>
+    <span class="size-5 flex items-center justify-center" data-theme-icon-wrapper>
+      <slot name="light-icon">
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="2"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+          class="hidden size-5 text-amber-500 group-data-[state=off]:data-ready:block"
+          aria-hidden="true"
+          data-theme-icon
+        >
+          <circle cx="12" cy="12" r="4" />
+          <path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41" />
+        </svg>
+      </slot>
+
+      <slot name="dark-icon">
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="2"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+          class="hidden size-5 text-blue-400 group-data-[state=on]:data-ready:block"
+          aria-hidden="true"
+          data-theme-icon
+        >
+          <path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z" />
+        </svg>
+      </slot>
+    </span>
+  </slot>
+</button>
+
+<script>
+  import { initThemeController } from "@starwind-ui/astro/theme";
+
+  const setupThemeController = () => {
+    initThemeController();
+  };
+
+  setupThemeController();
+  document.addEventListener("astro:after-swap", setupThemeController);
+  document.addEventListener("starwind:init", setupThemeController);
+</script>

@@ -1,7 +1,7 @@
 ---
 import "@/styles/starwind.css";
-import { getThemeInitScript } from "@starwind-ui/vue/theme";
-import { ThemeToggle } from "../components/ui";
+import { ThemeInitScript } from "@starwind-ui/astro/theme";
+import { ThemeToggle } from "@/components/starwind/theme-toggle";
 
 interface Props {
   title?: string;
@@ -10,7 +10,6 @@ interface Props {
 
 const { title = "Admin Portal | SourceMonster", activeNav = "dashboard" } = Astro.props;
 const user = Astro.locals.adminUser;
-const themeInitScript = getThemeInitScript({ defaultTheme: "dark" });
 ---
 
 <!doctype html>
@@ -20,8 +19,7 @@ const themeInitScript = getThemeInitScript({ defaultTheme: "dark" });
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <link rel="icon" type="image/png" href="/favicon.png" />
     <title>{title}</title>
-    <link rel="stylesheet" href="/css/main.css" />
-    <script is:inline set:html={themeInitScript} />
+    <ThemeInitScript defaultTheme="dark" />
     <!-- Lucide icons -->
     <script is:inline src="https://unpkg.com/lucide@latest"></script>
   </head>
