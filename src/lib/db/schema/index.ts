@@ -6,3 +6,4 @@ export * from "./leads";
 export * from "./services";
 export * from "./testimonials";
 export * from "./portfolio";
+export * from "./site-settings";

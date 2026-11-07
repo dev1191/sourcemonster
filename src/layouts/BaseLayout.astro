@@ -1,9 +1,17 @@
 ---
+import { getSiteSettings } from "../lib/settings";
+
 interface Props {
 	title?: string;
+	description?: string;
 }
 
-const { title = "Source Monster | The Future of Digital Execution" } = Astro.props;
+const settings = await getSiteSettings();
+
+const {
+	title = settings.seo_default_title,
+	description = settings.seo_default_description,
+} = Astro.props;
 ---
 
 <!doctype html>
@@ -17,13 +25,10 @@ const { title = "Source Monster | The Future of Digital Execution" } = Astro.pro
 		<title>{title}</title>
 
 		<!-- SEO & Trackers -->
-		<meta
-			name="description"
-			content="Source Monster is a premium digital task force of elite freelancers. We deliver high-performance web development, alpha UI/UX design, and aggressive digital growth strategies."
-		/>
+		<meta name="description" content={description} />
 		<meta
 			name="keywords"
-			content="web development, UI/UX design, digital marketing, SEO, freelancers, software solutions"
+			content="web development, UI/UX design, digital marketing, SEO, freelancers, software solutions, SaaS boilerplate, CodeCanyon"
 		/>
 
 		<!-- Google Analytics (gtag.js) -->
