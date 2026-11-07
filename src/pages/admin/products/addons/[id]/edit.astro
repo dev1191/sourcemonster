@@ -1,0 +1,577 @@
+---
+import AdminLayout from "../../../../../layouts/AdminLayout.astro";
+import { db } from "../../../../../lib/db";
+import { products, productAddons, media, productAddonMedia } from "../../../../../lib/db/schema";
+import { eq, and } from "drizzle-orm";
+import { uploadFile, getPublicUrl } from "../../../../../lib/storage";
+import { Button, Dropzone } from "../../../../../components/ui";
+import { Card, CardHeader, CardTitle, CardContent } from "../../../../../components/starwind/card";
+import { Input } from "../../../../../components/starwind/input";
+import { Textarea } from "../../../../../components/starwind/textarea";
+
+const { id } = Astro.params;
+
+if (!id) {
+  return Astro.redirect("/admin/products/addons");
+}
+
+let errorMessage = "";
+let successMessage = "";
+
+// Fetch Add-on
+const [addon] = await db
+  .select()
+  .from(productAddons)
+  .where(eq(productAddons.id, id))
+  .limit(1);
+
+if (!addon) {
+  return Astro.redirect("/admin/products/addons");
+}
+
+// Fetch all parent products
+const allProducts = await db
+  .select({
+    id: products.id,
+    title: products.title,
+    slug: products.slug,
+  })
+  .from(products)
+  .orderBy(products.title);
+
+// Handle POST actions
+if (Astro.request.method === "POST") {
+  try {
+    const formData = await Astro.request.formData();
+    const action = formData.get("_action")?.toString();
+
+    // 1. Delete entire add-on
+    if (action === "delete") {
+      await db.delete(productAddons).where(eq(productAddons.id, id));
+      return Astro.redirect("/admin/products/addons");
+    }
+
+    // 2. Delete single gallery screenshot
+    if (action === "delete_screenshot") {
+      const pamId = formData.get("addon_media_id")?.toString();
+      if (pamId) {
+        await db.delete(productAddonMedia).where(eq(productAddonMedia.id, pamId));
+        return Astro.redirect(`/admin/products/addons/${id}/edit`);
+      }
+    }
+
+    // 3. Remove thumbnail
+    if (action === "delete_thumbnail") {
+      await db.update(productAddons).set({ thumbnailMediaId: null, updatedAt: new Date() }).where(eq(productAddons.id, id));
+      return Astro.redirect(`/admin/products/addons/${id}/edit`);
+    }
+
+    // 4. Update Add-on details
+    const productId = formData.get("productId")?.toString().trim() || "";
+    const title = formData.get("title")?.toString().trim() || "";
+    let slug = formData.get("slug")?.toString().trim().toLowerCase() || "";
+    const description = formData.get("description")?.toString().trim() || null;
+    const isFree = formData.get("isFree") === "on";
+    const priceRaw = formData.get("price")?.toString().trim();
+    const buyUrl = formData.get("buyUrl")?.toString().trim() || null;
+    const demoUrl = formData.get("demoUrl")?.toString().trim() || null;
+    const documentationUrl = formData.get("documentationUrl")?.toString().trim() || null;
+    const sortOrder = parseInt(formData.get("sortOrder")?.toString() || "0", 10);
+    const isActive = formData.get("isActive") === "on";
+
+    if (!slug && title) {
+      slug = title.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-+|-+$/g, "");
+    }
+
+    if (!productId) {
+      errorMessage = "Please select a parent product.";
+    } else if (!title || !slug) {
+      errorMessage = "Add-on title and slug are required.";
+    } else {
+      // Check slug uniqueness within product
+      const [existingSlug] = await db
+        .select()
+        .from(productAddons)
+        .where(and(eq(productAddons.productId, productId), eq(productAddons.slug, slug)))
+        .limit(1);
+
+      if (existingSlug && existingSlug.id !== id) {
+        errorMessage = `An add-on with slug "/${slug}" already exists for this product.`;
+      } else {
+        // Thumbnail replacement if new file uploaded
+        let updatedThumbnailId = addon.thumbnailMediaId;
+        const thumbnailFile = formData.get("thumbnail") as File | null;
+        if (thumbnailFile && thumbnailFile.size > 0) {
+          const uploadRes = await uploadFile(thumbnailFile, thumbnailFile.name, thumbnailFile.type);
+          const [mediaRecord] = await db
+            .insert(media)
+            .values({
+              disk: uploadRes.disk,
+              objectKey: uploadRes.objectKey,
+              originalName: uploadRes.originalName,
+              mimeType: uploadRes.mimeType,
+              sizeBytes: uploadRes.sizeBytes,
+            })
+            .returning();
+          if (mediaRecord) {
+            updatedThumbnailId = mediaRecord.id;
+          }
+        }
+
+        // Update database record
+        await db
+          .update(productAddons)
+          .set({
+            productId,
+            title,
+            slug,
+            description,
+            price: isFree ? "0.00" : priceRaw || null,
+            isFree,
+            buyUrl,
+            demoUrl,
+            documentationUrl,
+            thumbnailMediaId: updatedThumbnailId,
+            sortOrder,
+            isActive,
+            updatedAt: new Date(),
+          })
+          .where(eq(productAddons.id, id));
+
+        // Handle additional gallery screenshot uploads
+        const galleryFiles = formData.getAll("screenshots") as File[];
+        for (let i = 0; i < galleryFiles.length; i++) {
+          const file = galleryFiles[i];
+          if (file && file.size > 0) {
+            const uploadRes = await uploadFile(file, file.name, file.type);
+            const [galleryMediaRecord] = await db
+              .insert(media)
+              .values({
+                disk: uploadRes.disk,
+                objectKey: uploadRes.objectKey,
+                originalName: uploadRes.originalName,
+                mimeType: uploadRes.mimeType,
+                sizeBytes: uploadRes.sizeBytes,
+              })
+              .returning();
+
+            if (galleryMediaRecord) {
+              await db.insert(productAddonMedia).values({
+                addonId: id,
+                mediaId: galleryMediaRecord.id,
+                sortOrder: i,
+              });
+            }
+          }
+        }
+
+        successMessage = "Add-on updated successfully!";
+      }
+    }
+  } catch (err) {
+    console.error("Update product addon failed:", err);
+    errorMessage = "An unexpected error occurred while updating the add-on.";
+  }
+}
+
+// Re-fetch current addon state
+const [currentAddon] = await db
+  .select()
+  .from(productAddons)
+  .where(eq(productAddons.id, id))
+  .limit(1);
+
+const addonData = currentAddon || addon;
+
+// Fetch thumbnail URL
+let currentThumbnailUrl: string | null = null;
+if (addonData.thumbnailMediaId) {
+  const [thumbMedia] = await db
+    .select()
+    .from(media)
+    .where(eq(media.id, addonData.thumbnailMediaId))
+    .limit(1);
+  if (thumbMedia) {
+    currentThumbnailUrl = getPublicUrl(thumbMedia.objectKey, thumbMedia.disk);
+  }
+}
+
+// Fetch gallery screenshots
+const galleryRecords = await db
+  .select({
+    id: productAddonMedia.id,
+    mediaId: media.id,
+    disk: media.disk,
+    objectKey: media.objectKey,
+    originalName: media.originalName,
+    caption: productAddonMedia.caption,
+  })
+  .from(productAddonMedia)
+  .innerJoin(media, eq(productAddonMedia.mediaId, media.id))
+  .where(eq(productAddonMedia.addonId, id))
+  .orderBy(productAddonMedia.sortOrder);
+
+const galleryList = galleryRecords.map((g) => ({
+  ...g,
+  url: getPublicUrl(g.objectKey, g.disk),
+}));
+
+const currentParentProduct = allProducts.find((p) => p.id === addonData.productId);
+---
+
+<AdminLayout title={`Edit ${addonData.title} | SourceMonster Admin`} activeNav="addons">
+  <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-6 border-b border-slate-800">
+    <div>
+      <div class="flex items-center gap-2 text-xs text-slate-400 mb-1">
+        <a href="/admin/products" class="hover:text-white transition">Products</a>
+        <span>/</span>
+        <a href="/admin/products/addons" class="hover:text-white transition">Add-ons</a>
+        <span>/</span>
+        <span class="text-white truncate max-w-xs">{addonData.title}</span>
+      </div>
+      <div class="flex items-center gap-3">
+        <h1 class="text-2xl font-black text-white tracking-tight">Edit Add-on</h1>
+        {addonData.isActive ? (
+          <span class="px-2 py-0.5 rounded text-[11px] font-semibold bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">
+            Active
+          </span>
+        ) : (
+          <span class="px-2 py-0.5 rounded text-[11px] font-semibold bg-slate-800 text-slate-400 border border-slate-700">
+            Inactive
+          </span>
+        )}
+      </div>
+    </div>
+    <div class="flex items-center gap-3">
+      {currentParentProduct && (
+        <Button
+          href={`/admin/products/${currentParentProduct.id}/edit`}
+          variant="secondary"
+          size="sm"
+          icon="package"
+        >
+          View Parent Product
+        </Button>
+      )}
+      <Button href="/admin/products/addons" variant="secondary" size="sm" icon="arrow-left">
+        Back to Add-ons
+      </Button>
+      <form
+        method="POST"
+        onsubmit="return confirm('Are you sure you want to delete this add-on? All associated screenshots and media links will be removed.');"
+        class="inline"
+      >
+        <input type="hidden" name="_action" value="delete" />
+        <Button type="submit" variant="destructive" size="sm" icon="trash-2">
+          Delete
+        </Button>
+      </form>
+    </div>
+  </div>
+
+  {errorMessage && (
+    <div class="my-6 p-4 rounded-xl bg-rose-500/10 border border-rose-500/20 text-rose-400 text-xs flex items-center gap-2">
+      <i data-lucide="alert-circle" class="w-4 h-4 shrink-0"></i>
+      <span>{errorMessage}</span>
+    </div>
+  )}
+
+  {successMessage && (
+    <div class="my-6 p-4 rounded-xl bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 text-xs flex items-center gap-2">
+      <i data-lucide="check-circle" class="w-4 h-4 shrink-0"></i>
+      <span>{successMessage}</span>
+    </div>
+  )}
+
+  <form method="POST" enctype="multipart/form-data" class="my-6 space-y-8 max-w-4xl">
+    <!-- Parent Product & Basic Info -->
+    <Card class="bg-slate-900/70 border-slate-800/80 rounded-2xl p-6">
+      <CardHeader class="p-0 pb-4 mb-4 border-b border-slate-800">
+        <CardTitle class="text-sm font-bold text-primary uppercase tracking-wider flex items-center gap-2">
+          <i data-lucide="package" class="w-4 h-4"></i>
+          <span>Parent Product &amp; Identity</span>
+        </CardTitle>
+      </CardHeader>
+      <CardContent class="p-0 space-y-4">
+        <div>
+          <label class="block text-xs font-semibold text-slate-300 uppercase tracking-wider mb-1.5">
+            Parent Product *
+          </label>
+          <select
+            name="productId"
+            required
+            class="w-full px-4 py-2.5 bg-slate-950 border border-slate-700/80 rounded-xl text-white text-sm focus:border-primary focus:outline-hidden"
+          >
+            {allProducts.map((p) => (
+              <option value={p.id} selected={p.id === addonData.productId}>
+                {p.title}
+              </option>
+            ))}
+          </select>
+          <p class="text-[11px] text-slate-500 mt-1">Reassigning this changes which product page displays this add-on.</p>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div>
+            <label class="block text-xs font-semibold text-slate-300 uppercase tracking-wider mb-1.5">
+              Add-on Title *
+            </label>
+            <Input
+              name="title"
+              type="text"
+              required
+              value={addonData.title}
+              placeholder="e.g. Multi-Vendor Marketplace Add-on"
+              class="w-full bg-slate-950 border-slate-700/80 text-white"
+            />
+          </div>
+          <div>
+            <label class="block text-xs font-semibold text-slate-300 uppercase tracking-wider mb-1.5">
+              Slug *
+            </label>
+            <Input
+              name="slug"
+              type="text"
+              required
+              value={addonData.slug}
+              placeholder="e.g. multi-vendor-marketplace"
+              class="w-full bg-slate-950 border-slate-700/80 text-white font-mono"
+            />
+          </div>
+        </div>
+
+        <div>
+          <label class="block text-xs font-semibold text-slate-300 uppercase tracking-wider mb-1.5">
+            Description
+          </label>
+          <Textarea
+            name="description"
+            rows={3}
+            value={addonData.description || ""}
+            placeholder="Brief overview of features, compatibilities, and benefits..."
+            class="w-full bg-slate-950 border-slate-700/80 text-white"
+          />
+        </div>
+      </CardContent>
+    </Card>
+
+    <!-- Pricing & Links -->
+    <Card class="bg-slate-900/70 border-slate-800/80 rounded-2xl p-6">
+      <CardHeader class="p-0 pb-4 mb-4 border-b border-slate-800">
+        <CardTitle class="text-sm font-bold text-primary uppercase tracking-wider flex items-center gap-2">
+          <i data-lucide="tag" class="w-4 h-4"></i>
+          <span>Pricing &amp; External Links</span>
+        </CardTitle>
+      </CardHeader>
+      <CardContent class="p-0 space-y-4">
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4 items-center">
+          <div>
+            <label class="block text-xs font-semibold text-slate-300 uppercase tracking-wider mb-1.5">
+              Price (USD)
+            </label>
+            <div class="relative">
+              <span class="absolute left-3.5 top-2.5 text-slate-500 text-sm">$</span>
+              <Input
+                name="price"
+                type="number"
+                step="0.01"
+                min="0"
+                value={addonData.price ? Number(addonData.price).toFixed(2) : ""}
+                placeholder="29.00"
+                class="w-full pl-8 bg-slate-950 border-slate-700/80 text-white font-mono"
+              />
+            </div>
+          </div>
+          <div class="pt-6">
+            <label class="flex items-center gap-3 cursor-pointer">
+              <input
+                type="checkbox"
+                name="isFree"
+                checked={addonData.isFree}
+                class="w-4 h-4 rounded text-primary bg-slate-950 border-slate-700 focus:ring-primary focus:ring-offset-slate-900"
+              />
+              <div>
+                <span class="text-sm font-semibold text-white">Free Module</span>
+                <p class="text-[11px] text-slate-400">Mark as a free or bundled companion module.</p>
+              </div>
+            </label>
+          </div>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <div>
+            <label class="block text-xs font-semibold text-slate-300 uppercase tracking-wider mb-1.5">
+              Buy / Marketplace URL
+            </label>
+            <Input
+              name="buyUrl"
+              type="url"
+              value={addonData.buyUrl || ""}
+              placeholder="https://codecanyon.net/item/..."
+              class="w-full bg-slate-950 border-slate-700/80 text-white font-mono text-xs"
+            />
+          </div>
+          <div>
+            <label class="block text-xs font-semibold text-slate-300 uppercase tracking-wider mb-1.5">
+              Live Demo URL
+            </label>
+            <Input
+              name="demoUrl"
+              type="url"
+              value={addonData.demoUrl || ""}
+              placeholder="https://demo.sourcemonster.in/..."
+              class="w-full bg-slate-950 border-slate-700/80 text-white font-mono text-xs"
+            />
+          </div>
+          <div>
+            <label class="block text-xs font-semibold text-slate-300 uppercase tracking-wider mb-1.5">
+              Documentation URL
+            </label>
+            <Input
+              name="documentationUrl"
+              type="url"
+              value={addonData.documentationUrl || ""}
+              placeholder="https://docs.sourcemonster.in/..."
+              class="w-full bg-slate-950 border-slate-700/80 text-white font-mono text-xs"
+            />
+          </div>
+        </div>
+      </CardContent>
+    </Card>
+
+    <!-- Visuals: Cover Thumbnail & Gallery Screenshots -->
+    <Card class="bg-slate-900/70 border-slate-800/80 rounded-2xl p-6">
+      <CardHeader class="p-0 pb-4 mb-4 border-b border-slate-800">
+        <CardTitle class="text-sm font-bold text-primary uppercase tracking-wider flex items-center gap-2">
+          <i data-lucide="image" class="w-4 h-4"></i>
+          <span>Cover Thumbnail &amp; Screenshots</span>
+        </CardTitle>
+      </CardHeader>
+      <CardContent class="p-0 space-y-6">
+        <!-- Current Thumbnail Preview -->
+        <div>
+          <label class="block text-xs font-semibold text-slate-300 uppercase tracking-wider mb-1.5">
+            Module Cover Thumbnail
+          </label>
+          {currentThumbnailUrl ? (
+            <div class="mb-3 flex items-center gap-4 p-3 bg-slate-950/80 border border-slate-800 rounded-xl">
+              <img
+                src={currentThumbnailUrl}
+                alt={addonData.title}
+                class="w-20 h-14 rounded-lg object-cover bg-slate-900 border border-slate-700 shrink-0"
+              />
+              <div class="flex-1 overflow-hidden">
+                <span class="text-xs text-slate-300 font-medium truncate block">Current Thumbnail Active</span>
+                <span class="text-[11px] text-slate-500">Upload a new file below to replace it.</span>
+              </div>
+              <button
+                type="submit"
+                formaction={`/admin/products/addons/${id}/edit`}
+                name="_action"
+                value="delete_thumbnail"
+                class="px-2.5 py-1 text-xs text-rose-400 hover:text-rose-300 hover:bg-rose-500/10 rounded-lg border border-rose-500/20 transition"
+              >
+                Remove
+              </button>
+            </div>
+          ) : null}
+          <Dropzone
+            name="thumbnail"
+            label={currentThumbnailUrl ? "Replace Cover Thumbnail" : "Upload Add-on Thumbnail"}
+            description="Recommended: 600x400 PNG or WebP"
+            accept="image/*"
+          />
+        </div>
+
+        <!-- Current Gallery Screenshots -->
+        <div>
+          <label class="block text-xs font-semibold text-slate-300 uppercase tracking-wider mb-2">
+            Gallery Screenshots ({galleryList.length})
+          </label>
+
+          {galleryList.length > 0 && (
+            <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3 mb-4">
+              {galleryList.map((g) => (
+                <div class="relative group rounded-xl overflow-hidden border border-slate-800 bg-slate-950 aspect-video">
+                  <img src={g.url} alt="Screenshot" class="w-full h-full object-cover" />
+                  <div class="absolute inset-0 bg-slate-950/70 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center p-2">
+                    <button
+                      type="submit"
+                      formaction={`/admin/products/addons/${id}/edit`}
+                      name="_action"
+                      value="delete_screenshot"
+                      class="p-1.5 text-rose-400 bg-rose-500/20 hover:bg-rose-500/30 rounded-lg transition"
+                      title="Delete screenshot"
+                    >
+                      <input type="hidden" name="addon_media_id" value={g.id} />
+                      <i data-lucide="trash-2" class="w-4 h-4"></i>
+                    </button>
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
+
+          <Dropzone
+            name="screenshots"
+            label="Upload Additional Screenshots"
+            description="Add more preview screenshots for this add-on"
+            accept="image/*"
+            multiple={true}
+          />
+        </div>
+      </CardContent>
+    </Card>
+
+    <!-- Settings & Sorting -->
+    <Card class="bg-slate-900/70 border-slate-800/80 rounded-2xl p-6">
+      <CardHeader class="p-0 pb-4 mb-4 border-b border-slate-800">
+        <CardTitle class="text-sm font-bold text-primary uppercase tracking-wider flex items-center gap-2">
+          <i data-lucide="sliders" class="w-4 h-4"></i>
+          <span>Settings &amp; Sorting</span>
+        </CardTitle>
+      </CardHeader>
+      <CardContent class="p-0">
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4 items-center">
+          <div>
+            <label class="block text-xs font-semibold text-slate-300 uppercase tracking-wider mb-1.5">
+              Display Sort Order
+            </label>
+            <Input
+              name="sortOrder"
+              type="number"
+              value={addonData.sortOrder}
+              class="w-full bg-slate-950 border-slate-700/80 text-white font-mono"
+            />
+            <p class="text-[11px] text-slate-500 mt-1">Lower numbers appear first.</p>
+          </div>
+          <div class="pt-6">
+            <label class="flex items-center gap-3 cursor-pointer">
+              <input
+                type="checkbox"
+                name="isActive"
+                checked={addonData.isActive}
+                class="w-4 h-4 rounded text-primary bg-slate-950 border-slate-700 focus:ring-primary focus:ring-offset-slate-900"
+              />
+              <div>
+                <span class="text-sm font-semibold text-white">Active &amp; Published</span>
+                <p class="text-[11px] text-slate-400">Make this add-on visible on the public website.</p>
+              </div>
+            </label>
+          </div>
+        </div>
+      </CardContent>
+    </Card>
+
+    <!-- Save button footer -->
+    <div class="flex items-center justify-end gap-3 pt-4 border-t border-slate-800">
+      <Button href="/admin/products/addons" variant="secondary" size="md">
+        Cancel
+      </Button>
+      <Button type="submit" variant="primary" size="md" icon="check">
+        Save Changes
+      </Button>
+    </div>
+  </form>
+</AdminLayout>
+
