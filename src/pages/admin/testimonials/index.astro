@@ -3,6 +3,14 @@ import AdminLayout from "../../../layouts/AdminLayout.astro";
 import { db } from "../../../lib/db";
 import { testimonials } from "../../../lib/db/schema";
 import { desc } from "drizzle-orm";
+import {
+  Table,
+  TableHeader,
+  TableBody,
+  TableHead,
+  TableRow,
+  TableCell,
+} from "../../../components/ui";
 
 let allTestimonials: Array<typeof testimonials.$inferSelect> = [];
 try {
@@ -27,62 +35,56 @@ try {
     </a>
   </div>
 
-  <div class="my-6 bg-slate-900/70 border border-slate-800/80 rounded-2xl overflow-hidden shadow-xl shadow-black/40">
-    {allTestimonials.length === 0 ? (
-      <div class="py-16 text-center text-slate-500 text-xs">
-        <i data-lucide="message-circle" class="w-12 h-12 mx-auto mb-3 text-slate-600"></i>
-        <div class="font-semibold text-slate-300 text-sm">No testimonials in database</div>
-        <div class="mt-1">Run `pnpm db:seed:content` to import existing static testimonials.</div>
-      </div>
-    ) : (
-      <div class="overflow-x-auto">
-        <table class="w-full text-left text-xs text-slate-300">
-          <thead class="bg-slate-950/80 text-[11px] uppercase tracking-wider text-slate-400 border-b border-slate-800">
-            <tr>
-              <th class="px-4 py-3.5">Client & Role</th>
-              <th class="px-4 py-3.5">Quote</th>
-              <th class="px-4 py-3.5">Status</th>
-              <th class="px-4 py-3.5">Sort Order</th>
-              <th class="px-4 py-3.5 text-right">Actions</th>
-            </tr>
-          </thead>
-          <tbody class="divide-y divide-slate-800/60">
-            {allTestimonials.map((t) => (
-              <tr class="hover:bg-slate-800/30 transition">
-                <td class="px-4 py-3.5">
-                  <div class="font-bold text-white text-sm">{t.name}</div>
-                  <div class="text-[11px] text-slate-400">{t.role}</div>
-                </td>
-                <td class="px-4 py-3.5">
-                  <div class="text-slate-300 italic line-clamp-2 max-w-md">"{t.quote}"</div>
-                </td>
-                <td class="px-4 py-3.5">
-                  <span class={`px-2.5 py-0.5 rounded-full text-[10px] font-bold uppercase ${
-                    t.status === "published"
-                      ? "bg-emerald-500/10 text-emerald-400 border border-emerald-500/20"
-                      : "bg-slate-800 text-slate-400 border border-slate-700"
-                  }`}>
-                    {t.status}
-                  </span>
-                </td>
-                <td class="px-4 py-3.5 font-mono text-slate-400">
-                  {t.sortOrder}
-                </td>
-                <td class="px-4 py-3.5 text-right">
-                  <a
-                    href={`/admin/testimonials/${t.id}/edit`}
-                    class="p-1.5 text-slate-400 hover:text-primary rounded-lg hover:bg-slate-800 transition"
-                    title="Edit Testimonial"
-                  >
-                    <i data-lucide="edit-3" class="w-3.5 h-3.5"></i>
-                  </a>
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      </div>
-    )}
-  </div>
+  <Table
+    isEmpty={allTestimonials.length === 0}
+    emptyIcon="message-circle"
+    emptyTitle="No testimonials in database"
+    emptySubtitle="Run `pnpm db:seed:content` to import existing static testimonials."
+    containerClass="my-6"
+  >
+    <TableHeader class="bg-slate-950/80 text-[11px] uppercase tracking-wider text-slate-400 border-b border-slate-800">
+          <TableRow class="border-b border-slate-800 hover:bg-transparent">
+            <TableHead class="px-4 py-3.5 text-slate-400">Client & Role</TableHead>
+            <TableHead class="px-4 py-3.5 text-slate-400">Quote</TableHead>
+            <TableHead class="px-4 py-3.5 text-slate-400">Status</TableHead>
+            <TableHead class="px-4 py-3.5 text-slate-400">Sort Order</TableHead>
+            <TableHead class="px-4 py-3.5 text-right text-slate-400">Actions</TableHead>
+          </TableRow>
+        </TableHeader>
+        <TableBody class="divide-y divide-slate-800/60">
+          {allTestimonials.map((t) => (
+            <TableRow class="hover:bg-slate-800/30 transition border-b border-slate-800/60">
+              <TableCell class="px-4 py-3.5">
+                <div class="font-bold text-white text-sm">{t.name}</div>
+                <div class="text-[11px] text-slate-400">{t.role}</div>
+              </TableCell>
+              <TableCell class="px-4 py-3.5">
+                <div class="text-slate-300 italic line-clamp-2 max-w-md">"{t.quote}"</div>
+              </TableCell>
+              <TableCell class="px-4 py-3.5">
+                <span class={`px-2.5 py-0.5 rounded-full text-[10px] font-bold uppercase ${
+                  t.status === "published"
+                    ? "bg-emerald-500/10 text-emerald-400 border border-emerald-500/20"
+                    : "bg-slate-800 text-slate-400 border border-slate-700"
+                }`}>
+                  {t.status}
+                </span>
+              </TableCell>
+              <TableCell class="px-4 py-3.5 font-mono text-slate-400">
+                {t.sortOrder}
+              </TableCell>
+              <TableCell class="px-4 py-3.5 text-right">
+                <a
+                  href={`/admin/testimonials/${t.id}/edit`}
+                  class="p-1.5 text-slate-400 hover:text-primary rounded-lg hover:bg-slate-800 transition"
+                  title="Edit Testimonial"
+                >
+                  <i data-lucide="edit-3" class="w-3.5 h-3.5"></i>
+                </a>
+              </TableCell>
+            </TableRow>
+          ))}
+        </TableBody>
+  </Table>
 </AdminLayout>
 

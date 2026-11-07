@@ -1,0 +1,60 @@
+---
+import type { HTMLAttributes } from "astro/types";
+import { Table as StarwindTable } from "../starwind/table";
+
+interface Props extends HTMLAttributes<"table"> {
+  isEmpty?: boolean;
+  emptyTitle?: string;
+  emptySubtitle?: string;
+  emptyIcon?: string;
+  containerClass?: string;
+  class?: string;
+}
+
+const {
+  isEmpty = false,
+  emptyTitle = "No records found",
+  emptySubtitle,
+  emptyIcon = "inbox",
+  containerClass = "",
+  class: className = "w-full text-left text-xs text-slate-300",
+  ...rest
+} = Astro.props;
+
+const hasCustomEmpty = Astro.slots.has("empty");
+---
+
+<div
+  class:list={[
+    "bg-slate-900/70 border border-slate-800/80 rounded-2xl overflow-hidden shadow-xl shadow-black/40",
+    containerClass,
+  ]}
+>
+  {
+    isEmpty ? (
+      hasCustomEmpty ? (
+        <slot name="empty" />
+      ) : (
+        <div class="py-16 text-center text-slate-500 text-xs">
+          {emptyIcon && (
+            <i
+              data-lucide={emptyIcon}
+              class="w-12 h-12 mx-auto mb-3 text-slate-600"
+            />
+          )}
+          <div class="font-semibold text-slate-300 text-sm">{emptyTitle}</div>
+          {emptySubtitle && <div class="mt-1 text-slate-400">{emptySubtitle}</div>}
+          {Astro.slots.has("empty-action") && (
+            <div class="mt-4 flex justify-center">
+              <slot name="empty-action" />
+            </div>
+          )}
+        </div>
+      )
+    ) : (
+      <StarwindTable class={className} {...rest}>
+        <slot />
+      </StarwindTable>
+    )
+  }
+</div>

@@ -3,6 +3,14 @@ import AdminLayout from "../../../layouts/AdminLayout.astro";
 import { db } from "../../../lib/db";
 import { leads } from "../../../lib/db/schema";
 import { desc, eq, and, sql } from "drizzle-orm";
+import {
+  Table,
+  TableHeader,
+  TableBody,
+  TableHead,
+  TableRow,
+  TableCell,
+} from "../../../components/ui";
 
 const statusFilter = Astro.url.searchParams.get("status") || "all";
 const searchQuery = Astro.url.searchParams.get("q")?.trim() || "";
@@ -83,80 +91,73 @@ const statusOptions = [
   </div>
 
   <!-- Leads Table -->
-  <div class="bg-slate-900/70 border border-slate-800/80 rounded-2xl overflow-hidden shadow-xl shadow-black/40">
-    {allLeads.length === 0 ? (
-      <div class="py-16 text-center text-slate-500 text-xs">
-        <i data-lucide="inbox" class="w-12 h-12 mx-auto mb-3 text-slate-600"></i>
-        <div class="font-semibold text-slate-300 text-sm">No inquiries match the current filter</div>
-        <div class="mt-1">Try selecting a different status filter or clearing your search query.</div>
-      </div>
-    ) : (
-      <div class="overflow-x-auto">
-        <table class="w-full text-left text-xs text-slate-300">
-          <thead class="bg-slate-950/80 text-[11px] uppercase tracking-wider text-slate-400 border-b border-slate-800">
-            <tr>
-              <th class="px-4 py-3.5">Contact Prospect</th>
-              <th class="px-4 py-3.5">Company</th>
-              <th class="px-4 py-3.5">Service / Subject</th>
-              <th class="px-4 py-3.5">Status</th>
-              <th class="px-4 py-3.5">Date Received</th>
-              <th class="px-4 py-3.5 text-right">Action</th>
-            </tr>
-          </thead>
-          <tbody class="divide-y divide-slate-800/60">
-            {allLeads.map((lead) => (
-              <tr class="hover:bg-slate-800/30 transition">
-                <td class="px-4 py-3.5">
-                  <a href={`/admin/leads/${lead.id}`} class="font-bold text-white hover:text-primary transition block text-sm">
-                    {lead.name}
-                  </a>
-                  <a href={`mailto:${lead.email}`} class="text-[11px] text-slate-400 hover:text-slate-200 transition font-mono">
-                    {lead.email}
-                  </a>
-                </td>
-                <td class="px-4 py-3.5 text-slate-400">
-                  {lead.company || "—"}
-                </td>
-                <td class="px-4 py-3.5">
-                  <div class="text-slate-200 font-semibold">{lead.subject || lead.serviceId || "Inquiry"}</div>
-                  <div class="text-[11px] text-slate-500 line-clamp-1 max-w-xs">{lead.message}</div>
-                </td>
-                <td class="px-4 py-3.5">
-                  <span class={`px-2.5 py-0.5 rounded-full text-[10px] font-bold uppercase ${
-                    lead.status === "new"
-                      ? "bg-primary/10 text-primary border border-primary/20 animate-pulse"
-                      : lead.status === "contacted"
-                      ? "bg-blue-500/10 text-blue-400 border border-blue-500/20"
-                      : lead.status === "qualified"
-                      ? "bg-emerald-500/10 text-emerald-400 border border-emerald-500/20"
-                      : lead.status === "converted"
-                      ? "bg-purple-500/10 text-purple-400 border border-purple-500/20"
-                      : "bg-slate-800 text-slate-400 border border-slate-700"
-                  }`}>
-                    {lead.status}
-                  </span>
-                </td>
-                <td class="px-4 py-3.5 text-slate-400 font-mono">
-                  {new Date(lead.createdAt).toLocaleDateString("en-US", {
-                    month: "short",
-                    day: "numeric",
-                    year: "numeric",
-                  })}
-                </td>
-                <td class="px-4 py-3.5 text-right">
-                  <a
-                    href={`/admin/leads/${lead.id}`}
-                    class="inline-flex items-center gap-1.5 px-3 py-1.5 bg-slate-800 hover:bg-slate-700 text-slate-200 rounded-lg hover:text-white transition text-xs font-semibold"
-                  >
-                    <span>Inspect</span>
-                    <i data-lucide="chevron-right" class="w-3.5 h-3.5"></i>
-                  </a>
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      </div>
-    )}
-  </div>
+  <Table
+    isEmpty={allLeads.length === 0}
+    emptyIcon="inbox"
+    emptyTitle="No inquiries match the current filter"
+    emptySubtitle="Try selecting a different status filter or clearing your search query."
+  >
+    <TableHeader class="bg-slate-950/80 text-[11px] uppercase tracking-wider text-slate-400 border-b border-slate-800">
+          <TableRow class="border-b border-slate-800 hover:bg-transparent">
+            <TableHead class="px-4 py-3.5 text-slate-400">Contact Prospect</TableHead>
+            <TableHead class="px-4 py-3.5 text-slate-400">Company</TableHead>
+            <TableHead class="px-4 py-3.5 text-slate-400">Service / Subject</TableHead>
+            <TableHead class="px-4 py-3.5 text-slate-400">Status</TableHead>
+            <TableHead class="px-4 py-3.5 text-slate-400">Date Received</TableHead>
+            <TableHead class="px-4 py-3.5 text-right text-slate-400">Action</TableHead>
+          </TableRow>
+        </TableHeader>
+        <TableBody class="divide-y divide-slate-800/60">
+          {allLeads.map((lead) => (
+            <TableRow class="hover:bg-slate-800/30 transition border-b border-slate-800/60">
+              <TableCell class="px-4 py-3.5">
+                <a href={`/admin/leads/${lead.id}`} class="font-bold text-white hover:text-primary transition block text-sm">
+                  {lead.name}
+                </a>
+                <a href={`mailto:${lead.email}`} class="text-[11px] text-slate-400 hover:text-slate-200 transition font-mono">
+                  {lead.email}
+                </a>
+              </TableCell>
+              <TableCell class="px-4 py-3.5 text-slate-400">
+                {lead.company || "—"}
+              </TableCell>
+              <TableCell class="px-4 py-3.5">
+                <div class="text-slate-200 font-semibold">{lead.subject || lead.serviceId || "Inquiry"}</div>
+                <div class="text-[11px] text-slate-500 line-clamp-1 max-w-xs">{lead.message}</div>
+              </TableCell>
+              <TableCell class="px-4 py-3.5">
+                <span class={`px-2.5 py-0.5 rounded-full text-[10px] font-bold uppercase ${
+                  lead.status === "new"
+                    ? "bg-primary/10 text-primary border border-primary/20 animate-pulse"
+                    : lead.status === "contacted"
+                    ? "bg-blue-500/10 text-blue-400 border border-blue-500/20"
+                    : lead.status === "qualified"
+                    ? "bg-emerald-500/10 text-emerald-400 border border-emerald-500/20"
+                    : lead.status === "converted"
+                    ? "bg-purple-500/10 text-purple-400 border border-purple-500/20"
+                    : "bg-slate-800 text-slate-400 border border-slate-700"
+                }`}>
+                  {lead.status}
+                </span>
+              </TableCell>
+              <TableCell class="px-4 py-3.5 text-slate-400 font-mono">
+                {new Date(lead.createdAt).toLocaleDateString("en-US", {
+                  month: "short",
+                  day: "numeric",
+                  year: "numeric",
+                })}
+              </TableCell>
+              <TableCell class="px-4 py-3.5 text-right">
+                <a
+                  href={`/admin/leads/${lead.id}`}
+                  class="inline-flex items-center gap-1.5 px-3 py-1.5 bg-slate-800 hover:bg-slate-700 text-slate-200 rounded-lg hover:text-white transition text-xs font-semibold"
+                >
+                  <span>Inspect</span>
+                  <i data-lucide="chevron-right" class="w-3.5 h-3.5"></i>
+                </a>
+              </TableCell>
+            </TableRow>
+          ))}
+        </TableBody>
+  </Table>
 </AdminLayout>
