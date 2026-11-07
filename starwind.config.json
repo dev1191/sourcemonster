@@ -66,6 +66,12 @@
       "version": "2.1.0",
       "framework": "astro",
       "registry": "default"
+    },
+    {
+      "name": "theme-toggle",
+      "version": "2.0.1",
+      "framework": "vue",
+      "registry": "default"
     }
   ],
   "tailwind": {
@@ -74,5 +80,8 @@
     "cssVariables": true
   },
   "componentDir": "src/components/starwind",
+  "componentDirs": {
+    "vue": "src/components/starwind-vue"
+  },
   "utilsDir": "src/lib/utils"
 }

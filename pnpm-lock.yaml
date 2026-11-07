@@ -23,6 +23,9 @@ importers:
       '@starwind-ui/astro':
         specifier: 1.5.0
         version: 1.5.0(astro@6.4.8(@types/node@26.6.6)(jiti@2.7.0)(lightningcss@1.33.0)(rollup@4.67.5)(tsx@4.23.15)(yaml@2.9.1))
+      '@starwind-ui/vue':
+        specifier: 0.4.0
+        version: 0.4.0(vue@3.5.45)
       '@tabler/icons':
         specifier: ^3.50.0
         version: 3.50.0
@@ -1356,6 +1359,12 @@ packages:
   '@starwind-ui/runtime@1.5.0':
     resolution: {integrity: sha512-Ez3Jh7O3qQuYvNFHWN1TbG7fatDJmgfsUptdqxF0QB1P6qDsfJda06ltF7j+SA8zX2zH+f1aFfNthdxwMH+6sw==}
     engines: {node: '>=22.12.0'}
+
+  '@starwind-ui/vue@0.4.0':
+    resolution: {integrity: sha512-gY8/Op56WG5wYYv3wDhAuDfdAwzCQpAggGqYBwg0bo3cIPLd0SYamlIeKtiEh9UdWeTIESCHUhWXsTpKLkM2dQ==}
+    engines: {node: '>=22.12.0'}
+    peerDependencies:
+      vue: '>=3.5'
 
   '@tabler/icons@3.50.0':
     resolution: {integrity: sha512-HflLxyrH1cqC7s7jzQGSjpsTAVIoaf7+/yHjbdM59rJQBMjliibp+LYhDPFxOMcwa1M8DNpOk6ENzQiWn9a1Dg==}
@@ -4179,6 +4188,11 @@ snapshots:
     dependencies:
       '@floating-ui/dom': 1.8.0
       embla-carousel: 8.6.0
+
+  '@starwind-ui/vue@0.4.0(vue@3.5.45)':
+    dependencies:
+      '@starwind-ui/runtime': 1.5.0
+      vue: 3.5.45
 
   '@tabler/icons@3.50.0': {}
 

@@ -1,13 +1,16 @@
 ---
 import "@/styles/starwind.css";
+import { getThemeInitScript } from "@starwind-ui/vue/theme";
 import { eq } from "drizzle-orm";
 import { db } from "../../lib/db";
 import { adminUsers } from "../../lib/db/schema";
 import { verifyPassword } from "../../lib/auth/password";
 import { createAdminSession } from "../../lib/auth/session";
 import { setSessionCookie } from "../../lib/auth/cookies";
-import { Button, FeedbackAlert } from "../../components/ui";
+import { Button, FeedbackAlert, ThemeToggle } from "../../components/ui";
 import { Input } from "../../components/starwind/input";
+
+const themeInitScript = getThemeInitScript({ defaultTheme: "dark" });
 
 let errorMessage = "";
 const redirectUrl = Astro.url.searchParams.get("redirect") || "/admin";
@@ -59,17 +62,26 @@ if (Astro.request.method === "POST") {
 ---
 
 <!doctype html>
-<html lang="en" class="dark h-full bg-slate-950 text-slate-100">
+<html lang="en" class="h-full">
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <link rel="icon" type="image/png" href="/favicon.png" />
     <title>Admin Login | SourceMonster</title>
     <link rel="stylesheet" href="/css/main.css" />
+    <script is:inline set:html={themeInitScript} />
   </head>
   <body
-    class="h-full flex items-center justify-center p-4 bg-[#020617] relative overflow-hidden"
+    class="h-full flex items-center justify-center p-4 bg-slate-50 dark:bg-[#020617] text-slate-900 dark:text-slate-100 relative overflow-hidden transition-colors duration-200"
   >
+    <!-- Top-Right Theme Toggle -->
+    <div class="absolute top-4 right-4 z-20">
+      <ThemeToggle
+        size="sm"
+        class="border-slate-300 dark:border-slate-800 bg-white/80 dark:bg-slate-900/80 text-slate-700 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800 rounded-xl backdrop-blur-md shadow-lg"
+      />
+    </div>
+
     <!-- Ambient glowing backgrounds -->
     <div
       class="absolute -top-40 -left-40 w-96 h-96 bg-primary/10 rounded-full blur-3xl pointer-events-none"
@@ -82,7 +94,7 @@ if (Astro.request.method === "POST") {
 
     <div class="w-full max-w-md relative z-10">
       <div
-        class="bg-slate-900/80 backdrop-blur-xl border border-slate-800 rounded-2xl p-6 sm:p-8 shadow-2xl shadow-black/80"
+        class="bg-white/90 dark:bg-slate-900/80 backdrop-blur-xl border border-slate-200 dark:border-slate-800 rounded-2xl p-6 sm:p-8 shadow-2xl shadow-slate-200/50 dark:shadow-black/80 transition-colors duration-200"
       >
         <!-- Logo / Title -->
         <div class="text-center mb-8">
@@ -91,10 +103,10 @@ if (Astro.request.method === "POST") {
           >
             SM
           </div>
-          <h1 class="text-2xl font-black tracking-tight text-white">
+          <h1 class="text-2xl font-black tracking-tight text-slate-900 dark:text-white">
             Admin Command Center
           </h1>
-          <p class="text-xs text-slate-400 mt-1 uppercase tracking-wider">
+          <p class="text-xs text-slate-500 dark:text-slate-400 mt-1 uppercase tracking-wider">
             SourceMonster Core Administration
           </p>
         </div>
@@ -106,7 +118,7 @@ if (Astro.request.method === "POST") {
           <div>
             <label
               for="email"
-              class="block text-xs font-semibold uppercase tracking-wider text-slate-300 mb-1.5"
+              class="block text-xs font-semibold uppercase tracking-wider text-slate-700 dark:text-slate-300 mb-1.5"
             >
               Email Address
             </label>
@@ -117,7 +129,7 @@ if (Astro.request.method === "POST") {
               required
               autocomplete="email"
               placeholder="admin@sourcemonster.in"
-              class="bg-slate-950/80 border-slate-700/80 rounded-xl text-white placeholder:text-slate-500"
+              class="bg-slate-50 dark:bg-slate-950/80 border-slate-300 dark:border-slate-700/80 rounded-xl text-slate-900 dark:text-white placeholder:text-slate-400 dark:placeholder:text-slate-500"
             />
           </div>
 
@@ -125,7 +137,7 @@ if (Astro.request.method === "POST") {
             <div class="flex items-center justify-between mb-1.5">
               <label
                 for="password"
-                class="block text-xs font-semibold uppercase tracking-wider text-slate-300"
+                class="block text-xs font-semibold uppercase tracking-wider text-slate-700 dark:text-slate-300"
               >
                 Password
               </label>
@@ -137,7 +149,7 @@ if (Astro.request.method === "POST") {
               required
               autocomplete="current-password"
               placeholder="••••••••••••"
-              class="bg-slate-950/80 border-slate-700/80 rounded-xl text-white placeholder:text-slate-500"
+              class="bg-slate-50 dark:bg-slate-950/80 border-slate-300 dark:border-slate-700/80 rounded-xl text-slate-900 dark:text-white placeholder:text-slate-400 dark:placeholder:text-slate-500"
             />
           </div>
 
@@ -152,10 +164,10 @@ if (Astro.request.method === "POST") {
           </Button>
         </form>
 
-        <div class="mt-8 pt-6 border-t border-slate-800 text-center">
+        <div class="mt-8 pt-6 border-t border-slate-200 dark:border-slate-800 text-center">
           <a
             href="/"
-            class="text-xs text-slate-400 hover:text-white transition"
+            class="text-xs text-slate-500 hover:text-slate-900 dark:text-slate-400 dark:hover:text-white transition font-medium"
           >
             &larr; Return to public site
           </a>
