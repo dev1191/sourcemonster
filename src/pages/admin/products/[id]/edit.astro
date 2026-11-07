@@ -1,7 +1,7 @@
 ---
 import AdminLayout from "../../../../layouts/AdminLayout.astro";
 import { db } from "../../../../lib/db";
-import { products, media, productMedia } from "../../../../lib/db/schema";
+import { products, media, productMedia, productAddons } from "../../../../lib/db/schema";
 import { eq } from "drizzle-orm";
 import { productSchema } from "../../../../lib/validation/product";
 import { uploadFile, getPublicUrl } from "../../../../lib/storage";
@@ -48,6 +48,39 @@ if (Astro.request.method === "POST") {
         await db.delete(productMedia).where(eq(productMedia.id, pmId));
         return Astro.redirect(`/admin/products/${id}/edit`);
       }
+    }
+
+    // ── Addon actions ──────────────────────────────────────────────────────
+    if (action === "add_addon") {
+      const addonName = formData.get("addon_name")?.toString().trim() || "";
+      const addonDesc = formData.get("addon_description")?.toString().trim() || "";
+      const addonPriceRaw = formData.get("addon_price")?.toString().trim();
+      const addonIsFree = formData.get("addon_is_free") === "on";
+      const addonBuyUrl = formData.get("addon_buy_url")?.toString().trim() || null;
+      const addonDemoUrl = formData.get("addon_demo_url")?.toString().trim() || null;
+
+      if (addonName) {
+        await db.insert(productAddons).values({
+          productId: id,
+          name: addonName,
+          description: addonDesc,
+          price: addonIsFree || !addonPriceRaw ? null : addonPriceRaw,
+          isFree: addonIsFree,
+          buyUrl: addonBuyUrl || null,
+          demoUrl: addonDemoUrl || null,
+          sortOrder: 0,
+        });
+        successMessage = `Addon "${addonName}" added.`;
+      }
+      return Astro.redirect(`/admin/products/${id}/edit`);
+    }
+
+    if (action === "delete_addon") {
+      const addonId = formData.get("addon_id")?.toString();
+      if (addonId) {
+        await db.delete(productAddons).where(eq(productAddons.id, addonId));
+      }
+      return Astro.redirect(`/admin/products/${id}/edit`);
     }
 
     const title = formData.get("title")?.toString().trim() || "";
@@ -230,6 +263,13 @@ const galleryItems = await db
   .from(productMedia)
   .innerJoin(media, eq(productMedia.mediaId, media.id))
   .where(eq(productMedia.productId, id));
+
+// Query add-ons / modules for this product
+const addons = await db
+  .select()
+  .from(productAddons)
+  .where(eq(productAddons.productId, id))
+  .orderBy(productAddons.sortOrder, productAddons.createdAt);
 ---
 
 <AdminLayout title={`Edit ${product.title} | SourceMonster Admin`} activeNav="products">
@@ -571,4 +611,177 @@ const galleryItems = await db
       </div>
     </div>
   </form>
+
+  <!-- Add-ons & Modules Section -->
+  <div class="my-8 max-w-4xl space-y-4">
+    <Card class="bg-slate-900/70 border-slate-800/80 rounded-2xl shadow-xl">
+      <CardHeader>
+        <CardTitle class="text-sm font-bold text-primary uppercase tracking-wider flex items-center gap-2">
+          <i data-lucide="puzzle" class="w-4 h-4"></i>
+          Add-ons &amp; Modules
+          {addons.length > 0 && (
+            <span class="ml-auto text-[10px] font-normal bg-primary/10 text-primary border border-primary/20 px-2 py-0.5 rounded-full">
+              {addons.length} module{addons.length !== 1 ? "s" : ""}
+            </span>
+          )}
+        </CardTitle>
+      </CardHeader>
+      <CardContent class="space-y-6 pt-2">
+        {/* Existing addons list */}
+        {addons.length > 0 ? (
+          <div class="space-y-3">
+            {addons.map((addon) => (
+              <div class="flex items-start justify-between gap-3 p-4 bg-slate-950/60 border border-slate-800/70 rounded-xl group hover:border-slate-700/80 transition">
+                <div class="flex-1 min-w-0">
+                  <div class="flex items-center gap-2.5 flex-wrap">
+                    <span class="font-bold text-sm text-white">{addon.name}</span>
+                    {addon.isFree ? (
+                      <span class="px-2 py-0.5 rounded-full bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 text-[10px] font-bold uppercase tracking-wider">
+                        Free
+                      </span>
+                    ) : addon.price ? (
+                      <span class="px-2 py-0.5 rounded-full bg-primary/10 text-primary border border-primary/20 text-[10px] font-bold font-mono">
+                        ${parseFloat(addon.price).toFixed(2)}
+                      </span>
+                    ) : null}
+                  </div>
+                  {addon.description && (
+                    <p class="text-xs text-slate-400 mt-1.5 leading-relaxed">{addon.description}</p>
+                  )}
+                  <div class="flex items-center gap-4 mt-2.5 flex-wrap">
+                    {addon.buyUrl && (
+                      <a
+                        href={addon.buyUrl}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        class="text-[11px] text-primary hover:underline flex items-center gap-1 font-medium"
+                      >
+                        <i data-lucide="shopping-cart" class="w-3.5 h-3.5"></i>
+                        <span>Buy URL</span>
+                      </a>
+                    )}
+                    {addon.demoUrl && (
+                      <a
+                        href={addon.demoUrl}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        class="text-[11px] text-slate-400 hover:text-white flex items-center gap-1 font-medium"
+                      >
+                        <i data-lucide="play-circle" class="w-3.5 h-3.5"></i>
+                        <span>Live Demo</span>
+                      </a>
+                    )}
+                  </div>
+                </div>
+                <form method="POST" class="shrink-0">
+                  <input type="hidden" name="_action" value="delete_addon" />
+                  <input type="hidden" name="addon_id" value={addon.id} />
+                  <button
+                    type="submit"
+                    title="Remove addon"
+                    class="p-2 text-slate-500 hover:text-rose-400 hover:bg-rose-500/10 rounded-lg transition"
+                    onclick="return confirm('Are you sure you want to remove this addon?');"
+                  >
+                    <i data-lucide="trash-2" class="w-4 h-4"></i>
+                  </button>
+                </form>
+              </div>
+            ))}
+          </div>
+        ) : (
+          <div class="text-center py-6 text-xs text-slate-500 border border-dashed border-slate-800 rounded-xl">
+            No addons or modules added yet. Add one below.
+          </div>
+        )}
+
+        {/* Add new addon form */}
+        <form method="POST" class="space-y-4 pt-4 border-t border-slate-800/80">
+          <input type="hidden" name="_action" value="add_addon" />
+          <div class="text-xs font-bold text-slate-300 uppercase tracking-wider flex items-center gap-2">
+            <i data-lucide="plus-circle" class="w-4 h-4 text-primary"></i>
+            <span>Add New Module / Addon</span>
+          </div>
+
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div>
+              <label class="block text-xs font-semibold text-slate-300 uppercase tracking-wider mb-1.5">
+                Module Name *
+              </label>
+              <Input
+                name="addon_name"
+                type="text"
+                required
+                placeholder="e.g. WhatsApp Notification Module"
+                class="bg-slate-950/80 border-slate-700/80 text-white placeholder:text-slate-500 rounded-xl"
+              />
+            </div>
+            <div>
+              <label class="block text-xs font-semibold text-slate-300 uppercase tracking-wider mb-1.5">
+                Price (USD)
+              </label>
+              <Input
+                name="addon_price"
+                type="number"
+                min="0"
+                step="0.01"
+                placeholder="29.00"
+                class="bg-slate-950/80 border-slate-700/80 text-white placeholder:text-slate-500 rounded-xl"
+              />
+            </div>
+          </div>
+
+          <div>
+            <label class="block text-xs font-semibold text-slate-300 uppercase tracking-wider mb-1.5">
+              Description
+            </label>
+            <Textarea
+              name="addon_description"
+              rows={2}
+              placeholder="Explain what functionality this addon or module provides..."
+              class="bg-slate-950/80 border-slate-700/80 text-white placeholder:text-slate-500 rounded-xl"
+            />
+          </div>
+
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div>
+              <label class="block text-xs font-semibold text-slate-300 uppercase tracking-wider mb-1.5">
+                Buy / CodeCanyon URL
+              </label>
+              <Input
+                name="addon_buy_url"
+                type="url"
+                placeholder="https://codecanyon.net/item/..."
+                class="bg-slate-950/80 border-slate-700/80 text-white placeholder:text-slate-500 rounded-xl"
+              />
+            </div>
+            <div>
+              <label class="block text-xs font-semibold text-slate-300 uppercase tracking-wider mb-1.5">
+                Demo URL
+              </label>
+              <Input
+                name="addon_demo_url"
+                type="url"
+                placeholder="https://demo.sourcemonster.in/addon"
+                class="bg-slate-950/80 border-slate-700/80 text-white placeholder:text-slate-500 rounded-xl"
+              />
+            </div>
+          </div>
+
+          <div class="flex items-center justify-between pt-2">
+            <label class="flex items-center gap-2 cursor-pointer">
+              <input
+                name="addon_is_free"
+                type="checkbox"
+                class="w-4 h-4 rounded text-primary focus:ring-primary bg-slate-950 border-slate-700"
+              />
+              <span class="text-xs font-semibold text-slate-300 uppercase tracking-wider">This addon is free / included</span>
+            </label>
+            <Button type="submit" variant="primary" size="sm" icon="plus">
+              Add Module
+            </Button>
+          </div>
+        </form>
+      </CardContent>
+    </Card>
+  </div>
 </AdminLayout>
