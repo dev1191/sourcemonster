@@ -1,5 +1,8 @@
 ---
 import "@/styles/starwind.css";
+import { Image } from "astro:assets";
+import logoImg from "../../assets/images/logo.png";
+import logo2Img from "../../assets/images/logo-2.png";
 import { ThemeInitScript } from "@starwind-ui/astro/theme";
 import { eq } from "drizzle-orm";
 import { db } from "../../lib/db";
@@ -96,16 +99,29 @@ if (Astro.request.method === "POST") {
       >
         <!-- Logo / Title -->
         <div class="text-center mb-8">
-          <div
-            class="inline-flex items-center justify-center w-12 h-12 rounded-xl bg-gradient-to-tr from-primary to-orange-500 text-white font-black text-xl mb-4 shadow-lg shadow-primary/20"
+          <a
+            href="/"
+            class="inline-flex items-center justify-center mb-4 transition-transform hover:scale-105"
+            title="SourceMonster Home"
           >
-            SM
-          </div>
-          <h1 class="text-2xl font-black tracking-tight text-slate-900 dark:text-white">
+            <Image
+              src={logoImg}
+              alt="SourceMonster Logo"
+              class="h-12 w-auto object-contain dark:hidden"
+            />
+            <Image
+              src={logo2Img}
+              alt="SourceMonster Logo"
+              class="h-12 w-auto object-contain hidden dark:block"
+            />
+          </a>
+          <h1
+            class="text-2xl font-black tracking-tight text-slate-900 dark:text-white"
+          >
             Admin Command Center
           </h1>
           <p
-            class="text-xs text-slate-500 dark:text-slate-400 mt-1 uppercase tracking-wider"
+            class="text-xs text-slate-500 dark:text-slate-400 mt-1 uppercase tracking-wider font-medium"
           >
             SourceMonster Core Administration
           </p>
