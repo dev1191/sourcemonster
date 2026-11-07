@@ -1,0 +1,23 @@
+---
+import SheetPrimitive from "@starwind-ui/astro/drawer";
+import type { HTMLAttributes } from "astro/types";
+
+type Props = HTMLAttributes<"button"> & {
+  asChild?: boolean;
+  targetId?: string;
+};
+
+const { asChild = false, targetId, class: className, ...rest } = Astro.props;
+
+const triggerClassName = className;
+---
+
+<SheetPrimitive.Trigger
+  asChild={asChild}
+  class={triggerClassName}
+  targetId={targetId}
+  {...rest}
+  data-slot="sheet-trigger"
+>
+  <slot />
+</SheetPrimitive.Trigger>

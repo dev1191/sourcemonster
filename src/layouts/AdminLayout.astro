@@ -3,6 +3,7 @@ import "@/styles/starwind.css";
 import { ThemeInitScript } from "@starwind-ui/astro/theme";
 import AdminHeader from "@/components/admin/AdminHeader.astro";
 import AdminSidebar from "@/components/admin/AdminSidebar.astro";
+import { SidebarProvider, SidebarInset } from "@/components/starwind/sidebar";
 
 interface Props {
   title?: string;
@@ -24,66 +25,31 @@ const user = Astro.locals.adminUser;
     <!-- Lucide icons -->
     <script is:inline src="https://unpkg.com/lucide@latest"></script>
   </head>
-  <body class="h-full flex flex-col md:flex-row bg-slate-50 dark:bg-[#030712] font-sans antialiased text-slate-800 dark:text-slate-200 transition-colors duration-200">
-    <!-- Admin Sidebar (Desktop sidebar + Mobile drawer) -->
-    <AdminSidebar activeNav={activeNav} user={user} />
+  <body class="h-full bg-slate-50 dark:bg-[#030712] font-sans antialiased text-slate-800 dark:text-slate-200 transition-colors duration-200">
+    <SidebarProvider defaultOpen={true} persistOpen={true} persistenceStorage="localStorage">
+      <!-- Starwind Admin Sidebar (Desktop sidebar + auto Mobile Sheet drawer) -->
+      <AdminSidebar activeNav={activeNav} user={user} />
 
-    <!-- Right-Side Main Content Container -->
-    <div class="flex-1 flex flex-col min-w-0 min-h-screen overflow-y-auto bg-slate-100/70 dark:bg-[#030712] transition-colors duration-200">
-      <!-- Admin Header (Mobile header bar + Desktop top header bar) -->
-      <AdminHeader activeNav={activeNav} user={user} />
+      <!-- Inset wraps header & main content -->
+      <SidebarInset class="flex flex-col min-w-0 min-h-screen bg-slate-100/70 dark:bg-[#030712] transition-colors duration-200">
+        <!-- Admin Header -->
+        <AdminHeader activeNav={activeNav} user={user} />
 
-      <!-- Main Content Area -->
-      <main class="flex-1 p-4 sm:p-6 lg:p-8">
-        <div class="max-w-7xl mx-auto">
-          <slot />
-        </div>
-      </main>
-    </div>
-
-    <script is:inline>
-      document.addEventListener("DOMContentLoaded", () => {
-        if (typeof lucide !== "undefined") {
-          lucide.createIcons();
-        }
-
-        const menuBtn = document.getElementById("mobile-menu-btn");
-        const drawer = document.getElementById("mobile-drawer");
-        const closeBtn = document.getElementById("close-drawer-btn");
-
-        if (menuBtn && drawer && closeBtn) {
-          menuBtn.addEventListener("click", () => drawer.classList.remove("hidden"));
-          closeBtn.addEventListener("click", () => drawer.classList.add("hidden"));
-        }
-      });
-    </script>
-  </body>
-</html>
-
-      <!-- Main Content Area -->
-      <main class="flex-1 p-4 sm:p-6 lg:p-8">
-        <div class="max-w-7xl mx-auto">
-          <slot />
-        </div>
-      </main>
-    </div>
+        <!-- Main Content Area -->
+        <main class="flex-1 p-4 sm:p-6 lg:p-8">
+          <div class="max-w-7xl mx-auto">
+            <slot />
+          </div>
+        </main>
+      </SidebarInset>
+    </SidebarProvider>
 
     <script is:inline>
       document.addEventListener("DOMContentLoaded", () => {
         if (typeof lucide !== "undefined") {
           lucide.createIcons();
         }
-
-        const menuBtn = document.getElementById("mobile-menu-btn");
-        const drawer = document.getElementById("mobile-drawer");
-        const closeBtn = document.getElementById("close-drawer-btn");
-
-        if (menuBtn && drawer && closeBtn) {
-          menuBtn.addEventListener("click", () => drawer.classList.remove("hidden"));
-          closeBtn.addEventListener("click", () => drawer.classList.add("hidden"));
-        }
       });
     </script>
   </body>
 </html>
-

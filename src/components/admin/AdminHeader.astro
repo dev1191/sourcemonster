@@ -3,6 +3,7 @@ import { Image } from "astro:assets";
 import logoImg from "../../assets/images/logo.png";
 import logo2Img from "../../assets/images/logo-2.png";
 import { ThemeToggle } from "@/components/starwind/theme-toggle";
+import { SidebarTrigger } from "@/components/starwind/sidebar";
 
 interface Props {
   activeNav?: string;
@@ -18,32 +19,39 @@ const { activeNav = "dashboard", user } = Astro.props;
 
 <!-- Mobile Top Header Bar -->
 <header class="md:hidden flex items-center justify-between px-4 py-3 bg-white dark:bg-slate-900 border-b border-slate-200 dark:border-slate-800 transition-colors duration-200">
-  <a href="/admin" class="flex items-center gap-2">
-    <Image src={logoImg} alt="SourceMonster" class="h-7 w-auto dark:hidden" />
-    <Image src={logo2Img} alt="SourceMonster" class="h-7 w-auto hidden dark:block" />
-  </a>
+  <div class="flex items-center gap-2">
+    <SidebarTrigger
+      size="icon-sm"
+      variant="ghost"
+      class="text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white"
+    />
+    <a href="/admin" class="flex items-center gap-2">
+      <Image src={logoImg} alt="SourceMonster" class="h-7 w-auto dark:hidden" />
+      <Image src={logo2Img} alt="SourceMonster" class="h-7 w-auto hidden dark:block" />
+    </a>
+  </div>
   <div class="flex items-center gap-2">
     <ThemeToggle
       size="sm"
       class="border-slate-300 dark:border-slate-800 text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800/80 rounded-lg"
     />
-    <button
-      id="mobile-menu-btn"
-      class="p-2 text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white focus:outline-none"
-      aria-label="Open Navigation Menu"
-    >
-      <i data-lucide="menu" class="w-6 h-6"></i>
-    </button>
   </div>
 </header>
 
 <!-- Desktop Top Header Bar -->
 <header class="sticky top-0 z-20 hidden md:flex items-center justify-between px-6 lg:px-8 py-3.5 bg-white/80 dark:bg-slate-900/80 backdrop-blur-md border-b border-slate-200 dark:border-slate-800/80 shadow-xs">
-  <!-- Breadcrumbs / Nav Context -->
-  <div class="flex items-center gap-2 text-xs text-slate-500 dark:text-slate-400">
-    <span class="font-medium text-slate-700 dark:text-slate-300">Admin Control Center</span>
-    <span class="text-slate-300 dark:text-slate-700">/</span>
-    <span class="capitalize text-primary font-semibold tracking-wide">{activeNav}</span>
+  <!-- Sidebar Trigger & Breadcrumbs -->
+  <div class="flex items-center gap-3">
+    <SidebarTrigger
+      size="icon-sm"
+      variant="ghost"
+      class="text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800 rounded-lg"
+    />
+    <div class="flex items-center gap-2 text-xs text-slate-500 dark:text-slate-400">
+      <span class="font-medium text-slate-700 dark:text-slate-300">Admin Control Center</span>
+      <span class="text-slate-300 dark:text-slate-700">/</span>
+      <span class="capitalize text-primary font-semibold tracking-wide">{activeNav}</span>
+    </div>
   </div>
 
   <!-- Right Side Header Actions -->
@@ -77,4 +85,3 @@ const { activeNav = "dashboard", user } = Astro.props;
     </div>
   </div>
 </header>
-

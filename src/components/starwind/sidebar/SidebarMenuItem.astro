@@ -1,0 +1,20 @@
+---
+import type { HTMLAttributes } from "astro/types";
+
+import { sidebarMenuItem } from "./variants";
+
+type Props = HTMLAttributes<"li"> & {
+  "data-slot"?: string;
+};
+
+const { "data-slot": dataSlot = "sidebar-menu-item", class: className, ...rest } = Astro.props;
+---
+
+<li
+  {...rest}
+  class={sidebarMenuItem({ class: className })}
+  data-sidebar="menu-item"
+  data-slot={dataSlot}
+>
+  <slot />
+</li>
