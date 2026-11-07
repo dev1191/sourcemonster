@@ -53,25 +53,27 @@ jobs:
             set -e
             echo "🚀 Starting SourceMonster Deployment on VPS..."
 
-            # 1. Navigate to project root directory
-            cd /var/www/sourcemonster || cd ~/sourcemonster
+            # 1. Navigate to target project directory
+            cd /opt/docker-apps/sourcemonster
 
             # 2. Pull latest code from main
             git fetch origin main
             git reset --hard origin/main
 
-            # 3. Ensure pnpm is active and install packages
-            corepack enable
-            pnpm install --frozen-lockfile
-
-            # 4. Run database migrations
-            pnpm db:migrate
-
-            # 5. Build production bundle
-            pnpm build
-
-            # 6. Restart/Reload application with PM2
-            pm2 reload ecosystem.config.cjs || pm2 start ecosystem.config.cjs
-            pm2 save
+            # 3. Check if Docker deployment or PM2 deployment
+            if command -v docker >/dev/null 2>&1 && [ -f "docker-compose.yml" ]; then
+              echo "🐳 Detected Docker environment. Building and deploying with Docker Compose..."
+              docker compose -f docker-compose.yml -f docker-compose.prod.yml build
+              docker compose -f docker-compose.yml -f docker-compose.prod.yml run --rm app pnpm db:migrate
+              docker compose -f docker-compose.yml -f docker-compose.prod.yml up -d
+            else
+              echo "⚡ Deploying with Node / PM2..."
+              corepack enable
+              pnpm install --frozen-lockfile
+              pnpm db:migrate
+              pnpm build
+              pm2 reload ecosystem.config.cjs || pm2 start ecosystem.config.cjs
+              pm2 save
+            fi
 
             echo "✅ SourceMonster Deployment Complete!"
