@@ -28,3 +28,4 @@ pnpm-debug.log*
 # project specific
 static-template/
 .vscode/
+docs/
