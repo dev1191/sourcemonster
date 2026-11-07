@@ -1,0 +1,232 @@
+---
+import type { HTMLAttributes } from "astro/types";
+import {
+  Dropzone as StarwindDropzone,
+  DropzoneUploadIndicator,
+  DropzoneLoadingIndicator,
+  DropzoneFilesList,
+} from "../starwind/dropzone";
+
+interface Props extends Omit<HTMLAttributes<"input">, "type"> {
+  label?: string;
+  description?: string;
+  helperText?: string;
+  error?: string;
+  isUploading?: boolean;
+  disabled?: boolean;
+  multiple?: boolean;
+  accept?: string;
+  name?: string;
+  id?: string;
+  required?: boolean;
+  icon?: string;
+  maxSizeLabel?: string;
+  class?: string;
+  dropzoneClass?: string;
+  preview?: boolean;
+}
+
+const {
+  label,
+  description,
+  helperText = description,
+  error,
+  isUploading = false,
+  disabled = false,
+  multiple = false,
+  accept,
+  name,
+  id,
+  required = false,
+  icon = "cloud-upload",
+  maxSizeLabel,
+  class: className = "",
+  dropzoneClass = "",
+  preview = true,
+  ...rest
+} = Astro.props;
+
+// Generate deterministic ID if none provided
+const inputId = id || (name ? `dropzone-${name}` : `dropzone-${Math.random().toString(36).substring(2, 9)}`);
+const previewContainerId = `${inputId}-preview`;
+---
+
+<div class:list={["w-full space-y-1.5", className]}>
+  {label && (
+    <div class="flex items-center justify-between">
+      <label
+        for={inputId}
+        class="block text-xs font-semibold uppercase tracking-wider text-slate-300"
+      >
+        {label}
+        {required && <span class="text-rose-400 ml-1 font-bold">*</span>}
+      </label>
+      {maxSizeLabel && (
+        <span class="text-[11px] text-slate-500 font-medium">{maxSizeLabel}</span>
+      )}
+    </div>
+  )}
+
+  <div class="relative group">
+    <StarwindDropzone
+      id={inputId}
+      name={name}
+      accept={accept}
+      multiple={multiple}
+      disabled={disabled}
+      required={required}
+      isUploading={isUploading}
+      aria-invalid={Boolean(error) || undefined}
+      class:list={[
+        "relative flex flex-col items-center justify-center p-6 border-2 border-dashed rounded-xl cursor-pointer transition-all duration-200",
+        "bg-slate-950/40 hover:bg-slate-900/60 border-slate-700/80 hover:border-primary/60",
+        "data-[drag-active=true]:border-primary data-[drag-active=true]:bg-primary/10 data-[drag-active=true]:scale-[0.99]",
+        "focus-within:ring-2 focus-within:ring-primary/40 focus-within:border-primary",
+        error ? "border-rose-500/80 bg-rose-500/5 hover:border-rose-500" : "",
+        disabled ? "opacity-50 cursor-not-allowed pointer-events-none" : "",
+        dropzoneClass,
+      ]}
+      {...rest}
+    >
+      <slot>
+        <!-- Upload State -->
+        <DropzoneUploadIndicator isUploading={isUploading} class="flex flex-col items-center justify-center text-center py-2">
+          <div class="w-12 h-12 rounded-xl bg-slate-900 border border-slate-800 flex items-center justify-center text-primary mb-3 group-hover:scale-110 group-hover:text-orange-400 transition-all shadow-lg shadow-black/40">
+            <i data-lucide={icon} class="w-6 h-6"></i>
+          </div>
+
+          <p class="text-sm font-medium text-slate-200">
+            <span class="text-primary hover:underline font-semibold">Click to upload</span> or drag and drop
+          </p>
+
+          {helperText && (
+            <p class="mt-1 text-xs text-slate-400 max-w-xs">{helperText}</p>
+          )}
+        </DropzoneUploadIndicator>
+
+        <!-- Loading / In-Progress State -->
+        <DropzoneLoadingIndicator isUploading={isUploading} class="flex flex-col items-center justify-center text-center py-4">
+          <div class="w-10 h-10 rounded-full border-2 border-primary border-t-transparent animate-spin mb-3"></div>
+          <p class="text-sm font-medium text-slate-200">Processing file(s)...</p>
+          <p class="text-xs text-slate-400 mt-0.5">Please wait while the upload finishes</p>
+        </DropzoneLoadingIndicator>
+
+        <!-- Selected Files List -->
+        <DropzoneFilesList class="mt-3 text-xs text-slate-300 [&_div]:bg-slate-900/80 [&_div]:border [&_div]:border-slate-800 [&_div]:px-3 [&_div]:py-1.5 [&_div]:rounded-lg [&_div]:shadow-sm" />
+      </slot>
+    </StarwindDropzone>
+
+    <!-- Optional Instant Client-Side Image Preview (Hidden until image selected) -->
+    {preview && (
+      <div
+        id={previewContainerId}
+        class="hidden mt-3 p-3 bg-slate-900/90 border border-slate-800 rounded-xl items-center justify-between gap-3 shadow-md"
+        data-preview-wrapper
+      >
+        <div class="flex items-center gap-3 min-w-0">
+          <img
+            src=""
+            alt="Upload Preview"
+            class="w-12 h-12 rounded-lg object-cover border border-slate-700/80 shrink-0 bg-slate-950"
+            data-preview-img
+          />
+          <div class="min-w-0">
+            <p class="text-xs font-semibold text-slate-200 truncate" data-preview-name>
+              file-name.png
+            </p>
+            <p class="text-[11px] text-slate-400" data-preview-size>
+              0 KB
+            </p>
+          </div>
+        </div>
+        <button
+          type="button"
+          class="p-1.5 text-slate-400 hover:text-rose-400 hover:bg-rose-500/10 rounded-lg transition shrink-0"
+          title="Remove file"
+          data-preview-remove
+        >
+          <i data-lucide="x" class="w-4 h-4"></i>
+        </button>
+      </div>
+    )}
+  </div>
+
+  {error && (
+    <p class="text-xs font-medium text-rose-400 flex items-center gap-1.5 mt-1">
+      <i data-lucide="alert-circle" class="w-3.5 h-3.5 shrink-0"></i>
+      <span>{error}</span>
+    </p>
+  )}
+</div>
+
+{preview && (
+  <script is:inline define:vars={{ inputId, previewContainerId }}>
+    document.addEventListener("DOMContentLoaded", () => {
+      const dropzoneInput = document.getElementById(inputId);
+      const previewWrapper = document.getElementById(previewContainerId);
+      if (!dropzoneInput || !previewWrapper) return;
+
+      const previewImg = previewWrapper.querySelector("[data-preview-img]");
+      const previewName = previewWrapper.querySelector("[data-preview-name]");
+      const previewSize = previewWrapper.querySelector("[data-preview-size]");
+      const removeBtn = previewWrapper.querySelector("[data-preview-remove]");
+
+      const formatBytes = (bytes) => {
+        if (!bytes || bytes === 0) return "0 Bytes";
+        const k = 1024;
+        const sizes = ["Bytes", "KB", "MB", "GB"];
+        const i = Math.floor(Math.log(bytes) / Math.log(k));
+        return parseFloat((bytes / Math.pow(k, i)).toFixed(1)) + " " + sizes[i];
+      };
+
+      const handleFiles = (files) => {
+        if (!files || files.length === 0) {
+          previewWrapper.classList.add("hidden");
+          previewWrapper.classList.remove("flex");
+          return;
+        }
+
+        const file = files[0];
+        if (file.type.startsWith("image/")) {
+          const reader = new FileReader();
+          reader.onload = (e) => {
+            if (previewImg) previewImg.src = e.target.result;
+            if (previewName) previewName.textContent = file.name;
+            if (previewSize) previewSize.textContent = formatBytes(file.size);
+            previewWrapper.classList.remove("hidden");
+            previewWrapper.classList.add("flex");
+            if (typeof lucide !== "undefined") {
+              lucide.createIcons();
+            }
+          };
+          reader.readAsDataURL(file);
+        } else {
+          // Non-image file (e.g. zip, pdf)
+          if (previewImg) {
+            previewImg.src = "data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24' fill='none' stroke='%23ff4d1c' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'><path d='M14.5 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7.5L14.5 2z'/><polyline points='14 2 14 8 20 8'/></svg>";
+          }
+          if (previewName) previewName.textContent = file.name;
+          if (previewSize) previewSize.textContent = formatBytes(file.size);
+          previewWrapper.classList.remove("hidden");
+          previewWrapper.classList.add("flex");
+          if (typeof lucide !== "undefined") {
+            lucide.createIcons();
+          }
+        }
+      };
+
+      dropzoneInput.addEventListener("change", (e) => {
+        handleFiles(e.target.files);
+      });
+
+      if (removeBtn) {
+        removeBtn.addEventListener("click", () => {
+          dropzoneInput.value = "";
+          dropzoneInput.dispatchEvent(new Event("change", { bubbles: true }));
+          previewWrapper.classList.add("hidden");
+          previewWrapper.classList.remove("flex");
+        });
+      }
+    });
+  </script>
+)}
