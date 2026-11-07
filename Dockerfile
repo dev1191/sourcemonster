@@ -8,12 +8,12 @@ ENV PATH="$PNPM_HOME:$PATH"
 ENV PNPM_CONFIG_MANAGE_PACKAGE_MANAGER_VERSIONS=false
 
 RUN mkdir -p /pnpm && chmod 777 /pnpm \
- && npm install -g pnpm@latest
+ && npm install -g pnpm@10.5.2
 
 # ---- deps ----
 FROM base AS deps
-COPY package.json pnpm-lock.yaml pnpm-workspace.yaml* .npmrc* ./
-RUN pnpm install
+COPY package.json pnpm-lock.yaml .npmrc* ./
+RUN pnpm install --no-frozen-lockfile --reporter=default
 
 # ---- build ----
 FROM deps AS build
@@ -26,7 +26,7 @@ WORKDIR /app
 
 ENV NODE_ENV=production HOST=0.0.0.0 PORT=4321
 
-COPY package.json pnpm-lock.yaml pnpm-workspace.yaml* .npmrc* ./
+COPY package.json pnpm-lock.yaml .npmrc* ./
 COPY drizzle.config.ts tsconfig.json ./
 COPY --from=deps /app/node_modules ./node_modules
 COPY --from=build /app/dist ./dist
