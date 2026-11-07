@@ -1,0 +1,77 @@
+name: CI/CD Pipeline
+
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+
+jobs:
+  test-and-build:
+    name: Run Tests & Build Verification
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Install pnpm
+        uses: pnpm/action-setup@v3
+        with:
+          version: 10
+
+      - name: Setup Node.js (v22)
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: "pnpm"
+
+      - name: Install Dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Run Test Suite
+        run: pnpm test
+
+      - name: Verify Build
+        run: pnpm build
+
+  deploy:
+    name: Deploy to VPS
+    needs: test-and-build
+    runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/main'
+
+    steps:
+      - name: Deploy via SSH
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ secrets.VPS_HOST }}
+          username: ${{ secrets.VPS_USERNAME || secrets.VPS_USER }}
+          key: ${{ secrets.VPS_SSH_KEY }}
+          port: ${{ secrets.VPS_PORT || 22 }}
+          script: |
+            set -e
+            echo "🚀 Starting SourceMonster Deployment on VPS..."
+
+            # 1. Navigate to project root directory
+            cd /var/www/sourcemonster || cd ~/sourcemonster
+
+            # 2. Pull latest code from main
+            git fetch origin main
+            git reset --hard origin/main
+
+            # 3. Ensure pnpm is active and install packages
+            corepack enable
+            pnpm install --frozen-lockfile
+
+            # 4. Run database migrations
+            pnpm db:migrate
+
+            # 5. Build production bundle
+            pnpm build
+
+            # 6. Restart/Reload application with PM2
+            pm2 reload ecosystem.config.cjs || pm2 start ecosystem.config.cjs
+            pm2 save
+
+            echo "✅ SourceMonster Deployment Complete!"
