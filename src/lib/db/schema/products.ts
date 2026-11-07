@@ -51,6 +51,7 @@ export const productAddons = pgTable("product_addons", {
     .references(() => products.id, { onDelete: "cascade" }),
   name: text("name").notNull(),
   description: text("description").notNull().default(""),
+  thumbnailMediaId: uuid("thumbnail_media_id").references(() => media.id, { onDelete: "set null" }),
   /** Decimal price in USD. NULL means free or contact-for-price. */
   price: numeric("price", { precision: 10, scale: 2 }),
   /** If true the addon is free. Overrides price display. */
@@ -64,6 +65,21 @@ export const productAddons = pgTable("product_addons", {
   updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow(),
 });
 
+export const productAddonMedia = pgTable("product_addon_media", {
+  id: uuid("id").primaryKey().defaultRandom(),
+  addonId: uuid("addon_id")
+    .notNull()
+    .references(() => productAddons.id, { onDelete: "cascade" }),
+  mediaId: uuid("media_id")
+    .notNull()
+    .references(() => media.id, { onDelete: "cascade" }),
+  caption: text("caption"),
+  sortOrder: integer("sort_order").notNull().default(0),
+  createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+});
+
 export type ProductAddon = typeof productAddons.$inferSelect;
 export type NewProductAddon = typeof productAddons.$inferInsert;
+export type ProductAddonMedia = typeof productAddonMedia.$inferSelect;
+export type NewProductAddonMedia = typeof productAddonMedia.$inferInsert;
 

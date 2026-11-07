@@ -1,11 +1,11 @@
 ---
 import AdminLayout from "../../../layouts/AdminLayout.astro";
 import { db } from "../../../lib/db";
-import { products, media } from "../../../lib/db/schema";
+import { products, media, productAddons, productAddonMedia } from "../../../lib/db/schema";
 import { eq } from "drizzle-orm";
 import { productSchema } from "../../../lib/validation/product";
 import { uploadFile } from "../../../lib/storage";
-import { Button, Card, Dropzone, FeedbackAlert } from "../../../components/ui";
+import { Button, Card, Dropzone, FeedbackAlert, ProductAddonsSection } from "../../../components/ui";
 import { Input } from "../../../components/starwind/input";
 import { Textarea } from "../../../components/starwind/textarea";
 import { NativeSelect, NativeSelectOption } from "../../../components/starwind/native-select";
@@ -101,7 +101,7 @@ if (Astro.request.method === "POST") {
           thumbnailMediaId = newMedia.id;
         }
 
-        await db.insert(products).values({
+        const [newProduct] = await db.insert(products).values({
           title,
           slug,
           shortDescription,
@@ -119,9 +119,78 @@ if (Astro.request.method === "POST") {
           seoTitle: seoTitle || null,
           seoDescription: seoDescription || null,
           publishedAt: status === "published" ? new Date() : null,
-        });
+        }).returning();
 
-        return Astro.redirect("/admin/products");
+        // Check for optional initial addon
+        const addonName = formData.get("addon_name")?.toString().trim();
+        if (addonName && newProduct) {
+          const addonDesc = formData.get("addon_description")?.toString().trim() || "";
+          const addonPriceRaw = formData.get("addon_price")?.toString().trim();
+          const addonIsFree = formData.get("addon_is_free") === "on";
+          const addonBuyUrl = formData.get("addon_buy_url")?.toString().trim() || null;
+          const addonDemoUrl = formData.get("addon_demo_url")?.toString().trim() || null;
+
+          let addonThumbnailMediaId: string | null = null;
+          const addonThumbnailFile = formData.get("addon_thumbnail") as File | null;
+          if (addonThumbnailFile && addonThumbnailFile.size > 0) {
+            const uploadRes = await uploadFile(
+              addonThumbnailFile,
+              addonThumbnailFile.name,
+              addonThumbnailFile.type
+            );
+            const [newMedia] = await db
+              .insert(media)
+              .values({
+                disk: uploadRes.disk,
+                objectKey: uploadRes.objectKey,
+                originalName: uploadRes.originalName,
+                mimeType: uploadRes.mimeType,
+                sizeBytes: uploadRes.sizeBytes,
+                altText: `${addonName} Thumbnail`,
+              })
+              .returning();
+            addonThumbnailMediaId = newMedia.id;
+          }
+
+          const [createdAddon] = await db.insert(productAddons).values({
+            productId: newProduct.id,
+            name: addonName,
+            description: addonDesc,
+            thumbnailMediaId: addonThumbnailMediaId,
+            price: addonIsFree || !addonPriceRaw ? null : addonPriceRaw,
+            isFree: addonIsFree,
+            buyUrl: addonBuyUrl || null,
+            demoUrl: addonDemoUrl || null,
+            sortOrder: 0,
+          }).returning();
+
+          const addonScreenshotFile = formData.get("addon_screenshot") as File | null;
+          if (addonScreenshotFile && addonScreenshotFile.size > 0 && createdAddon) {
+            const uploadRes = await uploadFile(
+              addonScreenshotFile,
+              addonScreenshotFile.name,
+              addonScreenshotFile.type
+            );
+            const [newMedia] = await db
+              .insert(media)
+              .values({
+                disk: uploadRes.disk,
+                objectKey: uploadRes.objectKey,
+                originalName: uploadRes.originalName,
+                mimeType: uploadRes.mimeType,
+                sizeBytes: uploadRes.sizeBytes,
+                altText: `${addonName} Screenshot`,
+              })
+              .returning();
+            await db.insert(productAddonMedia).values({
+              addonId: createdAddon.id,
+              mediaId: newMedia.id,
+              sortOrder: 0,
+            });
+          }
+        }
+
+        return Astro.redirect(`/admin/products/${newProduct.id}/edit`);
       }
     }
   } catch (err) {
@@ -365,6 +434,9 @@ if (Astro.request.method === "POST") {
         </div>
       </div>
     </Card>
+
+    <!-- Add-ons & Modules Section -->
+    <ProductAddonsSection mode="new" />
 
     <div class="flex items-center justify-end gap-3 pt-2">
       <Button href="/admin/products" variant="secondary" size="md">Cancel</Button>

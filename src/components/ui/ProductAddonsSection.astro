@@ -1,0 +1,396 @@
+---
+import { Button, Dropzone } from "./";
+import { Card, CardHeader, CardTitle, CardContent } from "../starwind/card";
+import { Input } from "../starwind/input";
+import { Textarea } from "../starwind/textarea";
+
+export interface AddonItem {
+  id: string;
+  name: string;
+  description?: string | null;
+  price?: string | null;
+  isFree?: boolean;
+  buyUrl?: string | null;
+  demoUrl?: string | null;
+  thumbnailUrl?: string | null;
+  gallery?: Array<{ id: string; url: string; caption?: string | null }>;
+}
+
+interface Props {
+  productId?: string;
+  addons?: AddonItem[];
+  mode?: "edit" | "new";
+}
+
+const { productId, addons = [], mode = productId ? "edit" : "new" } = Astro.props;
+---
+
+<div class="my-8 max-w-4xl space-y-4">
+  <Card class="bg-slate-900/70 border-slate-800/80 rounded-2xl shadow-xl">
+    <CardHeader>
+      <CardTitle class="text-sm font-bold text-primary uppercase tracking-wider flex items-center gap-2">
+        <i data-lucide="puzzle" class="w-4 h-4"></i>
+        <span>Add-ons &amp; Modules</span>
+        {mode === "edit" && addons.length > 0 && (
+          <span class="ml-auto text-[10px] font-normal bg-primary/10 text-primary border border-primary/20 px-2 py-0.5 rounded-full">
+            {addons.length} module{addons.length !== 1 ? "s" : ""}
+          </span>
+        )}
+      </CardTitle>
+    </CardHeader>
+
+    <CardContent class="space-y-6 pt-2">
+      {mode === "edit" ? (
+        <>
+          {/* Existing addons list */}
+          {addons.length > 0 ? (
+            <div class="space-y-4">
+              {addons.map((addon) => (
+                <div class="p-4 bg-slate-950/60 border border-slate-800/70 rounded-xl group hover:border-slate-700/80 transition space-y-3">
+                  <div class="flex items-start justify-between gap-4">
+                    <div class="flex items-start gap-3.5 min-w-0 flex-1">
+                      {addon.thumbnailUrl ? (
+                        <img
+                          src={addon.thumbnailUrl}
+                          alt={addon.name}
+                          class="w-16 h-16 rounded-xl object-cover border border-slate-800 shrink-0 bg-slate-900"
+                        />
+                      ) : (
+                        <div class="w-16 h-16 rounded-xl border border-dashed border-slate-800 bg-slate-900/50 flex flex-col items-center justify-center text-slate-600 shrink-0">
+                          <i data-lucide="image" class="w-5 h-5"></i>
+                          <span class="text-[9px] mt-0.5">No thumb</span>
+                        </div>
+                      )}
+
+                      <div class="flex-1 min-w-0">
+                        <div class="flex items-center gap-2.5 flex-wrap">
+                          <span class="font-bold text-sm text-white">{addon.name}</span>
+                          {addon.isFree ? (
+                            <span class="px-2 py-0.5 rounded-full bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 text-[10px] font-bold uppercase tracking-wider">
+                              Free
+                            </span>
+                          ) : addon.price ? (
+                            <span class="px-2 py-0.5 rounded-full bg-primary/10 text-primary border border-primary/20 text-[10px] font-bold font-mono">
+                              ${parseFloat(addon.price).toFixed(2)}
+                            </span>
+                          ) : null}
+                        </div>
+
+                        {addon.description && (
+                          <p class="text-xs text-slate-400 mt-1 leading-relaxed line-clamp-2">{addon.description}</p>
+                        )}
+
+                        <div class="flex items-center gap-4 mt-2 flex-wrap">
+                          {addon.buyUrl && (
+                            <a
+                              href={addon.buyUrl}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              class="text-[11px] text-primary hover:underline flex items-center gap-1 font-medium"
+                            >
+                              <i data-lucide="shopping-cart" class="w-3.5 h-3.5"></i>
+                              <span>Buy Link</span>
+                            </a>
+                          )}
+                          {addon.demoUrl && (
+                            <a
+                              href={addon.demoUrl}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              class="text-[11px] text-slate-400 hover:text-white flex items-center gap-1 font-medium"
+                            >
+                              <i data-lucide="play-circle" class="w-3.5 h-3.5"></i>
+                              <span>Live Demo</span>
+                            </a>
+                          )}
+                        </div>
+                      </div>
+                    </div>
+
+                    <form method="POST" class="shrink-0">
+                      <input type="hidden" name="_action" value="delete_addon" />
+                      <input type="hidden" name="addon_id" value={addon.id} />
+                      <button
+                        type="submit"
+                        title="Remove addon"
+                        class="p-2 text-slate-500 hover:text-rose-400 hover:bg-rose-500/10 rounded-lg transition"
+                        onclick="return confirm('Are you sure you want to remove this addon and its media?');"
+                      >
+                        <i data-lucide="trash-2" class="w-4 h-4"></i>
+                      </button>
+                    </form>
+                  </div>
+
+                  {/* Addon Gallery Screenshots */}
+                  {addon.gallery && addon.gallery.length > 0 && (
+                    <div class="pt-3 border-t border-slate-800/60">
+                      <div class="text-[11px] font-semibold text-slate-400 mb-2 uppercase tracking-wider flex items-center gap-1.5">
+                        <i data-lucide="camera" class="w-3.5 h-3.5 text-primary"></i>
+                        Gallery Screenshots ({addon.gallery.length})
+                      </div>
+                      <div class="flex flex-wrap gap-2">
+                        {addon.gallery.map((img) => (
+                          <div class="relative group/shot w-20 h-14 rounded-lg overflow-hidden border border-slate-800 bg-slate-900 shrink-0">
+                            <img src={img.url} alt="Screenshot" class="w-full h-full object-cover" />
+                            <form method="POST" class="absolute top-1 right-1">
+                              <input type="hidden" name="_action" value="delete_addon_screenshot" />
+                              <input type="hidden" name="addon_media_id" value={img.id} />
+                              <button
+                                type="submit"
+                                title="Delete screenshot"
+                                class="p-1 bg-rose-500/80 hover:bg-rose-600 text-white rounded opacity-0 group-hover/shot:opacity-100 transition shadow"
+                                onclick="return confirm('Delete this screenshot?');"
+                              >
+                                <i data-lucide="trash-2" class="w-3 h-3"></i>
+                              </button>
+                            </form>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Add Screenshot to this addon */}
+                  <div class="pt-2 border-t border-slate-800/40">
+                    <form method="POST" enctype="multipart/form-data" class="flex items-center gap-2 flex-wrap">
+                      <input type="hidden" name="_action" value="add_addon_screenshot" />
+                      <input type="hidden" name="addon_id" value={addon.id} />
+                      <label class="text-[11px] text-slate-400 font-medium flex items-center gap-1">
+                        <i data-lucide="image-plus" class="w-3.5 h-3.5 text-primary"></i>
+                        <span>Add Gallery Screenshot:</span>
+                      </label>
+                      <input
+                        type="file"
+                        name="addon_screenshot"
+                        accept="image/png,image/jpeg,image/webp"
+                        required
+                        class="text-xs text-slate-400 file:mr-2 file:py-1 file:px-2.5 file:rounded-lg file:border-0 file:text-xs file:font-semibold file:bg-slate-800 file:text-slate-200 hover:file:bg-slate-700 cursor-pointer"
+                      />
+                      <Button type="submit" variant="secondary" size="sm">
+                        Upload Screenshot
+                      </Button>
+                    </form>
+                  </div>
+                </div>
+              ))}
+            </div>
+          ) : (
+            <div class="text-center py-6 text-xs text-slate-500 border border-dashed border-slate-800 rounded-xl">
+              No add-on modules added yet. Add one below.
+            </div>
+          )}
+
+          {/* Add new addon form */}
+          <form method="POST" enctype="multipart/form-data" class="space-y-4 pt-4 border-t border-slate-800/80">
+            <input type="hidden" name="_action" value="add_addon" />
+            <div class="text-xs font-bold text-slate-300 uppercase tracking-wider flex items-center gap-2">
+              <i data-lucide="plus-circle" class="w-4 h-4 text-primary"></i>
+              <span>Add New Module / Addon</span>
+            </div>
+
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div>
+                <label class="block text-xs font-semibold text-slate-300 uppercase tracking-wider mb-1.5">
+                  Module Name *
+                </label>
+                <Input
+                  name="addon_name"
+                  type="text"
+                  required
+                  placeholder="e.g. WhatsApp Notification Module"
+                  class="bg-slate-950/80 border-slate-700/80 text-white placeholder:text-slate-500 rounded-xl"
+                />
+              </div>
+              <div>
+                <label class="block text-xs font-semibold text-slate-300 uppercase tracking-wider mb-1.5">
+                  Price (USD)
+                </label>
+                <Input
+                  name="addon_price"
+                  type="number"
+                  min="0"
+                  step="0.01"
+                  placeholder="29.00"
+                  class="bg-slate-950/80 border-slate-700/80 text-white placeholder:text-slate-500 rounded-xl"
+                />
+              </div>
+            </div>
+
+            <div>
+              <label class="block text-xs font-semibold text-slate-300 uppercase tracking-wider mb-1.5">
+                Description
+              </label>
+              <Textarea
+                name="addon_description"
+                rows={2}
+                placeholder="Explain what functionality this addon or module provides..."
+                class="bg-slate-950/80 border-slate-700/80 text-white placeholder:text-slate-500 rounded-xl"
+              />
+            </div>
+
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div>
+                <label class="block text-xs font-semibold text-slate-300 uppercase tracking-wider mb-1.5">
+                  Buy / CodeCanyon URL
+                </label>
+                <Input
+                  name="addon_buy_url"
+                  type="url"
+                  placeholder="https://codecanyon.net/item/..."
+                  class="bg-slate-950/80 border-slate-700/80 text-white placeholder:text-slate-500 rounded-xl"
+                />
+              </div>
+              <div>
+                <label class="block text-xs font-semibold text-slate-300 uppercase tracking-wider mb-1.5">
+                  Demo URL
+                </label>
+                <Input
+                  name="addon_demo_url"
+                  type="url"
+                  placeholder="https://demo.sourcemonster.in/addon"
+                  class="bg-slate-950/80 border-slate-700/80 text-white placeholder:text-slate-500 rounded-xl"
+                />
+              </div>
+            </div>
+
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-2">
+              <Dropzone
+                name="addon_thumbnail"
+                label="Addon Thumbnail Image (Optional)"
+                helperText="Main preview image (PNG, JPG, WebP)"
+                maxSizeLabel="Max 5MB"
+                accept="image/png,image/jpeg,image/webp"
+                icon="image"
+              />
+
+              <Dropzone
+                name="addon_screenshot"
+                label="Initial Gallery Screenshot (Optional)"
+                helperText="Add to screenshot gallery (PNG, JPG, WebP)"
+                maxSizeLabel="Max 5MB"
+                accept="image/png,image/jpeg,image/webp"
+                icon="image-plus"
+              />
+            </div>
+
+            <div class="flex items-center justify-between pt-2">
+              <label class="flex items-center gap-2 cursor-pointer">
+                <input
+                  name="addon_is_free"
+                  type="checkbox"
+                  class="w-4 h-4 rounded text-primary focus:ring-primary bg-slate-950 border-slate-700"
+                />
+                <span class="text-xs font-semibold text-slate-300 uppercase tracking-wider">This addon is free / included</span>
+              </label>
+              <Button type="submit" variant="primary" size="sm" icon="plus">
+                Add Module
+              </Button>
+            </div>
+          </form>
+        </>
+      ) : (
+        /* Mode: "new" - fields embedded in product creation form */
+        <div class="space-y-4">
+          <p class="text-xs text-slate-400 leading-relaxed">
+            Optionally attach an initial add-on module now. You can also add more modules, thumbnails, and screenshot galleries anytime after creating the product.
+          </p>
+
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div>
+              <label class="block text-xs font-semibold text-slate-300 uppercase tracking-wider mb-1.5">
+                Module Name (Optional)
+              </label>
+              <Input
+                name="addon_name"
+                type="text"
+                placeholder="Leave blank to skip"
+                class="bg-slate-950/80 border-slate-700/80 text-white placeholder:text-slate-500 rounded-xl"
+              />
+            </div>
+            <div>
+              <label class="block text-xs font-semibold text-slate-300 uppercase tracking-wider mb-1.5">
+                Price (USD)
+              </label>
+              <Input
+                name="addon_price"
+                type="number"
+                min="0"
+                step="0.01"
+                placeholder="29.00"
+                class="bg-slate-950/80 border-slate-700/80 text-white placeholder:text-slate-500 rounded-xl"
+              />
+            </div>
+          </div>
+
+          <div>
+            <label class="block text-xs font-semibold text-slate-300 uppercase tracking-wider mb-1.5">
+              Description
+            </label>
+            <Textarea
+              name="addon_description"
+              rows={2}
+              placeholder="Explain what functionality this addon or module provides..."
+              class="bg-slate-950/80 border-slate-700/80 text-white placeholder:text-slate-500 rounded-xl"
+            />
+          </div>
+
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div>
+              <label class="block text-xs font-semibold text-slate-300 uppercase tracking-wider mb-1.5">
+                Buy / CodeCanyon URL
+              </label>
+              <Input
+                name="addon_buy_url"
+                type="url"
+                placeholder="https://codecanyon.net/item/..."
+                class="bg-slate-950/80 border-slate-700/80 text-white placeholder:text-slate-500 rounded-xl"
+              />
+            </div>
+            <div>
+              <label class="block text-xs font-semibold text-slate-300 uppercase tracking-wider mb-1.5">
+                Demo URL
+              </label>
+              <Input
+                name="addon_demo_url"
+                type="url"
+                placeholder="https://demo.sourcemonster.in/addon"
+                class="bg-slate-950/80 border-slate-700/80 text-white placeholder:text-slate-500 rounded-xl"
+              />
+            </div>
+          </div>
+
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-2">
+            <Dropzone
+              name="addon_thumbnail"
+              label="Addon Thumbnail Image (Optional)"
+              helperText="Main preview image (PNG, JPG, WebP)"
+              maxSizeLabel="Max 5MB"
+              accept="image/png,image/jpeg,image/webp"
+              icon="image"
+            />
+
+            <Dropzone
+              name="addon_screenshot"
+              label="Initial Gallery Screenshot (Optional)"
+              helperText="Add to screenshot gallery (PNG, JPG, WebP)"
+              maxSizeLabel="Max 5MB"
+              accept="image/png,image/jpeg,image/webp"
+              icon="image-plus"
+            />
+          </div>
+
+          <div class="pt-2">
+            <label class="flex items-center gap-2 cursor-pointer">
+              <input
+                name="addon_is_free"
+                type="checkbox"
+                class="w-4 h-4 rounded text-primary focus:ring-primary bg-slate-950 border-slate-700"
+              />
+              <span class="text-xs font-semibold text-slate-300 uppercase tracking-wider">This addon is free / included</span>
+            </label>
+          </div>
+        </div>
+      )}
+    </CardContent>
+  </Card>
+</div>
