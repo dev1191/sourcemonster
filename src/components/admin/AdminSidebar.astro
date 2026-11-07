@@ -1,5 +1,6 @@
 ---
 import logo2Img from "../../assets/images/logo-2.png";
+import { ConfirmDialog } from "@/components/ui";
 import {
   Sidebar,
   SidebarHeader,
@@ -188,15 +189,25 @@ const isProductActive = activeNav === "products" || activeNav === "addons" || cu
         <div class="text-xs font-semibold text-white truncate">{user?.name || "Administrator"}</div>
         <div class="text-[11px] text-slate-400 truncate">{user?.email || "admin@sourcemonster.in"}</div>
       </div>
-      <form method="POST" action="/admin/logout">
+      <ConfirmDialog
+        title="Sign Out"
+        description="Are you sure you want to end your administrative session?"
+        confirmText="Sign Out"
+        confirmVariant="destructive"
+        confirmIcon="log-out"
+        icon="log-out"
+        formAction="/admin/logout"
+        formMethod="POST"
+      >
         <button
-          type="submit"
+          slot="trigger"
+          type="button"
           title="Logout"
-          class="p-1.5 text-slate-400 hover:text-rose-400 hover:bg-rose-500/10 rounded-lg transition"
+          class="p-1.5 text-slate-400 hover:text-rose-400 hover:bg-rose-500/10 rounded-lg transition cursor-pointer"
         >
           <i data-lucide="log-out" class="w-4 h-4 shrink-0"></i>
         </button>
-      </form>
+      </ConfirmDialog>
     </div>
   </SidebarFooter>
 

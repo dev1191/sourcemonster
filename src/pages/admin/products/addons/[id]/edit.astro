@@ -8,7 +8,7 @@ import {
   removeAddonThumbnail,
   getAllAdminProducts,
 } from "../../../../../services";
-import { Button, Dropzone, Toast } from "../../../../../components/ui";
+import { Button, Dropzone, Toast, ConfirmDialog } from "../../../../../components/ui";
 import { Card, CardHeader, CardTitle, CardContent } from "../../../../../components/starwind/card";
 import { Input } from "../../../../../components/starwind/input";
 import { Textarea } from "../../../../../components/starwind/textarea";
@@ -143,16 +143,20 @@ const currentParentProduct = allProducts.find((p) => p.id === addonData.productI
       <Button href="/admin/products/addons" variant="secondary" size="sm" icon="arrow-left">
         Back to Add-ons
       </Button>
-      <form
-        method="POST"
-        onsubmit="return confirm('Are you sure you want to delete this add-on? All associated screenshots and media links will be removed.');"
-        class="inline"
+      <ConfirmDialog
+        title="Delete Add-on"
+        description="Are you sure you want to permanently delete this add-on? All associated screenshots and media links will be removed."
+        confirmText="Delete Add-on"
+        confirmVariant="destructive"
+        confirmIcon="trash-2"
+        icon="trash-2"
+        formMethod="POST"
       >
-        <input type="hidden" name="_action" value="delete" />
-        <Button type="submit" variant="destructive" size="sm" icon="trash-2">
+        <input type="hidden" name="_action" value="delete" slot="form-fields" />
+        <Button slot="trigger" type="button" variant="destructive" size="sm" icon="trash-2">
           Delete
         </Button>
-      </form>
+      </ConfirmDialog>
     </div>
   </div>
 

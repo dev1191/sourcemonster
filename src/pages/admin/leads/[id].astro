@@ -9,7 +9,7 @@ import {
 import { Card, CardHeader, CardTitle, CardContent } from "../../../components/starwind/card";
 import { Textarea } from "../../../components/starwind/textarea";
 import { Badge } from "../../../components/starwind/badge";
-import { Button, Toast } from "../../../components/ui";
+import { Button, Toast, ConfirmDialog } from "../../../components/ui";
 import { NativeSelect, NativeSelectOption } from "../../../components/starwind/native-select";
 
 const { id } = Astro.params;
@@ -254,19 +254,28 @@ const statusBadgeVariant =
           <p class="text-[11px] text-slate-500 mb-4">
             Permanently remove this inquiry from your database. This action cannot be reversed.
           </p>
-          <form method="POST">
-            <input type="hidden" name="_action" value="delete" />
+          <ConfirmDialog
+            title="Delete Lead Inquiry"
+            description="Are you sure you want to permanently delete this lead inquiry? This action cannot be reversed."
+            confirmText="Delete Lead Record"
+            confirmVariant="destructive"
+            confirmIcon="trash-2"
+            icon="trash-2"
+            formMethod="POST"
+            class="w-full"
+          >
+            <input type="hidden" name="_action" value="delete" slot="form-fields" />
             <Button
-              type="submit"
+              slot="trigger"
+              type="button"
               variant="danger"
               size="sm"
               class="w-full"
               icon="trash-2"
-              onclick="return confirm('Are you sure you want to permanently delete this lead?');"
             >
               Delete Lead Record
             </Button>
-          </form>
+          </ConfirmDialog>
         </CardContent>
       </Card>
     </div>

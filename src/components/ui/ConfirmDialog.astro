@@ -1,0 +1,162 @@
+---
+import {
+  Dialog,
+  DialogTrigger,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogDescription,
+  DialogFooter,
+  DialogClose,
+} from "../starwind/dialog";
+import Button from "./Button.astro";
+
+interface Props {
+  title?: string;
+  description?: string;
+  confirmText?: string;
+  cancelText?: string;
+  confirmVariant?: "destructive" | "primary" | "secondary";
+  confirmIcon?: string;
+  icon?: string;
+
+  // Form handling
+  formAction?: string;
+  formMethod?: "POST" | "GET";
+
+  // Optional trigger props if trigger slot is not provided
+  triggerText?: string;
+  triggerVariant?: "primary" | "secondary" | "danger" | "ghost" | "outline";
+  triggerSize?: "xs" | "sm" | "md" | "lg" | "icon" | "icon-sm";
+  triggerIcon?: string;
+  triggerClass?: string;
+  triggerTitle?: string;
+
+  class?: string;
+  contentClass?: string;
+}
+
+const {
+  title = "Are you sure?",
+  description = "This action cannot be undone. Please confirm to proceed.",
+  confirmText = "Confirm",
+  cancelText = "Cancel",
+  confirmVariant = "destructive",
+  confirmIcon = confirmVariant === "destructive" ? "trash-2" : "check",
+  icon = confirmVariant === "destructive" ? "alert-triangle" : "info",
+  formAction,
+  formMethod = "POST",
+  triggerText,
+  triggerVariant = confirmVariant === "destructive" ? "danger" : "primary",
+  triggerSize = "sm",
+  triggerIcon,
+  triggerClass = "",
+  triggerTitle,
+  class: className = "inline-block",
+  contentClass = "",
+} = Astro.props;
+
+const hasCustomTrigger = Astro.slots.has("trigger");
+const hasFormFields = Astro.slots.has("form-fields");
+---
+
+<Dialog class={className}>
+  <DialogTrigger asChild class="inline-block cursor-pointer">
+    {hasCustomTrigger ? (
+      <slot name="trigger" />
+    ) : (
+      <Button
+        type="button"
+        variant={triggerVariant}
+        size={triggerSize}
+        icon={triggerIcon}
+        class={triggerClass}
+        title={triggerTitle}
+      >
+        {triggerText}
+      </Button>
+    )}
+  </DialogTrigger>
+
+  <DialogContent
+    class:list={[
+      "max-w-md w-full bg-slate-900 border border-slate-800 rounded-2xl p-6 shadow-2xl text-left",
+      contentClass,
+    ]}
+  >
+    <DialogHeader class="space-y-3">
+      <div class="flex items-start gap-3.5">
+        {icon && (
+          <div
+            class:list={[
+              "w-10 h-10 rounded-xl flex items-center justify-center shrink-0 mt-0.5",
+              confirmVariant === "destructive"
+                ? "bg-rose-500/10 text-rose-400 border border-rose-500/20"
+                : "bg-primary/10 text-primary border border-primary/20",
+            ]}
+          >
+            <i data-lucide={icon} class="w-5 h-5"></i>
+          </div>
+        )}
+        <div class="min-w-0 flex-1">
+          <DialogTitle class="text-base sm:text-lg font-bold text-white tracking-tight">
+            {title}
+          </DialogTitle>
+          {description && (
+            <DialogDescription class="text-xs sm:text-sm text-slate-400 leading-relaxed mt-1">
+              {description}
+            </DialogDescription>
+          )}
+        </div>
+      </div>
+    </DialogHeader>
+
+    <slot />
+
+    <DialogFooter class="mt-6 flex flex-col-reverse sm:flex-row sm:items-center sm:justify-end gap-2.5 pt-4 border-t border-slate-800/80">
+      <DialogClose asChild>
+        <button
+          type="button"
+          class="w-full sm:w-auto px-4 py-2 rounded-xl text-xs font-semibold bg-slate-800/80 hover:bg-slate-800 text-slate-300 hover:text-white border border-slate-700/60 transition cursor-pointer"
+        >
+          {cancelText}
+        </button>
+      </DialogClose>
+
+      {formAction !== undefined || hasFormFields ? (
+        <form method={formMethod} action={formAction} class="inline m-0 w-full sm:w-auto">
+          <slot name="form-fields" />
+          <button
+            type="submit"
+            class:list={[
+              "w-full sm:w-auto px-4 py-2 rounded-xl text-xs font-semibold inline-flex items-center justify-center gap-2 transition shadow-md cursor-pointer",
+              confirmVariant === "destructive"
+                ? "bg-rose-600 hover:bg-rose-500 text-white shadow-rose-600/20"
+                : confirmVariant === "primary"
+                ? "bg-primary hover:bg-primary/90 text-white shadow-primary/20"
+                : "bg-slate-700 hover:bg-slate-600 text-white",
+            ]}
+          >
+            {confirmIcon && <i data-lucide={confirmIcon} class="w-4 h-4"></i>}
+            <span>{confirmText}</span>
+          </button>
+        </form>
+      ) : (
+        <button
+          type="submit"
+          class:list={[
+            "w-full sm:w-auto px-4 py-2 rounded-xl text-xs font-semibold inline-flex items-center justify-center gap-2 transition shadow-md cursor-pointer",
+            confirmVariant === "destructive"
+              ? "bg-rose-600 hover:bg-rose-500 text-white shadow-rose-600/20"
+              : confirmVariant === "primary"
+              ? "bg-primary hover:bg-primary/90 text-white shadow-primary/20"
+              : "bg-slate-700 hover:bg-slate-600 text-white",
+          ]}
+        >
+          {confirmIcon && <i data-lucide={confirmIcon} class="w-4 h-4"></i>}
+          <span>{confirmText}</span>
+        </button>
+      )}
+    </DialogFooter>
+  </DialogContent>
+</Dialog>

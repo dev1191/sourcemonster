@@ -8,7 +8,7 @@ import {
   getAllAdminAddons,
 } from "../../../../services";
 import { getPublicUrl } from "../../../../lib/storage";
-import { Button, Dropzone, Toast } from "../../../../components/ui";
+import { Button, Dropzone, Toast, ConfirmDialog } from "../../../../components/ui";
 import { Card, CardHeader, CardTitle, CardContent } from "../../../../components/starwind/card";
 import { Input } from "../../../../components/starwind/input";
 import { Textarea } from "../../../../components/starwind/textarea";
@@ -430,17 +430,26 @@ const addons = await getAllAdminAddons(id);
 
     <!-- Actions -->
     <div class="flex items-center justify-between pt-4">
-      <Button
-        type="submit"
-        name="_action"
-        value="delete"
-        variant="danger"
-        size="md"
+      <ConfirmDialog
+        title="Delete Product"
+        description="Are you sure you want to permanently delete this product? All gallery images, reviews, and related add-ons will be removed."
+        confirmText="Delete Product"
+        confirmVariant="destructive"
+        confirmIcon="trash-2"
         icon="trash-2"
-        onclick="return confirm('Are you sure you want to permanently delete this product?');"
+        formMethod="POST"
       >
-        Delete Product
-      </Button>
+        <input type="hidden" name="_action" value="delete" slot="form-fields" />
+        <Button
+          slot="trigger"
+          type="button"
+          variant="danger"
+          size="md"
+          icon="trash-2"
+        >
+          Delete Product
+        </Button>
+      </ConfirmDialog>
 
       <div class="flex items-center gap-3">
         <Button href="/admin/products" variant="secondary" size="md">Cancel</Button>
