@@ -1,10 +1,13 @@
 ---
 import AdminLayout from "../../../../layouts/AdminLayout.astro";
-import { db } from "../../../../lib/db";
-import { products, media, productMedia, productAddons, productAddonMedia } from "../../../../lib/db/schema";
-import { eq, inArray } from "drizzle-orm";
-import { productSchema } from "../../../../lib/validation/product";
-import { uploadFile, getPublicUrl } from "../../../../lib/storage";
+import {
+  getAdminProductById,
+  updateProduct,
+  deleteProduct,
+  deleteProductGalleryImage,
+  getAllAdminAddons,
+} from "../../../../services";
+import { getPublicUrl } from "../../../../lib/storage";
 import { Button, Dropzone, FeedbackAlert } from "../../../../components/ui";
 import { Card, CardHeader, CardTitle, CardContent } from "../../../../components/starwind/card";
 import { Input } from "../../../../components/starwind/input";
@@ -20,14 +23,9 @@ if (!id) {
 let errorMessage = "";
 let successMessage = "";
 
-// Fetch product
-const [existingProduct] = await db
-  .select()
-  .from(products)
-  .where(eq(products.id, id))
-  .limit(1);
-
-if (!existingProduct) {
+// Initial check
+const initialProductData = await getAdminProductById(id);
+if (!initialProductData) {
   return Astro.redirect("/admin/products");
 }
 
@@ -37,14 +35,14 @@ if (Astro.request.method === "POST") {
     const action = formData.get("_action")?.toString();
 
     if (action === "delete") {
-      await db.delete(products).where(eq(products.id, id));
+      await deleteProduct(id);
       return Astro.redirect("/admin/products");
     }
 
     if (action === "delete_gallery_image") {
       const pmId = formData.get("product_media_id")?.toString();
       if (pmId) {
-        await db.delete(productMedia).where(eq(productMedia.id, pmId));
+        await deleteProductGalleryImage(pmId);
         return Astro.redirect(`/admin/products/${id}/edit`);
       }
     }
@@ -75,213 +73,47 @@ if (Astro.request.method === "POST") {
       .map((f) => f.trim())
       .filter(Boolean);
 
-    // Validate using Zod
-    const validationResult = productSchema.safeParse({
-      title,
-      slug,
-      shortDescription,
-      description,
-      codecanyonUrl,
-      demoUrl,
-      documentationUrl,
-      version,
-      technologies,
-      features,
-      status,
-      isFeatured,
-      sortOrder,
-      seoTitle,
-      seoDescription,
-    });
+    const thumbnailFile = formData.get("thumbnail") as File | null;
+    const screenshotFile = formData.get("screenshot") as File | null;
 
-    if (!validationResult.success) {
-      errorMessage = Object.values(validationResult.error.flatten().fieldErrors)
-        .flat()
-        .join("; ");
-    } else {
-      // Check slug uniqueness excluding self
-      const [duplicateSlug] = await db
-        .select()
-        .from(products)
-        .where(eq(products.slug, slug))
-        .limit(1);
+    await updateProduct(
+      id,
+      {
+        title,
+        slug,
+        shortDescription,
+        description,
+        codecanyonUrl,
+        demoUrl,
+        documentationUrl,
+        version,
+        technologies,
+        features,
+        status,
+        isFeatured,
+        sortOrder,
+        seoTitle,
+        seoDescription,
+      },
+      thumbnailFile,
+      screenshotFile
+    );
 
-      if (duplicateSlug && duplicateSlug.id !== id) {
-        errorMessage = `The slug "${slug}" is already used by another product.`;
-      } else {
-        let thumbnailMediaId = existingProduct.thumbnailMediaId;
-        const thumbnailFile = formData.get("thumbnail") as File | null;
-
-        if (thumbnailFile && thumbnailFile.size > 0) {
-          const uploadRes = await uploadFile(
-            thumbnailFile,
-            thumbnailFile.name,
-            thumbnailFile.type
-          );
-
-          const [newMedia] = await db
-            .insert(media)
-            .values({
-              disk: uploadRes.disk,
-              objectKey: uploadRes.objectKey,
-              originalName: uploadRes.originalName,
-              mimeType: uploadRes.mimeType,
-              sizeBytes: uploadRes.sizeBytes,
-              altText: title,
-            })
-            .returning();
-
-          thumbnailMediaId = newMedia.id;
-        }
-
-        // Check for new gallery screenshot upload
-        const screenshotFile = formData.get("screenshot") as File | null;
-        if (screenshotFile && screenshotFile.size > 0) {
-          const uploadRes = await uploadFile(
-            screenshotFile,
-            screenshotFile.name,
-            screenshotFile.type
-          );
-
-          const [newMedia] = await db
-            .insert(media)
-            .values({
-              disk: uploadRes.disk,
-              objectKey: uploadRes.objectKey,
-              originalName: uploadRes.originalName,
-              mimeType: uploadRes.mimeType,
-              sizeBytes: uploadRes.sizeBytes,
-              altText: `${title} Screenshot`,
-            })
-            .returning();
-
-          await db.insert(productMedia).values({
-            productId: id,
-            mediaId: newMedia.id,
-            displayOrder: 0,
-          });
-        }
-
-        await db
-          .update(products)
-          .set({
-            title,
-            slug,
-            shortDescription,
-            description,
-            thumbnailMediaId,
-            codecanyonUrl: codecanyonUrl || null,
-            demoUrl: demoUrl || null,
-            documentationUrl: documentationUrl || null,
-            version: version || null,
-            technologies,
-            features,
-            status,
-            isFeatured,
-            sortOrder,
-            seoTitle: seoTitle || null,
-            seoDescription: seoDescription || null,
-            publishedAt:
-              status === "published"
-                ? existingProduct.publishedAt || new Date()
-                : null,
-            updatedAt: new Date(),
-          })
-          .where(eq(products.id, id));
-
-        successMessage = "Product updated successfully!";
-      }
-    }
-  } catch (err) {
+    successMessage = "Product updated successfully!";
+  } catch (err: any) {
     console.error("Update product failed:", err);
-    errorMessage = "Failed to update product.";
+    errorMessage = err?.message || "Failed to update product.";
   }
 }
 
-// Re-query product & media for rendering
-const [product] = await db
-  .select()
-  .from(products)
-  .where(eq(products.id, id))
-  .limit(1);
-
-let currentThumbnailUrl: string | null = null;
-if (product.thumbnailMediaId) {
-  const [m] = await db
-    .select()
-    .from(media)
-    .where(eq(media.id, product.thumbnailMediaId))
-    .limit(1);
-  if (m) {
-    currentThumbnailUrl = getPublicUrl(m.objectKey, m.disk);
-  }
+// Re-query current product & media for rendering
+const productData = await getAdminProductById(id);
+if (!productData) {
+  return Astro.redirect("/admin/products");
 }
 
-// Query gallery screenshots
-const galleryItems = await db
-  .select({
-    productMediaId: productMedia.id,
-    mediaId: media.id,
-    objectKey: media.objectKey,
-    disk: media.disk,
-    caption: productMedia.caption,
-  })
-  .from(productMedia)
-  .innerJoin(media, eq(productMedia.mediaId, media.id))
-  .where(eq(productMedia.productId, id));
-
-// Query add-ons / modules for this product
-const rawAddons = await db
-  .select()
-  .from(productAddons)
-  .where(eq(productAddons.productId, id))
-  .orderBy(productAddons.sortOrder, productAddons.createdAt);
-
-// Query addon gallery items
-const addonIds = rawAddons.map((a) => a.id);
-const rawAddonGallery = addonIds.length > 0
-  ? await db
-      .select({
-        id: productAddonMedia.id,
-        addonId: productAddonMedia.addonId,
-        caption: productAddonMedia.caption,
-        objectKey: media.objectKey,
-        disk: media.disk,
-      })
-      .from(productAddonMedia)
-      .innerJoin(media, eq(productAddonMedia.mediaId, media.id))
-      .where(inArray(productAddonMedia.addonId, addonIds))
-  : [];
-
-// Map thumbnail media for addons
-const addonThumbIds = rawAddons
-  .map((a) => a.thumbnailMediaId)
-  .filter((mId): mId is string => Boolean(mId));
-
-const addonThumbnails = addonThumbIds.length > 0
-  ? await db
-      .select({
-        id: media.id,
-        objectKey: media.objectKey,
-        disk: media.disk,
-      })
-      .from(media)
-      .where(inArray(media.id, addonThumbIds))
-  : [];
-
-const addonThumbMap = new Map(addonThumbnails.map((m) => [m.id, getPublicUrl(m.objectKey, m.disk)]));
-
-const addons = rawAddons.map((addon) => ({
-  ...addon,
-  thumbnailUrl: addon.thumbnailMediaId ? addonThumbMap.get(addon.thumbnailMediaId) || null : null,
-  gallery: rawAddonGallery
-    .filter((g) => g.addonId === addon.id)
-    .map((g) => ({
-      id: g.id,
-      caption: g.caption,
-      url: getPublicUrl(g.objectKey, g.disk),
-    })),
-}));
+const { product, thumbnailUrl: currentThumbnailUrl, galleryItems } = productData;
+const addons = await getAllAdminAddons(id);
 ---
 
 <AdminLayout title={`Edit ${product.title} | SourceMonster Admin`} activeNav="products">

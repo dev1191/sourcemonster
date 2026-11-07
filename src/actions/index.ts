@@ -1,7 +1,6 @@
 import { defineAction } from "astro:actions";
 import { Resend } from "resend";
-import { db } from "../lib/db";
-import { leads } from "../lib/db/schema";
+import { captureLead } from "../services";
 import { leadSubmissionSchema, escapeHtml } from "../lib/validation/lead";
 
 const resendApiKey =
@@ -32,21 +31,16 @@ export const server = {
 
       // 2. Persist to PostgreSQL database FIRST (Zero Lead Loss guarantee)
       try {
-        const [savedLead] = await db
-          .insert(leads)
-          .values({
-            name,
-            email,
-            company: company || null,
-            subject: service || "New Inquiry",
-            serviceId: service || null,
-            productId: productId || null,
-            budget: budget || null,
-            message,
-            sourcePage: sourcePage || "/",
-            status: "new",
-          })
-          .returning();
+        const savedLead = await captureLead({
+          name,
+          email,
+          company,
+          service,
+          productId,
+          budget,
+          message,
+          sourcePage,
+        });
 
         savedLeadId = savedLead.id;
         console.log(`✅ Lead captured in database (ID: ${savedLeadId}) from ${email}`);

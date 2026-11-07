@@ -1,9 +1,6 @@
 ---
 import AdminLayout from "../../../layouts/AdminLayout.astro";
-import { db } from "../../../lib/db";
-import { products, media } from "../../../lib/db/schema";
-import { desc, eq } from "drizzle-orm";
-import { getPublicUrl } from "../../../lib/storage";
+import { getAllAdminProducts } from "../../../services";
 import {
   Button,
   Table,
@@ -15,25 +12,7 @@ import {
 } from "../../../components/ui";
 import { Badge } from "../../../components/starwind/badge";
 
-let allProducts: Array<typeof products.$inferSelect & { thumbnailUrl?: string | null }> = [];
-
-try {
-  const result = await db
-    .select({
-      product: products,
-      mediaRecord: media,
-    })
-    .from(products)
-    .leftJoin(media, eq(products.thumbnailMediaId, media.id))
-    .orderBy(desc(products.sortOrder), desc(products.createdAt));
-
-  allProducts = result.map(({ product, mediaRecord }) => ({
-    ...product,
-    thumbnailUrl: mediaRecord ? getPublicUrl(mediaRecord.objectKey, mediaRecord.disk) : null,
-  }));
-} catch (e) {
-  console.error("Failed to load products list:", e);
-}
+const allProducts = await getAllAdminProducts();
 ---
 
 <AdminLayout title="Products | SourceMonster Admin" activeNav="products">

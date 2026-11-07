@@ -1,9 +1,10 @@
 ---
 import AdminLayout from "../../../../layouts/AdminLayout.astro";
-import { db } from "../../../../lib/db";
-import { products, productAddons, media } from "../../../../lib/db/schema";
-import { desc, eq } from "drizzle-orm";
-import { getPublicUrl } from "../../../../lib/storage";
+import {
+  getAllAdminAddons,
+  deleteAddon,
+  getAllAdminProducts,
+} from "../../../../services";
 import {
   Button,
   Table,
@@ -23,7 +24,7 @@ if (Astro.request.method === "POST") {
     if (action === "delete") {
       const addonId = formData.get("addonId")?.toString();
       if (addonId) {
-        await db.delete(productAddons).where(eq(productAddons.id, addonId));
+        await deleteAddon(addonId);
         return Astro.redirect("/admin/products/addons");
       }
     }
@@ -33,52 +34,8 @@ if (Astro.request.method === "POST") {
 }
 
 const selectedProductId = Astro.url.searchParams.get("product") || "";
-
-let allProductsList: Array<{ id: string; title: string }> = [];
-let allAddons: Array<{
-  addon: typeof productAddons.$inferSelect;
-  productTitle: string | null;
-  productSlug: string | null;
-  thumbnailUrl: string | null;
-}> = [];
-
-try {
-  allProductsList = await db
-    .select({
-      id: products.id,
-      title: products.title,
-    })
-    .from(products)
-    .orderBy(products.title);
-
-  const query = db
-    .select({
-      addon: productAddons,
-      product: {
-        id: products.id,
-        title: products.title,
-        slug: products.slug,
-      },
-      mediaRecord: media,
-    })
-    .from(productAddons)
-    .leftJoin(products, eq(productAddons.productId, products.id))
-    .leftJoin(media, eq(productAddons.thumbnailMediaId, media.id))
-    .orderBy(desc(productAddons.createdAt));
-
-  const result = await query;
-
-  allAddons = result
-    .filter((r) => (!selectedProductId ? true : r.addon.productId === selectedProductId))
-    .map(({ addon, product, mediaRecord }) => ({
-      addon,
-      productTitle: product?.title || null,
-      productSlug: product?.slug || null,
-      thumbnailUrl: mediaRecord ? getPublicUrl(mediaRecord.objectKey, mediaRecord.disk) : null,
-    }));
-} catch (e) {
-  console.error("Failed to load product addons:", e);
-}
+const allProductsList = await getAllAdminProducts();
+const allAddons = await getAllAdminAddons(selectedProductId);
 ---
 
 <AdminLayout title="Product Add-ons | SourceMonster Admin" activeNav="addons">
@@ -163,14 +120,14 @@ try {
           </TableRow>
         </TableHeader>
         <TableBody class="divide-y divide-slate-800/60">
-          {allAddons.map(({ addon, productTitle, productSlug, thumbnailUrl }) => (
+          {allAddons.map((addon) => (
             <TableRow class="hover:bg-slate-800/30 transition border-b border-slate-800/60">
               <!-- Module Thumbnail & Info -->
               <TableCell class="px-4 py-3.5">
                 <div class="flex items-center gap-3">
-                  {thumbnailUrl ? (
+                  {addon.thumbnailUrl ? (
                     <img
-                      src={thumbnailUrl}
+                      src={addon.thumbnailUrl}
                       alt={addon.title}
                       class="w-10 h-10 rounded-lg object-cover bg-slate-800 border border-slate-700/60 shrink-0"
                     />
@@ -186,23 +143,20 @@ try {
                     >
                       {addon.title}
                     </a>
-                    <div class="text-[11px] text-slate-400 font-mono truncate">
-                      {addon.slug ? `/${addon.slug}` : "—"}
-                    </div>
                   </div>
                 </div>
               </TableCell>
 
               <!-- Parent Product -->
               <TableCell class="px-4 py-3.5">
-                {productTitle ? (
+                {addon.productTitle ? (
                   <a
                     href={`/admin/products/${addon.productId}/edit`}
                     class="text-primary hover:underline font-medium flex items-center gap-1.5 group max-w-xs truncate"
                     title="Edit Parent Product"
                   >
                     <i data-lucide="package" class="w-3.5 h-3.5 shrink-0 text-slate-500 group-hover:text-primary"></i>
-                    <span class="truncate">{productTitle}</span>
+                    <span class="truncate">{addon.productTitle}</span>
                   </a>
                 ) : (
                   <span class="text-slate-500 italic">Unassigned</span>

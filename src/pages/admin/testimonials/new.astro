@@ -1,7 +1,6 @@
 ---
 import AdminLayout from "../../../layouts/AdminLayout.astro";
-import { db } from "../../../lib/db";
-import { testimonials } from "../../../lib/db/schema";
+import { createTestimonial } from "../../../services";
 
 let errorMessage = "";
 
@@ -15,22 +14,19 @@ if (Astro.request.method === "POST") {
     const sortOrder = parseInt(formData.get("sortOrder")?.toString() || "0", 10);
     const status = (formData.get("status")?.toString() || "published") as "published" | "draft";
 
-    if (!name || !role || !quote) {
-      errorMessage = "Client name, role, and quote are required.";
-    } else {
-      await db.insert(testimonials).values({
-        name,
-        role,
-        quote,
-        color,
-        sortOrder,
-        status,
-      });
-      return Astro.redirect("/admin/testimonials");
-    }
-  } catch (err) {
+    await createTestimonial({
+      name,
+      role,
+      quote,
+      color,
+      sortOrder,
+      status,
+    });
+
+    return Astro.redirect("/admin/testimonials");
+  } catch (err: any) {
     console.error("Create testimonial failed:", err);
-    errorMessage = "Failed to create testimonial.";
+    errorMessage = err?.message || "Failed to create testimonial.";
   }
 }
 ---

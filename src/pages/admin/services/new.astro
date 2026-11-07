@@ -1,8 +1,6 @@
 ---
 import AdminLayout from "../../../layouts/AdminLayout.astro";
-import { db } from "../../../lib/db";
-import { services } from "../../../lib/db/schema";
-import { eq } from "drizzle-orm";
+import { createService } from "../../../services";
 
 let errorMessage = "";
 
@@ -17,28 +15,20 @@ if (Astro.request.method === "POST") {
     const sortOrder = parseInt(formData.get("sortOrder")?.toString() || "0", 10);
     const status = (formData.get("status")?.toString() || "published") as "published" | "draft";
 
-    if (!title || !slug || !description) {
-      errorMessage = "Title, slug, and description are required.";
-    } else {
-      const [existing] = await db.select().from(services).where(eq(services.slug, slug)).limit(1);
-      if (existing) {
-        errorMessage = `A service with slug "${slug}" already exists.`;
-      } else {
-        await db.insert(services).values({
-          title,
-          slug,
-          description,
-          icon,
-          color,
-          sortOrder,
-          status,
-        });
-        return Astro.redirect("/admin/services");
-      }
-    }
-  } catch (err) {
+    await createService({
+      title,
+      slug,
+      description,
+      icon,
+      color,
+      sortOrder,
+      status,
+    });
+
+    return Astro.redirect("/admin/services");
+  } catch (err: any) {
     console.error("Create service failed:", err);
-    errorMessage = "Failed to create service.";
+    errorMessage = err?.message || "Failed to create service.";
   }
 }
 ---

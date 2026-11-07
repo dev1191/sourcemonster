@@ -1,9 +1,9 @@
 ---
 import AdminLayout from "../../../../layouts/AdminLayout.astro";
-import { db } from "../../../../lib/db";
-import { products, productAddons, media, productAddonMedia } from "../../../../lib/db/schema";
-import { eq, and } from "drizzle-orm";
-import { uploadFile } from "../../../../lib/storage";
+import {
+  createAddon,
+  getAllAdminProducts,
+} from "../../../../services";
 import { Button, Dropzone } from "../../../../components/ui";
 import { Card, CardHeader, CardTitle, CardContent } from "../../../../components/starwind/card";
 import { Input } from "../../../../components/starwind/input";
@@ -13,122 +13,42 @@ let errorMessage = "";
 const preselectedProductId = Astro.url.searchParams.get("productId") || "";
 
 // Fetch all parent products for selection
-const allProducts = await db
-  .select({
-    id: products.id,
-    title: products.title,
-  })
-  .from(products)
-  .orderBy(products.title);
+const allProducts = await getAllAdminProducts();
 
 if (Astro.request.method === "POST") {
   try {
     const formData = await Astro.request.formData();
     const productId = formData.get("productId")?.toString().trim() || "";
     const title = formData.get("title")?.toString().trim() || "";
-    let slug = formData.get("slug")?.toString().trim().toLowerCase() || "";
     const description = formData.get("description")?.toString().trim() || null;
     const isFree = formData.get("isFree") === "on";
     const priceRaw = formData.get("price")?.toString().trim();
     const buyUrl = formData.get("buyUrl")?.toString().trim() || null;
     const demoUrl = formData.get("demoUrl")?.toString().trim() || null;
-    const documentationUrl = formData.get("documentationUrl")?.toString().trim() || null;
     const sortOrder = parseInt(formData.get("sortOrder")?.toString() || "0", 10);
-    const isActive = formData.get("isActive") === "on";
 
-    if (!slug && title) {
-      slug = title.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-+|-+$/g, "");
-    }
+    const thumbnailFile = formData.get("thumbnail") as File | null;
+    const galleryFiles = formData.getAll("screenshots") as File[];
 
-    if (!productId) {
-      errorMessage = "Please select a parent product.";
-    } else if (!title || !slug) {
-      errorMessage = "Add-on title and slug are required.";
-    } else {
-      // Check slug uniqueness within this product
-      const [existingSlug] = await db
-        .select()
-        .from(productAddons)
-        .where(and(eq(productAddons.productId, productId), eq(productAddons.slug, slug)))
-        .limit(1);
+    await createAddon(
+      {
+        productId,
+        title,
+        description,
+        isFree,
+        price: priceRaw,
+        buyUrl,
+        demoUrl,
+        sortOrder,
+      },
+      thumbnailFile,
+      galleryFiles
+    );
 
-      if (existingSlug) {
-        errorMessage = `An add-on with slug "/${slug}" already exists for this product.`;
-      } else {
-        // Handle thumbnail upload
-        let thumbnailMediaId: string | null = null;
-        const thumbnailFile = formData.get("thumbnail") as File | null;
-        if (thumbnailFile && thumbnailFile.size > 0) {
-          const uploadRes = await uploadFile(thumbnailFile, thumbnailFile.name, thumbnailFile.type);
-          const [mediaRecord] = await db
-            .insert(media)
-            .values({
-              disk: uploadRes.disk,
-              objectKey: uploadRes.objectKey,
-              originalName: uploadRes.originalName,
-              mimeType: uploadRes.mimeType,
-              sizeBytes: uploadRes.sizeBytes,
-            })
-            .returning();
-          if (mediaRecord) {
-            thumbnailMediaId = mediaRecord.id;
-          }
-        }
-
-        // Insert Add-on record
-        const [createdAddon] = await db
-          .insert(productAddons)
-          .values({
-            productId,
-            title,
-            slug,
-            description,
-            price: isFree ? "0.00" : priceRaw || null,
-            isFree,
-            buyUrl,
-            demoUrl,
-            documentationUrl,
-            thumbnailMediaId,
-            sortOrder,
-            isActive,
-          })
-          .returning();
-
-        // Handle gallery screenshots upload
-        if (createdAddon) {
-          const galleryFiles = formData.getAll("screenshots") as File[];
-          for (let i = 0; i < galleryFiles.length; i++) {
-            const file = galleryFiles[i];
-            if (file && file.size > 0) {
-              const uploadRes = await uploadFile(file, file.name, file.type);
-              const [galleryMediaRecord] = await db
-                .insert(media)
-                .values({
-                  disk: uploadRes.disk,
-                  objectKey: uploadRes.objectKey,
-                  originalName: uploadRes.originalName,
-                  mimeType: uploadRes.mimeType,
-                  sizeBytes: uploadRes.sizeBytes,
-                })
-                .returning();
-
-              if (galleryMediaRecord) {
-                await db.insert(productAddonMedia).values({
-                  addonId: createdAddon.id,
-                  mediaId: galleryMediaRecord.id,
-                  sortOrder: i,
-                });
-              }
-            }
-          }
-        }
-
-        return Astro.redirect("/admin/products/addons");
-      }
-    }
-  } catch (err) {
+    return Astro.redirect(`/admin/products/addons${productId ? `?product=${productId}` : ""}`);
+  } catch (err: any) {
     console.error("Create product addon failed:", err);
-    errorMessage = "An unexpected error occurred while creating the add-on.";
+    errorMessage = err?.message || "An unexpected error occurred while creating the add-on.";
   }
 }
 ---

@@ -1,9 +1,11 @@
 ---
 import AdminLayout from "../../../layouts/AdminLayout.astro";
-import { db } from "../../../lib/db";
-import { leads, products } from "../../../lib/db/schema";
-import { eq } from "drizzle-orm";
-import { leadStatusSchema } from "../../../lib/validation/lead";
+import {
+  getLeadById,
+  updateLead,
+  deleteLead,
+  getAdminProductById,
+} from "../../../services";
 import { Card, CardHeader, CardTitle, CardContent } from "../../../components/starwind/card";
 import { Textarea } from "../../../components/starwind/textarea";
 import { Badge } from "../../../components/starwind/badge";
@@ -26,58 +28,40 @@ if (Astro.request.method === "POST") {
     const action = formData.get("_action")?.toString();
 
     if (action === "delete") {
-      await db.delete(leads).where(eq(leads.id, id));
+      await deleteLead(id);
       return Astro.redirect("/admin/leads");
     }
 
     if (action === "update") {
-      const statusRaw = formData.get("status")?.toString() || "new";
+      const statusRaw = (formData.get("status")?.toString() || "new") as any;
       const adminNotes = formData.get("adminNotes")?.toString() || null;
 
-      const parsedStatus = leadStatusSchema.safeParse(statusRaw);
-      if (parsedStatus.success) {
-        await db
-          .update(leads)
-          .set({
-            status: parsedStatus.data,
-            adminNotes,
-            updatedAt: new Date(),
-          })
-          .where(eq(leads.id, id));
+      await updateLead(id, {
+        status: statusRaw,
+        adminNotes,
+      });
 
-        feedbackMessage = "Lead updated successfully!";
-      } else {
-        isError = true;
-        feedbackMessage = "Invalid lead status provided.";
-      }
+      feedbackMessage = "Lead updated successfully!";
     }
-  } catch (err) {
+  } catch (err: any) {
     console.error("Failed to update lead:", err);
     isError = true;
-    feedbackMessage = "Failed to update lead.";
+    feedbackMessage = err?.message || "Failed to update lead.";
   }
 }
 
 // Query lead record
-const [lead] = await db
-  .select()
-  .from(leads)
-  .where(eq(leads.id, id))
-  .limit(1);
+const lead = await getLeadById(id);
 
 if (!lead) {
   return Astro.redirect("/admin/leads");
 }
 
 // Query related product if any
-let relatedProduct: typeof products.$inferSelect | null = null;
+let relatedProduct = null;
 if (lead.productId) {
-  const [prod] = await db
-    .select()
-    .from(products)
-    .where(eq(products.id, lead.productId))
-    .limit(1);
-  relatedProduct = prod || null;
+  const prodData = await getAdminProductById(lead.productId);
+  relatedProduct = prodData?.product || null;
 }
 
 const statusBadgeVariant =

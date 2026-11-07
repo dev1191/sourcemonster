@@ -1,8 +1,10 @@
 ---
 import AdminLayout from "../../../../layouts/AdminLayout.astro";
-import { db } from "../../../../lib/db";
-import { services } from "../../../../lib/db/schema";
-import { eq } from "drizzle-orm";
+import {
+  getServiceById,
+  updateService,
+  deleteService,
+} from "../../../../services";
 
 const { id } = Astro.params;
 if (!id) return Astro.redirect("/admin/services");
@@ -10,8 +12,8 @@ if (!id) return Astro.redirect("/admin/services");
 let errorMessage = "";
 let successMessage = "";
 
-const [service] = await db.select().from(services).where(eq(services.id, id)).limit(1);
-if (!service) return Astro.redirect("/admin/services");
+const initialService = await getServiceById(id);
+if (!initialService) return Astro.redirect("/admin/services");
 
 if (Astro.request.method === "POST") {
   try {
@@ -19,7 +21,7 @@ if (Astro.request.method === "POST") {
     const action = formData.get("_action")?.toString();
 
     if (action === "delete") {
-      await db.delete(services).where(eq(services.id, id));
+      await deleteService(id);
       return Astro.redirect("/admin/services");
     }
 
@@ -31,36 +33,24 @@ if (Astro.request.method === "POST") {
     const sortOrder = parseInt(formData.get("sortOrder")?.toString() || "0", 10);
     const status = (formData.get("status")?.toString() || "published") as "published" | "draft";
 
-    if (!title || !slug || !description) {
-      errorMessage = "Title, slug, and description are required.";
-    } else {
-      const [existingSlug] = await db.select().from(services).where(eq(services.slug, slug)).limit(1);
-      if (existingSlug && existingSlug.id !== id) {
-        errorMessage = `The slug "${slug}" is already in use by another service.`;
-      } else {
-        await db
-          .update(services)
-          .set({
-            title,
-            slug,
-            description,
-            icon,
-            color,
-            sortOrder,
-            status,
-            updatedAt: new Date(),
-          })
-          .where(eq(services.id, id));
-        successMessage = "Service updated successfully!";
-      }
-    }
-  } catch (err) {
+    await updateService(id, {
+      title,
+      slug,
+      description,
+      icon,
+      color,
+      sortOrder,
+      status,
+    });
+
+    successMessage = "Service updated successfully!";
+  } catch (err: any) {
     console.error("Update service failed:", err);
-    errorMessage = "Failed to update service.";
+    errorMessage = err?.message || "Failed to update service.";
   }
 }
 
-const [currentService] = await db.select().from(services).where(eq(services.id, id)).limit(1);
+const currentService = (await getServiceById(id)) || initialService;
 ---
 
 <AdminLayout title={`Edit Service: ${currentService.title} | SourceMonster Admin`} activeNav="services">

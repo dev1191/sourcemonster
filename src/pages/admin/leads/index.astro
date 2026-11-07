@@ -1,8 +1,6 @@
 ---
 import AdminLayout from "../../../layouts/AdminLayout.astro";
-import { db } from "../../../lib/db";
-import { leads } from "../../../lib/db/schema";
-import { desc, eq, and, sql } from "drizzle-orm";
+import { getAllLeads } from "../../../services";
 import {
   Table,
   TableHeader,
@@ -15,28 +13,10 @@ import {
 const statusFilter = Astro.url.searchParams.get("status") || "all";
 const searchQuery = Astro.url.searchParams.get("q")?.trim() || "";
 
-let conditions = [];
-
-if (statusFilter !== "all") {
-  conditions.push(eq(leads.status, statusFilter));
-}
-
-if (searchQuery) {
-  conditions.push(
-    sql`(${leads.name} ILIKE ${`%${searchQuery}%`} OR ${leads.email} ILIKE ${`%${searchQuery}%`} OR ${leads.company} ILIKE ${`%${searchQuery}%`})`
-  );
-}
-
-let allLeads: Array<typeof leads.$inferSelect> = [];
-try {
-  allLeads = await db
-    .select()
-    .from(leads)
-    .where(conditions.length > 0 ? and(...conditions) : undefined)
-    .orderBy(desc(leads.createdAt));
-} catch (e) {
-  console.error("Failed to load leads list:", e);
-}
+const allLeads = await getAllLeads({
+  status: statusFilter,
+  searchQuery,
+});
 
 const statusOptions = [
   { value: "all", label: "All Inquiries" },

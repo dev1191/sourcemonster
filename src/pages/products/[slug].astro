@@ -2,10 +2,7 @@
 import BaseLayout from "../../layouts/BaseLayout.astro";
 import Navbar from "../../components/Navbar.astro";
 import Footer from "../../components/Footer.astro";
-import { db } from "../../lib/db";
-import { products, media, productMedia, productAddons, productAddonMedia } from "../../lib/db/schema";
-import { eq, inArray } from "drizzle-orm";
-import { getPublicUrl } from "../../lib/storage";
+import { getProductBySlug } from "../../services";
 
 const { slug } = Astro.params;
 
@@ -13,95 +10,14 @@ if (!slug) {
   return new Response(null, { status: 404, statusText: "Not Found" });
 }
 
-// Query product by slug
-const [product] = await db
-  .select()
-  .from(products)
-  .where(eq(products.slug, slug))
-  .limit(1);
-
 const isAdmin = !!Astro.locals.adminUser;
+const data = await getProductBySlug(slug, { allowDraft: isAdmin });
 
-// If not found or draft (and user is not logged-in admin), return 404
-if (!product || (product.status !== "published" && !isAdmin)) {
+if (!data) {
   return new Response(null, { status: 404, statusText: "Not Found" });
 }
 
-// Query thumbnail media
-let thumbnailUrl: string | null = null;
-if (product.thumbnailMediaId) {
-  const [thumb] = await db
-    .select()
-    .from(media)
-    .where(eq(media.id, product.thumbnailMediaId))
-    .limit(1);
-  if (thumb) {
-    thumbnailUrl = getPublicUrl(thumb.objectKey, thumb.disk);
-  }
-}
-
-// Query gallery screenshots
-const galleryItems = await db
-  .select({
-    caption: productMedia.caption,
-    objectKey: media.objectKey,
-    disk: media.disk,
-  })
-  .from(productMedia)
-  .innerJoin(media, eq(productMedia.mediaId, media.id))
-  .where(eq(productMedia.productId, product.id));
-
-// Query add-ons / modules
-const rawAddons = await db
-  .select()
-  .from(productAddons)
-  .where(eq(productAddons.productId, product.id))
-  .orderBy(productAddons.sortOrder, productAddons.createdAt);
-
-// Query addon gallery items
-const addonIds = rawAddons.map((a) => a.id);
-const rawAddonGallery = addonIds.length > 0
-  ? await db
-      .select({
-        addonId: productAddonMedia.addonId,
-        objectKey: media.objectKey,
-        disk: media.disk,
-        caption: productAddonMedia.caption,
-      })
-      .from(productAddonMedia)
-      .innerJoin(media, eq(productAddonMedia.mediaId, media.id))
-      .where(inArray(productAddonMedia.addonId, addonIds))
-  : [];
-
-// Map thumbnail media for addons
-const addonThumbIds = rawAddons
-  .map((a) => a.thumbnailMediaId)
-  .filter((mId): mId is string => Boolean(mId));
-
-const addonThumbs = addonThumbIds.length > 0
-  ? await db
-      .select({
-        id: media.id,
-        objectKey: media.objectKey,
-        disk: media.disk,
-      })
-      .from(media)
-      .where(inArray(media.id, addonThumbIds))
-  : [];
-
-const addonThumbMap = new Map(addonThumbs.map((m) => [m.id, getPublicUrl(m.objectKey, m.disk)]));
-
-const addons = rawAddons.map((addon) => ({
-  ...addon,
-  thumbnailUrl: addon.thumbnailMediaId ? addonThumbMap.get(addon.thumbnailMediaId) || null : null,
-  gallery: rawAddonGallery
-    .filter((g) => g.addonId === addon.id)
-    .map((g) => ({
-      url: getPublicUrl(g.objectKey, g.disk),
-      caption: g.caption,
-    })),
-}));
-
+const { product, thumbnailUrl, galleryItems, addons } = data;
 const pageTitle = product.seoTitle || `${product.title} | SourceMonster`;
 ---
 

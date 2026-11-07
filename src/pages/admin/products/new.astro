@@ -1,10 +1,6 @@
 ---
 import AdminLayout from "../../../layouts/AdminLayout.astro";
-import { db } from "../../../lib/db";
-import { products, media } from "../../../lib/db/schema";
-import { eq } from "drizzle-orm";
-import { productSchema } from "../../../lib/validation/product";
-import { uploadFile } from "../../../lib/storage";
+import { createProduct } from "../../../services";
 import { Button, Card, Dropzone, FeedbackAlert } from "../../../components/ui";
 import { Input } from "../../../components/starwind/input";
 import { Textarea } from "../../../components/starwind/textarea";
@@ -42,91 +38,33 @@ if (Astro.request.method === "POST") {
       .map((f) => f.trim())
       .filter(Boolean);
 
-    // Validate using Zod
-    const validationResult = productSchema.safeParse({
-      title,
-      slug,
-      shortDescription,
-      description,
-      codecanyonUrl,
-      demoUrl,
-      documentationUrl,
-      version,
-      technologies,
-      features,
-      status,
-      isFeatured,
-      sortOrder,
-      seoTitle,
-      seoDescription,
-    });
+    const thumbnailFile = formData.get("thumbnail") as File | null;
 
-    if (!validationResult.success) {
-      errorMessage = Object.values(validationResult.error.flatten().fieldErrors)
-        .flat()
-        .join("; ");
-    } else {
-      // Check slug uniqueness
-      const [existingSlug] = await db
-        .select()
-        .from(products)
-        .where(eq(products.slug, slug))
-        .limit(1);
+    const newProduct = await createProduct(
+      {
+        title,
+        slug,
+        shortDescription,
+        description,
+        codecanyonUrl,
+        demoUrl,
+        documentationUrl,
+        version,
+        technologies,
+        features,
+        status,
+        isFeatured,
+        sortOrder,
+        seoTitle,
+        seoDescription,
+      },
+      thumbnailFile
+    );
 
-      if (existingSlug) {
-        errorMessage = `The slug "${slug}" is already used by another product.`;
-      } else {
-        let thumbnailMediaId: string | null = null;
-        const thumbnailFile = formData.get("thumbnail") as File | null;
-
-        if (thumbnailFile && thumbnailFile.size > 0) {
-          const uploadRes = await uploadFile(
-            thumbnailFile,
-            thumbnailFile.name,
-            thumbnailFile.type
-          );
-
-          const [newMedia] = await db
-            .insert(media)
-            .values({
-              disk: uploadRes.disk,
-              objectKey: uploadRes.objectKey,
-              originalName: uploadRes.originalName,
-              mimeType: uploadRes.mimeType,
-              sizeBytes: uploadRes.sizeBytes,
-              altText: title,
-            })
-            .returning();
-
-          thumbnailMediaId = newMedia.id;
-        }
-
-        const [newProduct] = await db.insert(products).values({
-          title,
-          slug,
-          shortDescription,
-          description,
-          thumbnailMediaId,
-          codecanyonUrl: codecanyonUrl || null,
-          demoUrl: demoUrl || null,
-          documentationUrl: documentationUrl || null,
-          version: version || null,
-          technologies,
-          features,
-          status,
-          isFeatured,
-          sortOrder,
-          seoTitle: seoTitle || null,
-          seoDescription: seoDescription || null,
-          publishedAt: status === "published" ? new Date() : null,
-        }).returning();
-
-        return Astro.redirect(`/admin/products/${newProduct.id}/edit`);
-      }
-    }
-  } catch (err) {
+    return Astro.redirect(`/admin/products/${newProduct.id}/edit`);
+  } catch (err: any) {
     console.error("Create product failed:", err);
-    errorMessage = "Failed to create product. Check server logs.";
+    errorMessage = err?.message || "Failed to create product. Check server logs.";
   }
 }
 ---

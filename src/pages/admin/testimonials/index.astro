@@ -1,8 +1,6 @@
 ---
 import AdminLayout from "../../../layouts/AdminLayout.astro";
-import { db } from "../../../lib/db";
-import { testimonials } from "../../../lib/db/schema";
-import { desc } from "drizzle-orm";
+import { getAllTestimonials } from "../../../services";
 import {
   Table,
   TableHeader,
@@ -12,12 +10,7 @@ import {
   TableCell,
 } from "../../../components/ui";
 
-let allTestimonials: Array<typeof testimonials.$inferSelect> = [];
-try {
-  allTestimonials = await db.select().from(testimonials).orderBy(desc(testimonials.sortOrder), testimonials.createdAt);
-} catch (e) {
-  console.error("Failed to load testimonials:", e);
-}
+const allTestimonials = await getAllTestimonials();
 ---
 
 <AdminLayout title="Testimonials | SourceMonster Admin" activeNav="testimonials">

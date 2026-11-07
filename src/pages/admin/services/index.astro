@@ -1,8 +1,6 @@
 ---
 import AdminLayout from "../../../layouts/AdminLayout.astro";
-import { db } from "../../../lib/db";
-import { services } from "../../../lib/db/schema";
-import { desc } from "drizzle-orm";
+import { getAllServices } from "../../../services";
 import {
   Table,
   TableHeader,
@@ -12,12 +10,7 @@ import {
   TableCell,
 } from "../../../components/ui";
 
-let allServices: Array<typeof services.$inferSelect> = [];
-try {
-  allServices = await db.select().from(services).orderBy(desc(services.sortOrder), services.createdAt);
-} catch (e) {
-  console.error("Failed to load services:", e);
-}
+const allServices = await getAllServices();
 ---
 
 <AdminLayout title="Services | SourceMonster Admin" activeNav="services">
