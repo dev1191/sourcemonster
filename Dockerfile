@@ -13,15 +13,24 @@ RUN pnpm build
 # ---- runtime ----
 FROM node:22-slim AS runtime
 WORKDIR /app
+
 RUN npm install -g pnpm@latest
 ENV NODE_ENV=production HOST=0.0.0.0 PORT=4321
+ENV PNPM_HOME="/home/app/.local/share/pnpm"
+ENV PATH="$PNPM_HOME:$PATH"
+
 COPY package.json pnpm-lock.yaml pnpm-workspace.yaml* ./
 COPY --from=deps /app/node_modules ./node_modules
 COPY --from=build /app/dist ./dist
 COPY drizzle ./drizzle
 COPY scripts ./scripts
+
 RUN chmod +x scripts/docker-entrypoint.sh \
- && groupadd -r app && useradd -r -g app app
+ && groupadd -r app \
+ && useradd -m -r -g app -s /bin/bash app \
+ && mkdir -p /home/app/.local/share/pnpm \
+ && chown -R app:app /app /home/app
+
 USER app
 EXPOSE 4321
 ENTRYPOINT ["./scripts/docker-entrypoint.sh"]
