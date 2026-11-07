@@ -29,3 +29,4 @@ pnpm-debug.log*
 static-template/
 .vscode/
 docs/
+deploy_setup.txt
