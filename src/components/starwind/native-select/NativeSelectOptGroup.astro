@@ -1,0 +1,15 @@
+---
+import type { HTMLAttributes } from "astro/types";
+
+type Props = HTMLAttributes<"optgroup">;
+
+const { class: className, ...rest } = Astro.props;
+---
+
+<optgroup
+  {...rest}
+  class={["bg-[Canvas] text-[CanvasText]", className].filter(Boolean).join(" ")}
+  data-slot="native-select-optgroup"
+>
+  <slot />
+</optgroup>

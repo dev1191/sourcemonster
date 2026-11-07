@@ -5,6 +5,12 @@ import { products, media } from "../../../lib/db/schema";
 import { eq } from "drizzle-orm";
 import { productSchema } from "../../../lib/validation/product";
 import { uploadFile } from "../../../lib/storage";
+import { Card, CardHeader, CardTitle, CardContent } from "../../../components/starwind/card";
+import { Input } from "../../../components/starwind/input";
+import { Textarea } from "../../../components/starwind/textarea";
+import { Button } from "../../../components/starwind/button";
+import { Alert, AlertDescription } from "../../../components/starwind/alert";
+import { NativeSelect, NativeSelectOption } from "../../../components/starwind/native-select";
 
 let errorMessage = "";
 
@@ -137,257 +143,265 @@ if (Astro.request.method === "POST") {
       </div>
       <h1 class="text-2xl font-black text-white tracking-tight">Create New Product</h1>
     </div>
-    <a
-      href="/admin/products"
-      class="px-4 py-2 bg-slate-800 hover:bg-slate-700 text-slate-300 rounded-xl text-xs font-semibold transition"
-    >
-      Cancel
+    <a href="/admin/products">
+      <Button variant="secondary" size="sm">Cancel</Button>
     </a>
   </div>
 
   {errorMessage && (
-    <div class="my-6 p-4 rounded-xl bg-rose-500/10 border border-rose-500/20 text-rose-400 text-xs flex items-center gap-2">
-      <i data-lucide="alert-circle" class="w-4 h-4 shrink-0"></i>
-      <span>{errorMessage}</span>
+    <div class="my-6">
+      <Alert variant="error">
+        <i data-lucide="alert-circle" class="w-4 h-4 shrink-0 mr-2"></i>
+        <AlertDescription>{errorMessage}</AlertDescription>
+      </Alert>
     </div>
   )}
 
   <form method="POST" enctype="multipart/form-data" class="my-6 space-y-6 max-w-4xl">
-    <div class="bg-slate-900/70 border border-slate-800/80 rounded-2xl p-6 space-y-4">
-      <h2 class="text-sm font-bold text-white uppercase tracking-wider text-primary">Basic Info</h2>
-
-      <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-        <div>
-          <label class="block text-xs font-semibold text-slate-300 uppercase tracking-wider mb-1.5">
-            Product Title *
-          </label>
-          <input
-            id="title-input"
-            name="title"
-            type="text"
-            required
-            placeholder="e.g. MonsterSaaS Boilerplate"
-            class="w-full px-4 py-2.5 bg-slate-950/80 border border-slate-700/80 rounded-xl text-white text-sm focus:outline-none focus:ring-2 focus:ring-primary"
-          />
-        </div>
-
-        <div>
-          <label class="block text-xs font-semibold text-slate-300 uppercase tracking-wider mb-1.5">
-            URL Slug *
-          </label>
-          <input
-            id="slug-input"
-            name="slug"
-            type="text"
-            required
-            placeholder="e.g. monstersaas-boilerplate"
-            class="w-full px-4 py-2.5 bg-slate-950/80 border border-slate-700/80 rounded-xl text-white text-sm font-mono focus:outline-none focus:ring-2 focus:ring-primary"
-          />
-        </div>
-      </div>
-
-      <div>
-        <label class="block text-xs font-semibold text-slate-300 uppercase tracking-wider mb-1.5">
-          Short Description (Card Summary) *
-        </label>
-        <textarea
-          name="shortDescription"
-          rows="2"
-          required
-          placeholder="Brief 1-2 sentence pitch for catalog cards..."
-          class="w-full px-4 py-2.5 bg-slate-950/80 border border-slate-700/80 rounded-xl text-white text-sm focus:outline-none focus:ring-2 focus:ring-primary"
-        ></textarea>
-      </div>
-
-      <div>
-        <label class="block text-xs font-semibold text-slate-300 uppercase tracking-wider mb-1.5">
-          Full Description *
-        </label>
-        <textarea
-          name="description"
-          rows="5"
-          required
-          placeholder="Detailed product overview, value proposition, and architecture..."
-          class="w-full px-4 py-2.5 bg-slate-950/80 border border-slate-700/80 rounded-xl text-white text-sm focus:outline-none focus:ring-2 focus:ring-primary"
-        ></textarea>
-      </div>
-
-      <div>
-        <label class="block text-xs font-semibold text-slate-300 uppercase tracking-wider mb-1.5">
-          Thumbnail Image
-        </label>
-        <input
-          name="thumbnail"
-          type="file"
-          accept="image/png,image/jpeg,image/webp,image/svg+xml"
-          class="w-full text-xs text-slate-400 file:mr-4 file:py-2 file:px-4 file:rounded-xl file:border-0 file:text-xs file:font-semibold file:bg-primary file:text-white hover:file:bg-orange-600 cursor-pointer"
-        />
-      </div>
-    </div>
-
-    <!-- URLs & Technical Specifications -->
-    <div class="bg-slate-900/70 border border-slate-800/80 rounded-2xl p-6 space-y-4">
-      <h2 class="text-sm font-bold text-white uppercase tracking-wider text-primary">Links & Meta</h2>
-
-      <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
-        <div>
-          <label class="block text-xs font-semibold text-slate-300 uppercase tracking-wider mb-1.5">
-            CodeCanyon URL
-          </label>
-          <input
-            name="codecanyonUrl"
-            type="url"
-            placeholder="https://codecanyon.net/item/..."
-            class="w-full px-4 py-2.5 bg-slate-950/80 border border-slate-700/80 rounded-xl text-white text-sm focus:outline-none focus:ring-2 focus:ring-primary"
-          />
-        </div>
-
-        <div>
-          <label class="block text-xs font-semibold text-slate-300 uppercase tracking-wider mb-1.5">
-            Live Demo URL
-          </label>
-          <input
-            name="demoUrl"
-            type="url"
-            placeholder="https://demo.sourcemonster.in/..."
-            class="w-full px-4 py-2.5 bg-slate-950/80 border border-slate-700/80 rounded-xl text-white text-sm focus:outline-none focus:ring-2 focus:ring-primary"
-          />
-        </div>
-
-        <div>
-          <label class="block text-xs font-semibold text-slate-300 uppercase tracking-wider mb-1.5">
-            Documentation URL
-          </label>
-          <input
-            name="documentationUrl"
-            type="url"
-            placeholder="https://docs.sourcemonster.in/..."
-            class="w-full px-4 py-2.5 bg-slate-950/80 border border-slate-700/80 rounded-xl text-white text-sm focus:outline-none focus:ring-2 focus:ring-primary"
-          />
-        </div>
-      </div>
-
-      <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-        <div>
-          <label class="block text-xs font-semibold text-slate-300 uppercase tracking-wider mb-1.5">
-            Technologies (comma separated)
-          </label>
-          <input
-            name="technologies"
-            type="text"
-            placeholder="TypeScript, Astro, PostgreSQL, Tailwind"
-            class="w-full px-4 py-2.5 bg-slate-950/80 border border-slate-700/80 rounded-xl text-white text-sm focus:outline-none focus:ring-2 focus:ring-primary"
-          />
-        </div>
-
-        <div>
-          <label class="block text-xs font-semibold text-slate-300 uppercase tracking-wider mb-1.5">
-            Version
-          </label>
-          <input
-            name="version"
-            type="text"
-            placeholder="v1.0.0"
-            class="w-full px-4 py-2.5 bg-slate-950/80 border border-slate-700/80 rounded-xl text-white text-sm focus:outline-none focus:ring-2 focus:ring-primary"
-          />
-        </div>
-      </div>
-
-      <div>
-        <label class="block text-xs font-semibold text-slate-300 uppercase tracking-wider mb-1.5">
-          Features (one per line)
-        </label>
-        <textarea
-          name="features"
-          rows="4"
-          placeholder="Turnkey multi-tenant isolation&#10;Stripe subscriptions and webhook handler&#10;Dark-mode modern dashboard UI"
-          class="w-full px-4 py-2.5 bg-slate-950/80 border border-slate-700/80 rounded-xl text-white text-sm focus:outline-none focus:ring-2 focus:ring-primary"
-        ></textarea>
-      </div>
-    </div>
-
-    <!-- Publishing & SEO -->
-    <div class="bg-slate-900/70 border border-slate-800/80 rounded-2xl p-6 space-y-4">
-      <h2 class="text-sm font-bold text-white uppercase tracking-wider text-primary">Publishing & SEO</h2>
-
-      <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
-        <div>
-          <label class="block text-xs font-semibold text-slate-300 uppercase tracking-wider mb-1.5">
-            Status
-          </label>
-          <select
-            name="status"
-            class="w-full px-4 py-2.5 bg-slate-950/80 border border-slate-700/80 rounded-xl text-white text-sm focus:outline-none focus:ring-2 focus:ring-primary"
-          >
-            <option value="draft">Draft</option>
-            <option value="published">Published</option>
-          </select>
-        </div>
-
-        <div>
-          <label class="block text-xs font-semibold text-slate-300 uppercase tracking-wider mb-1.5">
-            Sort Order
-          </label>
-          <input
-            name="sortOrder"
-            type="number"
-            value="0"
-            class="w-full px-4 py-2.5 bg-slate-950/80 border border-slate-700/80 rounded-xl text-white text-sm focus:outline-none focus:ring-2 focus:ring-primary"
-          />
-        </div>
-
-        <div class="flex items-center pt-6">
-          <label class="flex items-center gap-2 cursor-pointer">
-            <input
-              name="isFeatured"
-              type="checkbox"
-              class="w-4 h-4 rounded text-primary focus:ring-primary bg-slate-950 border-slate-700"
+    <!-- Basic Info Card -->
+    <Card class="bg-slate-900/70 border-slate-800/80 rounded-2xl shadow-xl">
+      <CardHeader>
+        <CardTitle class="text-sm font-bold text-primary uppercase tracking-wider">Basic Info</CardTitle>
+      </CardHeader>
+      <CardContent class="space-y-4 pt-2">
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <div>
+            <label class="block text-xs font-semibold text-slate-300 uppercase tracking-wider mb-1.5">
+              Product Title *
+            </label>
+            <Input
+              id="title-input"
+              name="title"
+              type="text"
+              required
+              placeholder="e.g. MonsterSaaS Boilerplate"
+              class="bg-slate-950/80 border-slate-700/80 text-white placeholder:text-slate-500 rounded-xl"
             />
-            <span class="text-xs font-semibold text-slate-300 uppercase tracking-wider">Highlight as Featured</span>
-          </label>
-        </div>
-      </div>
+          </div>
 
-      <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <div>
+            <label class="block text-xs font-semibold text-slate-300 uppercase tracking-wider mb-1.5">
+              URL Slug *
+            </label>
+            <Input
+              id="slug-input"
+              name="slug"
+              type="text"
+              required
+              placeholder="e.g. monstersaas-boilerplate"
+              class="bg-slate-950/80 border-slate-700/80 text-white font-mono placeholder:text-slate-500 rounded-xl"
+            />
+          </div>
+        </div>
+
         <div>
           <label class="block text-xs font-semibold text-slate-300 uppercase tracking-wider mb-1.5">
-            SEO Title
+            Short Description (Card Summary) *
           </label>
-          <input
-            name="seoTitle"
-            type="text"
-            placeholder="Custom SEO Title..."
-            class="w-full px-4 py-2.5 bg-slate-950/80 border border-slate-700/80 rounded-xl text-white text-sm focus:outline-none focus:ring-2 focus:ring-primary"
+          <Textarea
+            name="shortDescription"
+            rows={2}
+            required
+            placeholder="Brief 1-2 sentence pitch for catalog cards..."
+            class="bg-slate-950/80 border-slate-700/80 text-white placeholder:text-slate-500 rounded-xl"
           />
         </div>
 
         <div>
           <label class="block text-xs font-semibold text-slate-300 uppercase tracking-wider mb-1.5">
-            SEO Meta Description
+            Full Description *
           </label>
-          <input
-            name="seoDescription"
-            type="text"
-            placeholder="Custom meta description for search snippets..."
-            class="w-full px-4 py-2.5 bg-slate-950/80 border border-slate-700/80 rounded-xl text-white text-sm focus:outline-none focus:ring-2 focus:ring-primary"
+          <Textarea
+            name="description"
+            rows={5}
+            required
+            placeholder="Detailed product overview, value proposition, and architecture..."
+            class="bg-slate-950/80 border-slate-700/80 text-white placeholder:text-slate-500 rounded-xl"
           />
         </div>
-      </div>
-    </div>
 
-    <div class="flex items-center justify-end gap-3">
-      <a
-        href="/admin/products"
-        class="px-5 py-2.5 bg-slate-800 hover:bg-slate-700 text-slate-300 rounded-xl text-sm font-semibold transition"
-      >
-        Cancel
+        <div>
+          <label class="block text-xs font-semibold text-slate-300 uppercase tracking-wider mb-1.5">
+            Thumbnail Image
+          </label>
+          <Input
+            name="thumbnail"
+            type="file"
+            accept="image/png,image/jpeg,image/webp,image/svg+xml"
+            class="bg-slate-950/80 border-slate-700/80 text-slate-400 file:mr-4 file:py-1 file:px-3 file:rounded-lg file:border-0 file:text-xs file:font-semibold file:bg-primary file:text-white hover:file:bg-orange-600 cursor-pointer rounded-xl"
+          />
+        </div>
+      </CardContent>
+    </Card>
+
+    <!-- URLs & Technical Specifications Card -->
+    <Card class="bg-slate-900/70 border-slate-800/80 rounded-2xl shadow-xl">
+      <CardHeader>
+        <CardTitle class="text-sm font-bold text-primary uppercase tracking-wider">Links & Meta</CardTitle>
+      </CardHeader>
+      <CardContent class="space-y-4 pt-2">
+        <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+          <div>
+            <label class="block text-xs font-semibold text-slate-300 uppercase tracking-wider mb-1.5">
+              CodeCanyon URL
+            </label>
+            <Input
+              name="codecanyonUrl"
+              type="url"
+              placeholder="https://codecanyon.net/item/..."
+              class="bg-slate-950/80 border-slate-700/80 text-white placeholder:text-slate-500 rounded-xl"
+            />
+          </div>
+
+          <div>
+            <label class="block text-xs font-semibold text-slate-300 uppercase tracking-wider mb-1.5">
+              Live Demo URL
+            </label>
+            <Input
+              name="demoUrl"
+              type="url"
+              placeholder="https://demo.sourcemonster.in/..."
+              class="bg-slate-950/80 border-slate-700/80 text-white placeholder:text-slate-500 rounded-xl"
+            />
+          </div>
+
+          <div>
+            <label class="block text-xs font-semibold text-slate-300 uppercase tracking-wider mb-1.5">
+              Documentation URL
+            </label>
+            <Input
+              name="documentationUrl"
+              type="url"
+              placeholder="https://docs.sourcemonster.in/..."
+              class="bg-slate-950/80 border-slate-700/80 text-white placeholder:text-slate-500 rounded-xl"
+            />
+          </div>
+        </div>
+
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <div>
+            <label class="block text-xs font-semibold text-slate-300 uppercase tracking-wider mb-1.5">
+              Technologies (comma separated)
+            </label>
+            <Input
+              name="technologies"
+              type="text"
+              placeholder="TypeScript, Astro, PostgreSQL, Tailwind"
+              class="bg-slate-950/80 border-slate-700/80 text-white placeholder:text-slate-500 rounded-xl"
+            />
+          </div>
+
+          <div>
+            <label class="block text-xs font-semibold text-slate-300 uppercase tracking-wider mb-1.5">
+              Version
+            </label>
+            <Input
+              name="version"
+              type="text"
+              placeholder="v1.0.0"
+              class="bg-slate-950/80 border-slate-700/80 text-white placeholder:text-slate-500 rounded-xl"
+            />
+          </div>
+        </div>
+
+        <div>
+          <label class="block text-xs font-semibold text-slate-300 uppercase tracking-wider mb-1.5">
+            Features (one per line)
+          </label>
+          <Textarea
+            name="features"
+            rows={4}
+            placeholder="Turnkey multi-tenant isolation&#10;Stripe subscriptions and webhook handler&#10;Dark-mode modern dashboard UI"
+            class="bg-slate-950/80 border-slate-700/80 text-white placeholder:text-slate-500 rounded-xl"
+          />
+        </div>
+      </CardContent>
+    </Card>
+
+    <!-- Publishing & SEO Card -->
+    <Card class="bg-slate-900/70 border-slate-800/80 rounded-2xl shadow-xl">
+      <CardHeader>
+        <CardTitle class="text-sm font-bold text-primary uppercase tracking-wider">Publishing & SEO</CardTitle>
+      </CardHeader>
+      <CardContent class="space-y-4 pt-2">
+        <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+          <div>
+            <label class="block text-xs font-semibold text-slate-300 uppercase tracking-wider mb-1.5">
+              Status
+            </label>
+            <NativeSelect
+              name="status"
+              class="bg-slate-950/80 border-slate-700/80 text-white rounded-xl"
+            >
+              <NativeSelectOption value="draft">Draft</NativeSelectOption>
+              <NativeSelectOption value="published">Published</NativeSelectOption>
+            </NativeSelect>
+          </div>
+
+          <div>
+            <label class="block text-xs font-semibold text-slate-300 uppercase tracking-wider mb-1.5">
+              Sort Order
+            </label>
+            <Input
+              name="sortOrder"
+              type="number"
+              value="0"
+              class="bg-slate-950/80 border-slate-700/80 text-white placeholder:text-slate-500 rounded-xl"
+            />
+          </div>
+
+          <div class="flex items-center pt-6">
+            <label class="flex items-center gap-2 cursor-pointer">
+              <input
+                name="isFeatured"
+                type="checkbox"
+                class="w-4 h-4 rounded text-primary focus:ring-primary bg-slate-950 border-slate-700"
+              />
+              <span class="text-xs font-semibold text-slate-300 uppercase tracking-wider">Highlight as Featured</span>
+            </label>
+          </div>
+        </div>
+
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <div>
+            <label class="block text-xs font-semibold text-slate-300 uppercase tracking-wider mb-1.5">
+              SEO Title
+            </label>
+            <Input
+              name="seoTitle"
+              type="text"
+              placeholder="Custom SEO Title..."
+              class="bg-slate-950/80 border-slate-700/80 text-white placeholder:text-slate-500 rounded-xl"
+            />
+          </div>
+
+          <div>
+            <label class="block text-xs font-semibold text-slate-300 uppercase tracking-wider mb-1.5">
+              SEO Meta Description
+            </label>
+            <Input
+              name="seoDescription"
+              type="text"
+              placeholder="Custom meta description for search snippets..."
+              class="bg-slate-950/80 border-slate-700/80 text-white placeholder:text-slate-500 rounded-xl"
+            />
+          </div>
+        </div>
+      </CardContent>
+    </Card>
+
+    <div class="flex items-center justify-end gap-3 pt-2">
+      <a href="/admin/products">
+        <Button variant="secondary" size="md">Cancel</Button>
       </a>
-      <button
+      <Button
         type="submit"
-        class="px-6 py-2.5 bg-primary hover:bg-orange-600 text-white rounded-xl text-sm font-semibold shadow-lg shadow-primary/25 transition"
+        variant="primary"
+        size="md"
+        class="bg-primary hover:bg-orange-600 text-white shadow-lg shadow-primary/25"
       >
         Save & Create Product
-      </button>
+      </Button>
     </div>
   </form>
 
@@ -410,4 +424,3 @@ if (Astro.request.method === "POST") {
     }
   </script>
 </AdminLayout>
-

@@ -1,0 +1,13 @@
+---
+import type { HTMLAttributes } from "astro/types";
+
+import { tableBody } from "./variants";
+
+type Props = HTMLAttributes<"tbody">;
+
+const { class: className, ...rest } = Astro.props;
+---
+
+<tbody {...rest} class={tableBody({ class: className })} data-slot="table-body">
+  <slot />
+</tbody>

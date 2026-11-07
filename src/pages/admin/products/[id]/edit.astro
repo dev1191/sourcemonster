@@ -5,6 +5,13 @@ import { products, media, productMedia } from "../../../../lib/db/schema";
 import { eq } from "drizzle-orm";
 import { productSchema } from "../../../../lib/validation/product";
 import { uploadFile, getPublicUrl } from "../../../../lib/storage";
+import { Card, CardHeader, CardTitle, CardContent } from "../../../../components/starwind/card";
+import { Input } from "../../../../components/starwind/input";
+import { Textarea } from "../../../../components/starwind/textarea";
+import { Button } from "../../../../components/starwind/button";
+import { Alert, AlertDescription } from "../../../../components/starwind/alert";
+import { NativeSelect, NativeSelectOption } from "../../../../components/starwind/native-select";
+import { Badge } from "../../../../components/starwind/badge";
 
 const { id } = Astro.params;
 
@@ -94,15 +101,15 @@ if (Astro.request.method === "POST") {
         .flat()
         .join("; ");
     } else {
-      // Check slug collision
-      const [slugCollision] = await db
+      // Check slug uniqueness excluding self
+      const [duplicateSlug] = await db
         .select()
         .from(products)
         .where(eq(products.slug, slug))
         .limit(1);
 
-      if (slugCollision && slugCollision.id !== id) {
-        errorMessage = `The slug "${slug}" is already in use by another product.`;
+      if (duplicateSlug && duplicateSlug.id !== id) {
+        errorMessage = `The slug "${slug}" is already used by another product.`;
       } else {
         let thumbnailMediaId = existingProduct.thumbnailMediaId;
         const thumbnailFile = formData.get("thumbnail") as File | null;
@@ -129,38 +136,33 @@ if (Astro.request.method === "POST") {
           thumbnailMediaId = newMedia.id;
         }
 
-        // Handle additional screenshot upload
+        // Check for new gallery screenshot upload
         const screenshotFile = formData.get("screenshot") as File | null;
         if (screenshotFile && screenshotFile.size > 0) {
-          const ssUpload = await uploadFile(
+          const uploadRes = await uploadFile(
             screenshotFile,
             screenshotFile.name,
             screenshotFile.type
           );
 
-          const [ssMedia] = await db
+          const [newMedia] = await db
             .insert(media)
             .values({
-              disk: ssUpload.disk,
-              objectKey: ssUpload.objectKey,
-              originalName: ssUpload.originalName,
-              mimeType: ssUpload.mimeType,
-              sizeBytes: ssUpload.sizeBytes,
-              altText: `${title} screenshot`,
+              disk: uploadRes.disk,
+              objectKey: uploadRes.objectKey,
+              originalName: uploadRes.originalName,
+              mimeType: uploadRes.mimeType,
+              sizeBytes: uploadRes.sizeBytes,
+              altText: `${title} Screenshot`,
             })
             .returning();
 
           await db.insert(productMedia).values({
             productId: id,
-            mediaId: ssMedia.id,
-            caption: ssUpload.originalName,
+            mediaId: newMedia.id,
+            displayOrder: 0,
           });
         }
-
-        const publishedAt =
-          status === "published"
-            ? existingProduct.publishedAt || new Date()
-            : null;
 
         await db
           .update(products)
@@ -181,7 +183,10 @@ if (Astro.request.method === "POST") {
             sortOrder,
             seoTitle: seoTitle || null,
             seoDescription: seoDescription || null,
-            publishedAt,
+            publishedAt:
+              status === "published"
+                ? existingProduct.publishedAt || new Date()
+                : null,
             updatedAt: new Date(),
           })
           .where(eq(products.id, id));
@@ -253,325 +258,340 @@ const galleryItems = await db
           View Public Page
         </a>
       )}
-      <a
-        href="/admin/products"
-        class="px-4 py-2 bg-slate-800 hover:bg-slate-700 text-slate-300 rounded-xl text-xs font-semibold transition"
-      >
-        Back to list
+      <a href="/admin/products">
+        <Button variant="secondary" size="sm">Back to list</Button>
       </a>
     </div>
   </div>
 
   {errorMessage && (
-    <div class="my-6 p-4 rounded-xl bg-rose-500/10 border border-rose-500/20 text-rose-400 text-xs flex items-center gap-2">
-      <i data-lucide="alert-circle" class="w-4 h-4 shrink-0"></i>
-      <span>{errorMessage}</span>
+    <div class="my-6">
+      <Alert variant="error">
+        <i data-lucide="alert-circle" class="w-4 h-4 shrink-0 mr-2"></i>
+        <AlertDescription>{errorMessage}</AlertDescription>
+      </Alert>
     </div>
   )}
 
   {successMessage && (
-    <div class="my-6 p-4 rounded-xl bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 text-xs flex items-center gap-2">
-      <i data-lucide="check-circle" class="w-4 h-4 shrink-0"></i>
-      <span>{successMessage}</span>
+    <div class="my-6">
+      <Alert variant="success">
+        <i data-lucide="check-circle" class="w-4 h-4 shrink-0 mr-2"></i>
+        <AlertDescription>{successMessage}</AlertDescription>
+      </Alert>
     </div>
   )}
 
   <form method="POST" enctype="multipart/form-data" class="my-6 space-y-6 max-w-4xl">
     <input type="hidden" name="_action" value="update" />
 
-    <!-- Basic Info -->
-    <div class="bg-slate-900/70 border border-slate-800/80 rounded-2xl p-6 space-y-4">
-      <h2 class="text-sm font-bold text-white uppercase tracking-wider text-primary">Basic Info</h2>
+    <!-- Basic Info Card -->
+    <Card class="bg-slate-900/70 border-slate-800/80 rounded-2xl shadow-xl">
+      <CardHeader>
+        <CardTitle class="text-sm font-bold text-primary uppercase tracking-wider">Basic Info</CardTitle>
+      </CardHeader>
+      <CardContent class="space-y-4 pt-2">
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <div>
+            <label class="block text-xs font-semibold text-slate-300 uppercase tracking-wider mb-1.5">
+              Product Title *
+            </label>
+            <Input
+              name="title"
+              type="text"
+              required
+              value={product.title}
+              class="bg-slate-950/80 border-slate-700/80 text-white placeholder:text-slate-500 rounded-xl"
+            />
+          </div>
 
-      <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <div>
+            <label class="block text-xs font-semibold text-slate-300 uppercase tracking-wider mb-1.5">
+              URL Slug *
+            </label>
+            <Input
+              name="slug"
+              type="text"
+              required
+              value={product.slug}
+              class="bg-slate-950/80 border-slate-700/80 text-white font-mono placeholder:text-slate-500 rounded-xl"
+            />
+          </div>
+        </div>
+
         <div>
           <label class="block text-xs font-semibold text-slate-300 uppercase tracking-wider mb-1.5">
-            Product Title *
+            Short Description *
           </label>
-          <input
-            name="title"
-            type="text"
+          <Textarea
+            name="shortDescription"
+            rows={2}
             required
-            value={product.title}
-            class="w-full px-4 py-2.5 bg-slate-950/80 border border-slate-700/80 rounded-xl text-white text-sm focus:outline-none focus:ring-2 focus:ring-primary"
+            value={product.shortDescription}
+            class="bg-slate-950/80 border-slate-700/80 text-white placeholder:text-slate-500 rounded-xl"
           />
         </div>
 
         <div>
           <label class="block text-xs font-semibold text-slate-300 uppercase tracking-wider mb-1.5">
-            URL Slug *
+            Full Description *
           </label>
-          <input
-            name="slug"
-            type="text"
+          <Textarea
+            name="description"
+            rows={6}
             required
-            value={product.slug}
-            class="w-full px-4 py-2.5 bg-slate-950/80 border border-slate-700/80 rounded-xl text-white text-sm font-mono focus:outline-none focus:ring-2 focus:ring-primary"
+            value={product.description}
+            class="bg-slate-950/80 border-slate-700/80 text-white placeholder:text-slate-500 rounded-xl"
           />
         </div>
-      </div>
 
-      <div>
-        <label class="block text-xs font-semibold text-slate-300 uppercase tracking-wider mb-1.5">
-          Short Description *
-        </label>
-        <textarea
-          name="shortDescription"
-          rows="2"
-          required
-          class="w-full px-4 py-2.5 bg-slate-950/80 border border-slate-700/80 rounded-xl text-white text-sm focus:outline-none focus:ring-2 focus:ring-primary"
-        >{product.shortDescription}</textarea>
-      </div>
+        <div class="pt-2">
+          <label class="block text-xs font-semibold text-slate-300 uppercase tracking-wider mb-2">
+            Thumbnail Image
+          </label>
+          {currentThumbnailUrl && (
+            <div class="mb-3 flex items-center gap-3 p-3 bg-slate-950/60 rounded-xl border border-slate-800 w-fit">
+              <img src={currentThumbnailUrl} alt="Thumbnail preview" class="w-16 h-16 rounded-lg object-cover" />
+              <span class="text-xs text-slate-400">Current thumbnail</span>
+            </div>
+          )}
+          <Input
+            name="thumbnail"
+            type="file"
+            accept="image/png,image/jpeg,image/webp,image/svg+xml"
+            class="bg-slate-950/80 border-slate-700/80 text-slate-400 file:mr-4 file:py-1 file:px-3 file:rounded-lg file:border-0 file:text-xs file:font-semibold file:bg-primary file:text-white hover:file:bg-orange-600 cursor-pointer rounded-xl"
+          />
+        </div>
+      </CardContent>
+    </Card>
 
-      <div>
-        <label class="block text-xs font-semibold text-slate-300 uppercase tracking-wider mb-1.5">
-          Full Description *
-        </label>
-        <textarea
-          name="description"
-          rows="6"
-          required
-          class="w-full px-4 py-2.5 bg-slate-950/80 border border-slate-700/80 rounded-xl text-white text-sm focus:outline-none focus:ring-2 focus:ring-primary"
-        >{product.description}</textarea>
-      </div>
+    <!-- URLs & Technical Specifications Card -->
+    <Card class="bg-slate-900/70 border-slate-800/80 rounded-2xl shadow-xl">
+      <CardHeader>
+        <CardTitle class="text-sm font-bold text-primary uppercase tracking-wider">Links & Meta</CardTitle>
+      </CardHeader>
+      <CardContent class="space-y-4 pt-2">
+        <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+          <div>
+            <label class="block text-xs font-semibold text-slate-300 uppercase tracking-wider mb-1.5">
+              CodeCanyon URL
+            </label>
+            <Input
+              name="codecanyonUrl"
+              type="url"
+              value={product.codecanyonUrl || ""}
+              placeholder="https://codecanyon.net/..."
+              class="bg-slate-950/80 border-slate-700/80 text-white placeholder:text-slate-500 rounded-xl"
+            />
+          </div>
 
-      <div class="pt-2">
-        <label class="block text-xs font-semibold text-slate-300 uppercase tracking-wider mb-2">
-          Thumbnail Image
-        </label>
-        {currentThumbnailUrl && (
-          <div class="mb-3 flex items-center gap-3 p-3 bg-slate-950/60 rounded-xl border border-slate-800 w-fit">
-            <img src={currentThumbnailUrl} alt="Thumbnail preview" class="w-16 h-16 rounded-lg object-cover" />
-            <span class="text-xs text-slate-400">Current thumbnail</span>
+          <div>
+            <label class="block text-xs font-semibold text-slate-300 uppercase tracking-wider mb-1.5">
+              Live Demo URL
+            </label>
+            <Input
+              name="demoUrl"
+              type="url"
+              value={product.demoUrl || ""}
+              placeholder="https://demo.sourcemonster.in/..."
+              class="bg-slate-950/80 border-slate-700/80 text-white placeholder:text-slate-500 rounded-xl"
+            />
+          </div>
+
+          <div>
+            <label class="block text-xs font-semibold text-slate-300 uppercase tracking-wider mb-1.5">
+              Documentation URL
+            </label>
+            <Input
+              name="documentationUrl"
+              type="url"
+              value={product.documentationUrl || ""}
+              placeholder="https://docs.sourcemonster.in/..."
+              class="bg-slate-950/80 border-slate-700/80 text-white placeholder:text-slate-500 rounded-xl"
+            />
+          </div>
+        </div>
+
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <div>
+            <label class="block text-xs font-semibold text-slate-300 uppercase tracking-wider mb-1.5">
+              Technologies (comma separated)
+            </label>
+            <Input
+              name="technologies"
+              type="text"
+              value={product.technologies.join(", ")}
+              class="bg-slate-950/80 border-slate-700/80 text-white placeholder:text-slate-500 rounded-xl"
+            />
+          </div>
+
+          <div>
+            <label class="block text-xs font-semibold text-slate-300 uppercase tracking-wider mb-1.5">
+              Version
+            </label>
+            <Input
+              name="version"
+              type="text"
+              value={product.version || ""}
+              class="bg-slate-950/80 border-slate-700/80 text-white placeholder:text-slate-500 rounded-xl"
+            />
+          </div>
+        </div>
+
+        <div>
+          <label class="block text-xs font-semibold text-slate-300 uppercase tracking-wider mb-1.5">
+            Features (one per line)
+          </label>
+          <Textarea
+            name="features"
+            rows={4}
+            value={product.features.join("\n")}
+            class="bg-slate-950/80 border-slate-700/80 text-white placeholder:text-slate-500 rounded-xl"
+          />
+        </div>
+      </CardContent>
+    </Card>
+
+    <!-- Gallery Screenshots Card -->
+    <Card class="bg-slate-900/70 border-slate-800/80 rounded-2xl shadow-xl">
+      <CardHeader>
+        <CardTitle class="text-sm font-bold text-primary uppercase tracking-wider">Screenshots & Gallery</CardTitle>
+      </CardHeader>
+      <CardContent class="space-y-4 pt-2">
+        {galleryItems.length > 0 && (
+          <div class="grid grid-cols-2 sm:grid-cols-4 gap-4 mb-4">
+            {galleryItems.map((item) => (
+              <div class="relative group rounded-xl overflow-hidden border border-slate-800 bg-slate-950">
+                <img src={getPublicUrl(item.objectKey, item.disk)} alt={item.caption || "Screenshot"} class="w-full h-28 object-cover" />
+                <form method="POST" class="absolute top-1.5 right-1.5">
+                  <input type="hidden" name="_action" value="delete_gallery_image" />
+                  <input type="hidden" name="product_media_id" value={item.productMediaId} />
+                  <button
+                    type="submit"
+                    class="p-1.5 bg-rose-500/80 hover:bg-rose-600 text-white rounded-lg opacity-0 group-hover:opacity-100 transition shadow"
+                    title="Remove Screenshot"
+                  >
+                    <i data-lucide="trash-2" class="w-3.5 h-3.5"></i>
+                  </button>
+                </form>
+              </div>
+            ))}
           </div>
         )}
-        <input
-          name="thumbnail"
-          type="file"
-          accept="image/png,image/jpeg,image/webp,image/svg+xml"
-          class="w-full text-xs text-slate-400 file:mr-4 file:py-2 file:px-4 file:rounded-xl file:border-0 file:text-xs file:font-semibold file:bg-primary file:text-white hover:file:bg-orange-600 cursor-pointer"
-        />
-      </div>
-    </div>
 
-    <!-- URLs & Technical Specifications -->
-    <div class="bg-slate-900/70 border border-slate-800/80 rounded-2xl p-6 space-y-4">
-      <h2 class="text-sm font-bold text-white uppercase tracking-wider text-primary">Links & Meta</h2>
-
-      <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
         <div>
           <label class="block text-xs font-semibold text-slate-300 uppercase tracking-wider mb-1.5">
-            CodeCanyon URL
+            Add Screenshot Image
           </label>
-          <input
-            name="codecanyonUrl"
-            type="url"
-            value={product.codecanyonUrl || ""}
-            placeholder="https://codecanyon.net/..."
-            class="w-full px-4 py-2.5 bg-slate-950/80 border border-slate-700/80 rounded-xl text-white text-sm focus:outline-none focus:ring-2 focus:ring-primary"
+          <Input
+            name="screenshot"
+            type="file"
+            accept="image/png,image/jpeg,image/webp"
+            class="bg-slate-950/80 border-slate-700/80 text-slate-400 file:mr-4 file:py-1 file:px-3 file:rounded-lg file:border-0 file:text-xs file:font-semibold file:bg-slate-800 file:text-slate-200 hover:file:bg-slate-700 cursor-pointer rounded-xl"
           />
         </div>
+      </CardContent>
+    </Card>
 
-        <div>
-          <label class="block text-xs font-semibold text-slate-300 uppercase tracking-wider mb-1.5">
-            Live Demo URL
-          </label>
-          <input
-            name="demoUrl"
-            type="url"
-            value={product.demoUrl || ""}
-            placeholder="https://demo.sourcemonster.in/..."
-            class="w-full px-4 py-2.5 bg-slate-950/80 border border-slate-700/80 rounded-xl text-white text-sm focus:outline-none focus:ring-2 focus:ring-primary"
-          />
-        </div>
+    <!-- Publishing & SEO Card -->
+    <Card class="bg-slate-900/70 border-slate-800/80 rounded-2xl shadow-xl">
+      <CardHeader>
+        <CardTitle class="text-sm font-bold text-primary uppercase tracking-wider">Publishing & SEO</CardTitle>
+      </CardHeader>
+      <CardContent class="space-y-4 pt-2">
+        <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+          <div>
+            <label class="block text-xs font-semibold text-slate-300 uppercase tracking-wider mb-1.5">
+              Status
+            </label>
+            <NativeSelect
+              name="status"
+              class="bg-slate-950/80 border-slate-700/80 text-white rounded-xl"
+            >
+              <NativeSelectOption value="draft" selected={product.status === "draft"}>Draft</NativeSelectOption>
+              <NativeSelectOption value="published" selected={product.status === "published"}>Published</NativeSelectOption>
+            </NativeSelect>
+          </div>
 
-        <div>
-          <label class="block text-xs font-semibold text-slate-300 uppercase tracking-wider mb-1.5">
-            Documentation URL
-          </label>
-          <input
-            name="documentationUrl"
-            type="url"
-            value={product.documentationUrl || ""}
-            placeholder="https://docs.sourcemonster.in/..."
-            class="w-full px-4 py-2.5 bg-slate-950/80 border border-slate-700/80 rounded-xl text-white text-sm focus:outline-none focus:ring-2 focus:ring-primary"
-          />
-        </div>
-      </div>
-
-      <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-        <div>
-          <label class="block text-xs font-semibold text-slate-300 uppercase tracking-wider mb-1.5">
-            Technologies (comma separated)
-          </label>
-          <input
-            name="technologies"
-            type="text"
-            value={product.technologies.join(", ")}
-            class="w-full px-4 py-2.5 bg-slate-950/80 border border-slate-700/80 rounded-xl text-white text-sm focus:outline-none focus:ring-2 focus:ring-primary"
-          />
-        </div>
-
-        <div>
-          <label class="block text-xs font-semibold text-slate-300 uppercase tracking-wider mb-1.5">
-            Version
-          </label>
-          <input
-            name="version"
-            type="text"
-            value={product.version || ""}
-            class="w-full px-4 py-2.5 bg-slate-950/80 border border-slate-700/80 rounded-xl text-white text-sm focus:outline-none focus:ring-2 focus:ring-primary"
-          />
-        </div>
-      </div>
-
-      <div>
-        <label class="block text-xs font-semibold text-slate-300 uppercase tracking-wider mb-1.5">
-          Features (one per line)
-        </label>
-        <textarea
-          name="features"
-          rows="4"
-          class="w-full px-4 py-2.5 bg-slate-950/80 border border-slate-700/80 rounded-xl text-white text-sm focus:outline-none focus:ring-2 focus:ring-primary"
-        >{product.features.join("\n")}</textarea>
-      </div>
-    </div>
-
-    <!-- Gallery Screenshots -->
-    <div class="bg-slate-900/70 border border-slate-800/80 rounded-2xl p-6 space-y-4">
-      <h2 class="text-sm font-bold text-white uppercase tracking-wider text-primary">Screenshots & Gallery</h2>
-
-      {galleryItems.length > 0 && (
-        <div class="grid grid-cols-2 sm:grid-cols-4 gap-4 mb-4">
-          {galleryItems.map((item) => (
-            <div class="relative group rounded-xl overflow-hidden border border-slate-800 bg-slate-950">
-              <img src={getPublicUrl(item.objectKey, item.disk)} alt={item.caption || "Screenshot"} class="w-full h-28 object-cover" />
-              <form method="POST" class="absolute top-1.5 right-1.5">
-                <input type="hidden" name="_action" value="delete_gallery_image" />
-                <input type="hidden" name="product_media_id" value={item.productMediaId} />
-                <button
-                  type="submit"
-                  class="p-1.5 bg-rose-500/80 hover:bg-rose-600 text-white rounded-lg opacity-0 group-hover:opacity-100 transition shadow"
-                  title="Remove Screenshot"
-                >
-                  <i data-lucide="trash-2" class="w-3.5 h-3.5"></i>
-                </button>
-              </form>
-            </div>
-          ))}
-        </div>
-      )}
-
-      <div>
-        <label class="block text-xs font-semibold text-slate-300 uppercase tracking-wider mb-1.5">
-          Add Screenshot Image
-        </label>
-        <input
-          name="screenshot"
-          type="file"
-          accept="image/png,image/jpeg,image/webp"
-          class="w-full text-xs text-slate-400 file:mr-4 file:py-2 file:px-4 file:rounded-xl file:border-0 file:text-xs file:font-semibold file:bg-slate-800 file:text-slate-200 hover:file:bg-slate-700 cursor-pointer"
-        />
-      </div>
-    </div>
-
-    <!-- Publishing & SEO -->
-    <div class="bg-slate-900/70 border border-slate-800/80 rounded-2xl p-6 space-y-4">
-      <h2 class="text-sm font-bold text-white uppercase tracking-wider text-primary">Publishing & SEO</h2>
-
-      <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
-        <div>
-          <label class="block text-xs font-semibold text-slate-300 uppercase tracking-wider mb-1.5">
-            Status
-          </label>
-          <select
-            name="status"
-            class="w-full px-4 py-2.5 bg-slate-950/80 border border-slate-700/80 rounded-xl text-white text-sm focus:outline-none focus:ring-2 focus:ring-primary"
-          >
-            <option value="draft" selected={product.status === "draft"}>Draft</option>
-            <option value="published" selected={product.status === "published"}>Published</option>
-          </select>
-        </div>
-
-        <div>
-          <label class="block text-xs font-semibold text-slate-300 uppercase tracking-wider mb-1.5">
-            Sort Order
-          </label>
-          <input
-            name="sortOrder"
-            type="number"
-            value={product.sortOrder}
-            class="w-full px-4 py-2.5 bg-slate-950/80 border border-slate-700/80 rounded-xl text-white text-sm focus:outline-none focus:ring-2 focus:ring-primary"
-          />
-        </div>
-
-        <div class="flex items-center pt-6">
-          <label class="flex items-center gap-2 cursor-pointer">
-            <input
-              name="isFeatured"
-              type="checkbox"
-              checked={product.isFeatured}
-              class="w-4 h-4 rounded text-primary focus:ring-primary bg-slate-950 border-slate-700"
+          <div>
+            <label class="block text-xs font-semibold text-slate-300 uppercase tracking-wider mb-1.5">
+              Sort Order
+            </label>
+            <Input
+              name="sortOrder"
+              type="number"
+              value={product.sortOrder}
+              class="bg-slate-950/80 border-slate-700/80 text-white placeholder:text-slate-500 rounded-xl"
             />
-            <span class="text-xs font-semibold text-slate-300 uppercase tracking-wider">Highlight as Featured</span>
-          </label>
-        </div>
-      </div>
+          </div>
 
-      <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-        <div>
-          <label class="block text-xs font-semibold text-slate-300 uppercase tracking-wider mb-1.5">
-            SEO Title
-          </label>
-          <input
-            name="seoTitle"
-            type="text"
-            value={product.seoTitle || ""}
-            class="w-full px-4 py-2.5 bg-slate-950/80 border border-slate-700/80 rounded-xl text-white text-sm focus:outline-none focus:ring-2 focus:ring-primary"
-          />
+          <div class="flex items-center pt-6">
+            <label class="flex items-center gap-2 cursor-pointer">
+              <input
+                name="isFeatured"
+                type="checkbox"
+                checked={product.isFeatured}
+                class="w-4 h-4 rounded text-primary focus:ring-primary bg-slate-950 border-slate-700"
+              />
+              <span class="text-xs font-semibold text-slate-300 uppercase tracking-wider">Highlight as Featured</span>
+            </label>
+          </div>
         </div>
 
-        <div>
-          <label class="block text-xs font-semibold text-slate-300 uppercase tracking-wider mb-1.5">
-            SEO Meta Description
-          </label>
-          <input
-            name="seoDescription"
-            type="text"
-            value={product.seoDescription || ""}
-            class="w-full px-4 py-2.5 bg-slate-950/80 border border-slate-700/80 rounded-xl text-white text-sm focus:outline-none focus:ring-2 focus:ring-primary"
-          />
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <div>
+            <label class="block text-xs font-semibold text-slate-300 uppercase tracking-wider mb-1.5">
+              SEO Title
+            </label>
+            <Input
+              name="seoTitle"
+              type="text"
+              value={product.seoTitle || ""}
+              class="bg-slate-950/80 border-slate-700/80 text-white placeholder:text-slate-500 rounded-xl"
+            />
+          </div>
+
+          <div>
+            <label class="block text-xs font-semibold text-slate-300 uppercase tracking-wider mb-1.5">
+              SEO Meta Description
+            </label>
+            <Input
+              name="seoDescription"
+              type="text"
+              value={product.seoDescription || ""}
+              class="bg-slate-950/80 border-slate-700/80 text-white placeholder:text-slate-500 rounded-xl"
+            />
+          </div>
         </div>
-      </div>
-    </div>
+      </CardContent>
+    </Card>
 
     <!-- Actions -->
     <div class="flex items-center justify-between pt-4">
-      <button
+      <Button
         type="submit"
         name="_action"
         value="delete"
+        variant="error"
+        size="md"
         onclick="return confirm('Are you sure you want to permanently delete this product?');"
-        class="px-4 py-2.5 bg-rose-500/10 hover:bg-rose-500/20 text-rose-400 border border-rose-500/30 rounded-xl text-xs font-semibold transition"
       >
         Delete Product
-      </button>
+      </Button>
 
       <div class="flex items-center gap-3">
-        <a
-          href="/admin/products"
-          class="px-5 py-2.5 bg-slate-800 hover:bg-slate-700 text-slate-300 rounded-xl text-sm font-semibold transition"
-        >
-          Cancel
+        <a href="/admin/products">
+          <Button variant="secondary" size="md">Cancel</Button>
         </a>
-        <button
+        <Button
           type="submit"
-          class="px-6 py-2.5 bg-primary hover:bg-orange-600 text-white rounded-xl text-sm font-semibold shadow-lg shadow-primary/25 transition"
+          variant="primary"
+          size="md"
+          class="bg-primary hover:bg-orange-600 text-white shadow-lg shadow-primary/25"
         >
           Save Changes
-        </button>
+        </Button>
       </div>
     </div>
   </form>
 </AdminLayout>
-

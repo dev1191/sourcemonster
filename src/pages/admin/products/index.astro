@@ -4,6 +4,9 @@ import { db } from "../../../lib/db";
 import { products, media } from "../../../lib/db/schema";
 import { desc, eq } from "drizzle-orm";
 import { getPublicUrl } from "../../../lib/storage";
+import { Button } from "../../../components/starwind/button";
+import { Badge } from "../../../components/starwind/badge";
+import { Card } from "../../../components/starwind/card";
 
 let allProducts: Array<typeof products.$inferSelect & { thumbnailUrl?: string | null }> = [];
 
@@ -33,17 +36,16 @@ try {
       <p class="text-xs text-slate-400 mt-1">Manage product showcases, CodeCanyon links, demos, and pricing metadata.</p>
     </div>
     <div class="flex items-center gap-3">
-      <a
-        href="/admin/products/new"
-        class="inline-flex items-center gap-2 px-4 py-2 bg-primary hover:bg-orange-600 text-white rounded-xl text-xs font-semibold shadow-md shadow-primary/20 transition"
-      >
-        <i data-lucide="plus" class="w-4 h-4"></i>
-        Create Product
+      <a href="/admin/products/new">
+        <Button variant="primary" size="sm" class="bg-primary hover:bg-orange-600 text-white shadow-md shadow-primary/20">
+          <i data-lucide="plus" class="w-4 h-4 mr-1"></i>
+          Create Product
+        </Button>
       </a>
     </div>
   </div>
 
-  <div class="my-6 bg-slate-900/70 border border-slate-800/80 rounded-2xl overflow-hidden shadow-xl shadow-black/40">
+  <Card class="my-6 bg-slate-900/70 border-slate-800/80 rounded-2xl overflow-hidden shadow-xl shadow-black/40">
     {allProducts.length === 0 ? (
       <div class="py-16 text-center text-slate-500 text-xs">
         <i data-lucide="package" class="w-12 h-12 mx-auto mb-3 text-slate-600"></i>
@@ -85,45 +87,38 @@ try {
                   {p.version || "—"}
                 </td>
                 <td class="px-4 py-3.5">
-                  <span class={`px-2.5 py-0.5 rounded-full text-[10px] font-bold uppercase ${
-                    p.status === "published"
-                      ? "bg-emerald-500/10 text-emerald-400 border border-emerald-500/20"
-                      : "bg-slate-800 text-slate-400 border border-slate-700"
-                  }`}>
+                  <Badge variant={p.status === "published" ? "success" : "secondary"} size="sm">
                     {p.status}
-                  </span>
+                  </Badge>
                 </td>
                 <td class="px-4 py-3.5">
                   {p.isFeatured ? (
-                    <span class="inline-flex items-center gap-1 text-[11px] text-amber-400 font-medium">
-                      <i data-lucide="star" class="w-3.5 h-3.5 fill-amber-400 text-amber-400"></i>
-                      Yes
-                    </span>
+                    <Badge variant="warning" size="sm">Featured</Badge>
                   ) : (
-                    <span class="text-slate-500 text-[11px]">No</span>
+                    <span class="text-slate-600">—</span>
                   )}
                 </td>
-                <td class="px-4 py-3.5 font-mono text-slate-400">
+                <td class="px-4 py-3.5 font-mono text-slate-300">
                   {p.sortOrder}
                 </td>
                 <td class="px-4 py-3.5 text-right">
-                  <div class="inline-flex items-center gap-1.5">
+                  <div class="flex items-center justify-end gap-2">
                     {p.status === "published" && (
                       <a
                         href={`/products/${p.slug}`}
                         target="_blank"
-                        class="p-1.5 text-slate-400 hover:text-white rounded-lg hover:bg-slate-800 transition"
+                        class="p-2 text-slate-400 hover:text-white hover:bg-slate-800 rounded-lg transition"
                         title="View Public Page"
                       >
-                        <i data-lucide="external-link" class="w-3.5 h-3.5"></i>
+                        <i data-lucide="external-link" class="w-4 h-4"></i>
                       </a>
                     )}
                     <a
                       href={`/admin/products/${p.id}/edit`}
-                      class="p-1.5 text-slate-400 hover:text-primary rounded-lg hover:bg-slate-800 transition"
-                      title="Edit Product"
+                      class="px-3 py-1.5 bg-slate-800 hover:bg-slate-700 text-slate-200 rounded-lg text-xs font-semibold flex items-center gap-1.5 transition"
                     >
                       <i data-lucide="edit-3" class="w-3.5 h-3.5"></i>
+                      Edit
                     </a>
                   </div>
                 </td>
@@ -133,6 +128,5 @@ try {
         </table>
       </div>
     )}
-  </div>
+  </Card>
 </AdminLayout>
-

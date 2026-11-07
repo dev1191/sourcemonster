@@ -24,7 +24,7 @@ importers:
         specifier: 1.5.0
         version: 1.5.0(astro@6.4.8(@types/node@26.6.6)(jiti@2.7.0)(lightningcss@1.33.0)(rollup@4.67.5)(tsx@4.23.15)(yaml@2.9.1))
       '@tabler/icons':
-        specifier: ^3
+        specifier: ^3.50.0
         version: 3.50.0
       '@tailwindcss/forms':
         specifier: ^0.5
