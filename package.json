@@ -13,9 +13,9 @@
     "start": "node ./dist/server/entry.mjs",
     "astro": "astro",
     "test": "vitest run",
-    "db:generate": "drizzle-kit generate",
-    "db:migrate": "drizzle-kit migrate",
-    "db:studio": "drizzle-kit studio",
+    "db:generate": "drizzle-kit generate --config=drizzle.config.ts",
+    "db:migrate": "drizzle-kit migrate --config=drizzle.config.ts",
+    "db:studio": "drizzle-kit studio --config=drizzle.config.ts",
     "db:seed": "tsx scripts/seed.ts",
     "db:seed:admin": "tsx scripts/seed.ts --only=admin",
     "db:seed:content": "tsx scripts/seed.ts --only=content"
