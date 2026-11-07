@@ -1,5 +1,4 @@
 ---
-import { Image } from "astro:assets";
 import logo2Img from "../../assets/images/logo-2.png";
 import {
   Sidebar,
@@ -37,7 +36,7 @@ const isProductActive = activeNav === "products" || activeNav === "addons" || cu
   <SidebarHeader class="p-4 border-b border-slate-800">
     <div class="flex items-center justify-between">
       <a href="/admin" class="flex items-center gap-2" title="Admin Dashboard">
-        <Image src={logo2Img} alt="SourceMonster" class="h-8 w-auto object-contain" />
+        <img src={logo2Img.src} alt="SourceMonster" class="h-8 w-auto object-contain" />
       </a>
       <span class="text-[10px] uppercase font-bold tracking-wider px-2 py-0.5 rounded bg-primary/10 text-primary border border-primary/20 font-mono group-data-[collapsible=icon]:hidden">
         Admin
