@@ -1,0 +1,67 @@
+---
+import AdminLayout from "../../../layouts/AdminLayout.astro";
+import { db } from "../../../lib/db";
+import { leads } from "../../../lib/db/schema";
+import { desc } from "drizzle-orm";
+
+let allLeads: Array<typeof leads.$inferSelect> = [];
+try {
+  allLeads = await db.select().from(leads).orderBy(desc(leads.createdAt));
+} catch (e) {
+  console.error("Failed to load leads:", e);
+}
+---
+
+<AdminLayout title="Leads & Inquiries | SourceMonster Admin" activeNav="leads">
+  <div class="flex items-center justify-between pb-6 border-b border-slate-800">
+    <div>
+      <h1 class="text-2xl font-black text-white tracking-tight">Leads & Inquiries</h1>
+      <p class="text-xs text-slate-400 mt-1">Review contact requests and product customization leads.</p>
+    </div>
+  </div>
+
+  <div class="my-6 bg-slate-900/70 border border-slate-800/80 rounded-2xl overflow-hidden">
+    {allLeads.length === 0 ? (
+      <div class="py-16 text-center text-slate-500 text-xs">
+        <i data-lucide="inbox" class="w-10 h-10 mx-auto mb-3 text-slate-600"></i>
+        No incoming leads recorded yet.
+      </div>
+    ) : (
+      <div class="overflow-x-auto">
+        <table class="w-full text-left text-xs text-slate-300">
+          <thead class="bg-slate-950/80 text-[11px] uppercase tracking-wider text-slate-400 border-b border-slate-800">
+            <tr>
+              <th class="px-4 py-3">Contact</th>
+              <th class="px-4 py-3">Subject / Service</th>
+              <th class="px-4 py-3">Status</th>
+              <th class="px-4 py-3">Date</th>
+            </tr>
+          </thead>
+          <tbody class="divide-y divide-slate-800/60">
+            {allLeads.map((lead) => (
+              <tr class="hover:bg-slate-800/30 transition">
+                <td class="px-4 py-3 font-medium text-white">
+                  <div>{lead.name}</div>
+                  <div class="text-[11px] text-slate-400">{lead.email}</div>
+                </td>
+                <td class="px-4 py-3">
+                  <div>{lead.subject || lead.serviceId || "General Inquiry"}</div>
+                  <div class="text-[11px] text-slate-500 line-clamp-1">{lead.message}</div>
+                </td>
+                <td class="px-4 py-3">
+                  <span class="px-2 py-0.5 rounded-full text-[10px] font-bold uppercase bg-primary/10 text-primary border border-primary/20">
+                    {lead.status}
+                  </span>
+                </td>
+                <td class="px-4 py-3 text-slate-400">
+                  {new Date(lead.createdAt).toLocaleDateString()}
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+    )}
+  </div>
+</AdminLayout>
+
