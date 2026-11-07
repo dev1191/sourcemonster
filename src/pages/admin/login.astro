@@ -5,6 +5,9 @@ import { adminUsers } from "../../lib/db/schema";
 import { verifyPassword } from "../../lib/auth/password";
 import { createAdminSession } from "../../lib/auth/session";
 import { setSessionCookie } from "../../lib/auth/cookies";
+import FeedbackAlert from "../../components/ui/FeedbackAlert.astro";
+import { Input } from "../../components/starwind/input";
+import { Button } from "../../components/starwind/button";
 
 let errorMessage = "";
 const redirectUrl = Astro.url.searchParams.get("redirect") || "/admin";
@@ -76,14 +79,7 @@ if (Astro.request.method === "POST") {
           <p class="text-xs text-slate-400 mt-1 uppercase tracking-wider">SourceMonster Core Administration</p>
         </div>
 
-        {errorMessage && (
-          <div class="mb-6 p-3.5 rounded-xl bg-rose-500/10 border border-rose-500/20 text-rose-400 text-sm flex items-center gap-2">
-            <svg class="w-4 h-4 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-            </svg>
-            <span>{errorMessage}</span>
-          </div>
-        )}
+        <FeedbackAlert variant="error" message={errorMessage} class="mb-6" />
 
         <!-- Form -->
         <form method="POST" class="space-y-4">
@@ -91,14 +87,14 @@ if (Astro.request.method === "POST") {
             <label for="email" class="block text-xs font-semibold uppercase tracking-wider text-slate-300 mb-1.5">
               Email Address
             </label>
-            <input
+            <Input
               id="email"
               name="email"
               type="email"
               required
               autocomplete="email"
               placeholder="admin@sourcemonster.in"
-              class="w-full px-4 py-2.5 bg-slate-950/80 border border-slate-700/80 rounded-xl text-white placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent text-sm transition"
+              class="bg-slate-950/80 border-slate-700/80 rounded-xl text-white placeholder:text-slate-500"
             />
           </div>
 
@@ -108,23 +104,25 @@ if (Astro.request.method === "POST") {
                 Password
               </label>
             </div>
-            <input
+            <Input
               id="password"
               name="password"
               type="password"
               required
               autocomplete="current-password"
               placeholder="••••••••••••"
-              class="w-full px-4 py-2.5 bg-slate-950/80 border border-slate-700/80 rounded-xl text-white placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent text-sm transition"
+              class="bg-slate-950/80 border-slate-700/80 rounded-xl text-white placeholder:text-slate-500"
             />
           </div>
 
-          <button
+          <Button
             type="submit"
-            class="w-full mt-2 py-3 px-4 bg-primary hover:bg-orange-600 text-white font-semibold rounded-xl text-sm shadow-lg shadow-primary/25 hover:shadow-primary/40 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary transition-all duration-200"
+            variant="primary"
+            size="lg"
+            class="w-full mt-2 bg-primary hover:bg-orange-600 text-white font-semibold rounded-xl shadow-lg shadow-primary/25"
           >
             Authenticate & Enter
-          </button>
+          </Button>
         </form>
 
         <div class="mt-8 pt-6 border-t border-slate-800 text-center">

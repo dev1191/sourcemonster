@@ -5,7 +5,7 @@ import { Card, CardHeader, CardTitle, CardContent } from "../../../components/st
 import { Input } from "../../../components/starwind/input";
 import { Textarea } from "../../../components/starwind/textarea";
 import { Button } from "../../../components/starwind/button";
-import { Alert, AlertDescription } from "../../../components/starwind/alert";
+import FeedbackAlert from "../../../components/ui/FeedbackAlert.astro";
 
 let successMessage = "";
 let errorMessage = "";
@@ -46,23 +46,8 @@ const settings = await getSiteSettings();
     </div>
   </div>
 
-  {successMessage && (
-    <div class="my-6">
-      <Alert variant="success">
-        <i data-lucide="check-circle" class="w-4 h-4 shrink-0 mr-2"></i>
-        <AlertDescription>{successMessage}</AlertDescription>
-      </Alert>
-    </div>
-  )}
-
-  {errorMessage && (
-    <div class="my-6">
-      <Alert variant="error">
-        <i data-lucide="alert-circle" class="w-4 h-4 shrink-0 mr-2"></i>
-        <AlertDescription>{errorMessage}</AlertDescription>
-      </Alert>
-    </div>
-  )}
+  <FeedbackAlert variant="success" message={successMessage} />
+  <FeedbackAlert variant="error" message={errorMessage} />
 
   <form method="POST" class="my-6 space-y-6 max-w-4xl">
     <!-- Brand & Identity Card -->

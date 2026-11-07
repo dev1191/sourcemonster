@@ -8,7 +8,7 @@ import { Card, CardHeader, CardTitle, CardContent } from "../../../components/st
 import { Textarea } from "../../../components/starwind/textarea";
 import { Button } from "../../../components/starwind/button";
 import { Badge } from "../../../components/starwind/badge";
-import { Alert, AlertDescription } from "../../../components/starwind/alert";
+import FeedbackAlert from "../../../components/ui/FeedbackAlert.astro";
 import { NativeSelect, NativeSelectOption } from "../../../components/starwind/native-select";
 
 const { id } = Astro.params;
@@ -124,14 +124,7 @@ const statusBadgeVariant =
     </div>
   </div>
 
-  {feedbackMessage && (
-    <div class="my-6">
-      <Alert variant={isError ? "error" : "success"}>
-        <i data-lucide={isError ? "alert-circle" : "check-circle"} class="w-4 h-4 shrink-0 mr-2"></i>
-        <AlertDescription>{feedbackMessage}</AlertDescription>
-      </Alert>
-    </div>
-  )}
+  <FeedbackAlert variant={isError ? "error" : "success"} message={feedbackMessage} />
 
   <div class="my-6 grid grid-cols-1 lg:grid-cols-3 gap-6">
     <!-- Main Column: Message & Details -->

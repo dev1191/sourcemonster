@@ -5,11 +5,11 @@ import { products, media, productMedia } from "../../../../lib/db/schema";
 import { eq } from "drizzle-orm";
 import { productSchema } from "../../../../lib/validation/product";
 import { uploadFile, getPublicUrl } from "../../../../lib/storage";
+import FeedbackAlert from "../../../../components/ui/FeedbackAlert.astro";
 import { Card, CardHeader, CardTitle, CardContent } from "../../../../components/starwind/card";
 import { Input } from "../../../../components/starwind/input";
 import { Textarea } from "../../../../components/starwind/textarea";
 import { Button } from "../../../../components/starwind/button";
-import { Alert, AlertDescription } from "../../../../components/starwind/alert";
 import { NativeSelect, NativeSelectOption } from "../../../../components/starwind/native-select";
 import { Badge } from "../../../../components/starwind/badge";
 
@@ -264,23 +264,8 @@ const galleryItems = await db
     </div>
   </div>
 
-  {errorMessage && (
-    <div class="my-6">
-      <Alert variant="error">
-        <i data-lucide="alert-circle" class="w-4 h-4 shrink-0 mr-2"></i>
-        <AlertDescription>{errorMessage}</AlertDescription>
-      </Alert>
-    </div>
-  )}
-
-  {successMessage && (
-    <div class="my-6">
-      <Alert variant="success">
-        <i data-lucide="check-circle" class="w-4 h-4 shrink-0 mr-2"></i>
-        <AlertDescription>{successMessage}</AlertDescription>
-      </Alert>
-    </div>
-  )}
+  <FeedbackAlert variant="error" message={errorMessage} />
+  <FeedbackAlert variant="success" message={successMessage} />
 
   <form method="POST" enctype="multipart/form-data" class="my-6 space-y-6 max-w-4xl">
     <input type="hidden" name="_action" value="update" />
