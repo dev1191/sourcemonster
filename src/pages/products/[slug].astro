@@ -59,7 +59,8 @@ const rawAddons = await db
   .orderBy(productAddons.sortOrder, productAddons.createdAt);
 
 // Query addon gallery items
-const rawAddonGallery = rawAddons.length > 0
+const addonIds = rawAddons.map((a) => a.id);
+const rawAddonGallery = addonIds.length > 0
   ? await db
       .select({
         addonId: productAddonMedia.addonId,
@@ -69,6 +70,7 @@ const rawAddonGallery = rawAddons.length > 0
       })
       .from(productAddonMedia)
       .innerJoin(media, eq(productAddonMedia.mediaId, media.id))
+      .where(inArray(productAddonMedia.addonId, addonIds))
   : [];
 
 // Map thumbnail media for addons

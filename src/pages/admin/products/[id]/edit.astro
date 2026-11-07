@@ -10,7 +10,6 @@ import { Card, CardHeader, CardTitle, CardContent } from "../../../../components
 import { Input } from "../../../../components/starwind/input";
 import { Textarea } from "../../../../components/starwind/textarea";
 import { NativeSelect, NativeSelectOption } from "../../../../components/starwind/native-select";
-import { Badge } from "../../../../components/starwind/badge";
 
 const { id } = Astro.params;
 
@@ -359,7 +358,8 @@ const rawAddons = await db
   .orderBy(productAddons.sortOrder, productAddons.createdAt);
 
 // Query addon gallery items
-const rawAddonGallery = rawAddons.length > 0
+const addonIds = rawAddons.map((a) => a.id);
+const rawAddonGallery = addonIds.length > 0
   ? await db
       .select({
         id: productAddonMedia.id,
@@ -370,6 +370,7 @@ const rawAddonGallery = rawAddons.length > 0
       })
       .from(productAddonMedia)
       .innerJoin(media, eq(productAddonMedia.mediaId, media.id))
+      .where(inArray(productAddonMedia.addonId, addonIds))
   : [];
 
 // Map thumbnail media for addons
