@@ -58,7 +58,6 @@ const isProductActive = activeNav === "products" || activeNav === "addons" || cu
             <SidebarMenuButton
               href="/admin"
               isActive={activeNav === "dashboard" && currentPath === "/admin"}
-              tooltip="Dashboard"
             >
               <i data-lucide="layout-dashboard" class="w-4 h-4 shrink-0"></i>
               <span>Dashboard</span>
@@ -68,19 +67,23 @@ const isProductActive = activeNav === "products" || activeNav === "addons" || cu
           <!-- Products & Add-ons Dropdown Menu -->
           <SidebarMenuItem>
             <details open={isProductActive} class="group/prod w-full">
-              <summary class="list-none cursor-pointer outline-hidden focus-visible:ring-2 focus-visible:ring-sidebar-outline rounded-md">
-                <SidebarMenuButton
-                  asChild={true}
-                  isActive={isProductActive}
-                  tooltip="Products & Modules"
-                  class="w-full justify-between"
-                >
-                  <div class="flex items-center gap-2 overflow-hidden">
-                    <i data-lucide="package" class="w-4 h-4 shrink-0"></i>
-                    <span>Products</span>
-                  </div>
-                  <i data-lucide="chevron-down" class="w-3.5 h-3.5 shrink-0 transition-transform duration-200 group-open/prod:rotate-180 opacity-70 group-data-[collapsible=icon]:hidden"></i>
-                </SidebarMenuButton>
+              <summary
+                class={`flex w-full items-center justify-between gap-3 overflow-hidden rounded-md p-2.5 text-left text-sm font-medium transition-all cursor-pointer list-none select-none [&::-webkit-details-marker]:hidden ring-sidebar-outline outline-hidden focus-visible:ring-2 ${
+                  isProductActive
+                    ? "bg-sidebar-accent text-sidebar-accent-foreground font-semibold"
+                    : "text-sidebar-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground"
+                }`}
+                data-sidebar="menu-button"
+                data-active={isProductActive}
+              >
+                <span class="flex items-center gap-3 min-w-0">
+                  <i data-lucide="package" class="w-4 h-4 shrink-0 text-slate-400 group-hover/prod:text-white"></i>
+                  <span class="truncate group-data-[collapsible=icon]:hidden">Products</span>
+                </span>
+                <i
+                  data-lucide="chevron-down"
+                  class="w-3.5 h-3.5 shrink-0 transition-transform duration-200 group-open/prod:rotate-180 opacity-70 group-data-[collapsible=icon]:hidden"
+                ></i>
               </summary>
 
               <SidebarMenuSub class="mt-1 space-y-1">
@@ -122,7 +125,6 @@ const isProductActive = activeNav === "products" || activeNav === "addons" || cu
             <SidebarMenuButton
               href="/admin/leads"
               isActive={activeNav === "leads"}
-              tooltip="Leads & Inquiries"
             >
               <i data-lucide="inbox" class="w-4 h-4 shrink-0"></i>
               <span>Leads &amp; Inquiries</span>
@@ -134,7 +136,6 @@ const isProductActive = activeNav === "products" || activeNav === "addons" || cu
             <SidebarMenuButton
               href="/admin/services"
               isActive={activeNav === "services"}
-              tooltip="Services"
             >
               <i data-lucide="layers" class="w-4 h-4 shrink-0"></i>
               <span>Services</span>
@@ -146,7 +147,6 @@ const isProductActive = activeNav === "products" || activeNav === "addons" || cu
             <SidebarMenuButton
               href="/admin/testimonials"
               isActive={activeNav === "testimonials"}
-              tooltip="Testimonials"
             >
               <i data-lucide="message-circle" class="w-4 h-4 shrink-0"></i>
               <span>Testimonials</span>
@@ -158,7 +158,6 @@ const isProductActive = activeNav === "products" || activeNav === "addons" || cu
             <SidebarMenuButton
               href="/admin/settings"
               isActive={activeNav === "settings"}
-              tooltip="Site Settings"
             >
               <i data-lucide="sliders" class="w-4 h-4 shrink-0"></i>
               <span>Site Settings</span>
