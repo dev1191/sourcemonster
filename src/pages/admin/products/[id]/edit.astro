@@ -1,0 +1,577 @@
+---
+import AdminLayout from "../../../../layouts/AdminLayout.astro";
+import { db } from "../../../../lib/db";
+import { products, media, productMedia } from "../../../../lib/db/schema";
+import { eq } from "drizzle-orm";
+import { productSchema } from "../../../../lib/validation/product";
+import { uploadFile, getPublicUrl } from "../../../../lib/storage";
+
+const { id } = Astro.params;
+
+if (!id) {
+  return Astro.redirect("/admin/products");
+}
+
+let errorMessage = "";
+let successMessage = "";
+
+// Fetch product
+const [existingProduct] = await db
+  .select()
+  .from(products)
+  .where(eq(products.id, id))
+  .limit(1);
+
+if (!existingProduct) {
+  return Astro.redirect("/admin/products");
+}
+
+if (Astro.request.method === "POST") {
+  try {
+    const formData = await Astro.request.formData();
+    const action = formData.get("_action")?.toString();
+
+    if (action === "delete") {
+      await db.delete(products).where(eq(products.id, id));
+      return Astro.redirect("/admin/products");
+    }
+
+    if (action === "delete_gallery_image") {
+      const pmId = formData.get("product_media_id")?.toString();
+      if (pmId) {
+        await db.delete(productMedia).where(eq(productMedia.id, pmId));
+        return Astro.redirect(`/admin/products/${id}/edit`);
+      }
+    }
+
+    const title = formData.get("title")?.toString().trim() || "";
+    const slug = formData.get("slug")?.toString().trim().toLowerCase() || "";
+    const shortDescription = formData.get("shortDescription")?.toString().trim() || "";
+    const description = formData.get("description")?.toString().trim() || "";
+    const codecanyonUrl = formData.get("codecanyonUrl")?.toString().trim() || "";
+    const demoUrl = formData.get("demoUrl")?.toString().trim() || "";
+    const documentationUrl = formData.get("documentationUrl")?.toString().trim() || "";
+    const version = formData.get("version")?.toString().trim() || "";
+    const status = (formData.get("status")?.toString() || "draft") as "draft" | "published";
+    const isFeatured = formData.get("isFeatured") === "on";
+    const sortOrder = parseInt(formData.get("sortOrder")?.toString() || "0", 10);
+    const seoTitle = formData.get("seoTitle")?.toString().trim() || "";
+    const seoDescription = formData.get("seoDescription")?.toString().trim() || "";
+
+    const rawTech = formData.get("technologies")?.toString() || "";
+    const technologies = rawTech
+      .split(/[,\n]/)
+      .map((t) => t.trim())
+      .filter(Boolean);
+
+    const rawFeatures = formData.get("features")?.toString() || "";
+    const features = rawFeatures
+      .split("\n")
+      .map((f) => f.trim())
+      .filter(Boolean);
+
+    // Validate using Zod
+    const validationResult = productSchema.safeParse({
+      title,
+      slug,
+      shortDescription,
+      description,
+      codecanyonUrl,
+      demoUrl,
+      documentationUrl,
+      version,
+      technologies,
+      features,
+      status,
+      isFeatured,
+      sortOrder,
+      seoTitle,
+      seoDescription,
+    });
+
+    if (!validationResult.success) {
+      errorMessage = Object.values(validationResult.error.flatten().fieldErrors)
+        .flat()
+        .join("; ");
+    } else {
+      // Check slug collision
+      const [slugCollision] = await db
+        .select()
+        .from(products)
+        .where(eq(products.slug, slug))
+        .limit(1);
+
+      if (slugCollision && slugCollision.id !== id) {
+        errorMessage = `The slug "${slug}" is already in use by another product.`;
+      } else {
+        let thumbnailMediaId = existingProduct.thumbnailMediaId;
+        const thumbnailFile = formData.get("thumbnail") as File | null;
+
+        if (thumbnailFile && thumbnailFile.size > 0) {
+          const uploadRes = await uploadFile(
+            thumbnailFile,
+            thumbnailFile.name,
+            thumbnailFile.type
+          );
+
+          const [newMedia] = await db
+            .insert(media)
+            .values({
+              disk: uploadRes.disk,
+              objectKey: uploadRes.objectKey,
+              originalName: uploadRes.originalName,
+              mimeType: uploadRes.mimeType,
+              sizeBytes: uploadRes.sizeBytes,
+              altText: title,
+            })
+            .returning();
+
+          thumbnailMediaId = newMedia.id;
+        }
+
+        // Handle additional screenshot upload
+        const screenshotFile = formData.get("screenshot") as File | null;
+        if (screenshotFile && screenshotFile.size > 0) {
+          const ssUpload = await uploadFile(
+            screenshotFile,
+            screenshotFile.name,
+            screenshotFile.type
+          );
+
+          const [ssMedia] = await db
+            .insert(media)
+            .values({
+              disk: ssUpload.disk,
+              objectKey: ssUpload.objectKey,
+              originalName: ssUpload.originalName,
+              mimeType: ssUpload.mimeType,
+              sizeBytes: ssUpload.sizeBytes,
+              altText: `${title} screenshot`,
+            })
+            .returning();
+
+          await db.insert(productMedia).values({
+            productId: id,
+            mediaId: ssMedia.id,
+            caption: ssUpload.originalName,
+          });
+        }
+
+        const publishedAt =
+          status === "published"
+            ? existingProduct.publishedAt || new Date()
+            : null;
+
+        await db
+          .update(products)
+          .set({
+            title,
+            slug,
+            shortDescription,
+            description,
+            thumbnailMediaId,
+            codecanyonUrl: codecanyonUrl || null,
+            demoUrl: demoUrl || null,
+            documentationUrl: documentationUrl || null,
+            version: version || null,
+            technologies,
+            features,
+            status,
+            isFeatured,
+            sortOrder,
+            seoTitle: seoTitle || null,
+            seoDescription: seoDescription || null,
+            publishedAt,
+            updatedAt: new Date(),
+          })
+          .where(eq(products.id, id));
+
+        successMessage = "Product updated successfully!";
+      }
+    }
+  } catch (err) {
+    console.error("Update product failed:", err);
+    errorMessage = "Failed to update product.";
+  }
+}
+
+// Re-query product & media for rendering
+const [product] = await db
+  .select()
+  .from(products)
+  .where(eq(products.id, id))
+  .limit(1);
+
+let currentThumbnailUrl: string | null = null;
+if (product.thumbnailMediaId) {
+  const [m] = await db
+    .select()
+    .from(media)
+    .where(eq(media.id, product.thumbnailMediaId))
+    .limit(1);
+  if (m) {
+    currentThumbnailUrl = getPublicUrl(m.objectKey, m.disk);
+  }
+}
+
+// Query gallery screenshots
+const galleryItems = await db
+  .select({
+    productMediaId: productMedia.id,
+    mediaId: media.id,
+    objectKey: media.objectKey,
+    disk: media.disk,
+    caption: productMedia.caption,
+  })
+  .from(productMedia)
+  .innerJoin(media, eq(productMedia.mediaId, media.id))
+  .where(eq(productMedia.productId, id));
+---
+
+<AdminLayout title={`Edit ${product.title} | SourceMonster Admin`} activeNav="products">
+  <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-6 border-b border-slate-800">
+    <div>
+      <div class="flex items-center gap-2 text-xs text-slate-400 mb-1">
+        <a href="/admin/products" class="hover:text-white transition">Products</a>
+        <span>/</span>
+        <span class="text-white">Edit</span>
+      </div>
+      <h1 class="text-2xl font-black text-white tracking-tight flex items-center gap-2">
+        <span>Edit Product:</span>
+        <span class="text-primary truncate">{product.title}</span>
+      </h1>
+    </div>
+
+    <div class="flex items-center gap-2">
+      {product.status === "published" && (
+        <a
+          href={`/products/${product.slug}`}
+          target="_blank"
+          class="px-3.5 py-2 bg-slate-800 hover:bg-slate-700 text-slate-200 rounded-xl text-xs font-semibold flex items-center gap-1.5 transition"
+        >
+          <i data-lucide="external-link" class="w-3.5 h-3.5"></i>
+          View Public Page
+        </a>
+      )}
+      <a
+        href="/admin/products"
+        class="px-4 py-2 bg-slate-800 hover:bg-slate-700 text-slate-300 rounded-xl text-xs font-semibold transition"
+      >
+        Back to list
+      </a>
+    </div>
+  </div>
+
+  {errorMessage && (
+    <div class="my-6 p-4 rounded-xl bg-rose-500/10 border border-rose-500/20 text-rose-400 text-xs flex items-center gap-2">
+      <i data-lucide="alert-circle" class="w-4 h-4 shrink-0"></i>
+      <span>{errorMessage}</span>
+    </div>
+  )}
+
+  {successMessage && (
+    <div class="my-6 p-4 rounded-xl bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 text-xs flex items-center gap-2">
+      <i data-lucide="check-circle" class="w-4 h-4 shrink-0"></i>
+      <span>{successMessage}</span>
+    </div>
+  )}
+
+  <form method="POST" enctype="multipart/form-data" class="my-6 space-y-6 max-w-4xl">
+    <input type="hidden" name="_action" value="update" />
+
+    <!-- Basic Info -->
+    <div class="bg-slate-900/70 border border-slate-800/80 rounded-2xl p-6 space-y-4">
+      <h2 class="text-sm font-bold text-white uppercase tracking-wider text-primary">Basic Info</h2>
+
+      <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+        <div>
+          <label class="block text-xs font-semibold text-slate-300 uppercase tracking-wider mb-1.5">
+            Product Title *
+          </label>
+          <input
+            name="title"
+            type="text"
+            required
+            value={product.title}
+            class="w-full px-4 py-2.5 bg-slate-950/80 border border-slate-700/80 rounded-xl text-white text-sm focus:outline-none focus:ring-2 focus:ring-primary"
+          />
+        </div>
+
+        <div>
+          <label class="block text-xs font-semibold text-slate-300 uppercase tracking-wider mb-1.5">
+            URL Slug *
+          </label>
+          <input
+            name="slug"
+            type="text"
+            required
+            value={product.slug}
+            class="w-full px-4 py-2.5 bg-slate-950/80 border border-slate-700/80 rounded-xl text-white text-sm font-mono focus:outline-none focus:ring-2 focus:ring-primary"
+          />
+        </div>
+      </div>
+
+      <div>
+        <label class="block text-xs font-semibold text-slate-300 uppercase tracking-wider mb-1.5">
+          Short Description *
+        </label>
+        <textarea
+          name="shortDescription"
+          rows="2"
+          required
+          class="w-full px-4 py-2.5 bg-slate-950/80 border border-slate-700/80 rounded-xl text-white text-sm focus:outline-none focus:ring-2 focus:ring-primary"
+        >{product.shortDescription}</textarea>
+      </div>
+
+      <div>
+        <label class="block text-xs font-semibold text-slate-300 uppercase tracking-wider mb-1.5">
+          Full Description *
+        </label>
+        <textarea
+          name="description"
+          rows="6"
+          required
+          class="w-full px-4 py-2.5 bg-slate-950/80 border border-slate-700/80 rounded-xl text-white text-sm focus:outline-none focus:ring-2 focus:ring-primary"
+        >{product.description}</textarea>
+      </div>
+
+      <div class="pt-2">
+        <label class="block text-xs font-semibold text-slate-300 uppercase tracking-wider mb-2">
+          Thumbnail Image
+        </label>
+        {currentThumbnailUrl && (
+          <div class="mb-3 flex items-center gap-3 p-3 bg-slate-950/60 rounded-xl border border-slate-800 w-fit">
+            <img src={currentThumbnailUrl} alt="Thumbnail preview" class="w-16 h-16 rounded-lg object-cover" />
+            <span class="text-xs text-slate-400">Current thumbnail</span>
+          </div>
+        )}
+        <input
+          name="thumbnail"
+          type="file"
+          accept="image/png,image/jpeg,image/webp,image/svg+xml"
+          class="w-full text-xs text-slate-400 file:mr-4 file:py-2 file:px-4 file:rounded-xl file:border-0 file:text-xs file:font-semibold file:bg-primary file:text-white hover:file:bg-orange-600 cursor-pointer"
+        />
+      </div>
+    </div>
+
+    <!-- URLs & Technical Specifications -->
+    <div class="bg-slate-900/70 border border-slate-800/80 rounded-2xl p-6 space-y-4">
+      <h2 class="text-sm font-bold text-white uppercase tracking-wider text-primary">Links & Meta</h2>
+
+      <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+        <div>
+          <label class="block text-xs font-semibold text-slate-300 uppercase tracking-wider mb-1.5">
+            CodeCanyon URL
+          </label>
+          <input
+            name="codecanyonUrl"
+            type="url"
+            value={product.codecanyonUrl || ""}
+            placeholder="https://codecanyon.net/..."
+            class="w-full px-4 py-2.5 bg-slate-950/80 border border-slate-700/80 rounded-xl text-white text-sm focus:outline-none focus:ring-2 focus:ring-primary"
+          />
+        </div>
+
+        <div>
+          <label class="block text-xs font-semibold text-slate-300 uppercase tracking-wider mb-1.5">
+            Live Demo URL
+          </label>
+          <input
+            name="demoUrl"
+            type="url"
+            value={product.demoUrl || ""}
+            placeholder="https://demo.sourcemonster.in/..."
+            class="w-full px-4 py-2.5 bg-slate-950/80 border border-slate-700/80 rounded-xl text-white text-sm focus:outline-none focus:ring-2 focus:ring-primary"
+          />
+        </div>
+
+        <div>
+          <label class="block text-xs font-semibold text-slate-300 uppercase tracking-wider mb-1.5">
+            Documentation URL
+          </label>
+          <input
+            name="documentationUrl"
+            type="url"
+            value={product.documentationUrl || ""}
+            placeholder="https://docs.sourcemonster.in/..."
+            class="w-full px-4 py-2.5 bg-slate-950/80 border border-slate-700/80 rounded-xl text-white text-sm focus:outline-none focus:ring-2 focus:ring-primary"
+          />
+        </div>
+      </div>
+
+      <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+        <div>
+          <label class="block text-xs font-semibold text-slate-300 uppercase tracking-wider mb-1.5">
+            Technologies (comma separated)
+          </label>
+          <input
+            name="technologies"
+            type="text"
+            value={product.technologies.join(", ")}
+            class="w-full px-4 py-2.5 bg-slate-950/80 border border-slate-700/80 rounded-xl text-white text-sm focus:outline-none focus:ring-2 focus:ring-primary"
+          />
+        </div>
+
+        <div>
+          <label class="block text-xs font-semibold text-slate-300 uppercase tracking-wider mb-1.5">
+            Version
+          </label>
+          <input
+            name="version"
+            type="text"
+            value={product.version || ""}
+            class="w-full px-4 py-2.5 bg-slate-950/80 border border-slate-700/80 rounded-xl text-white text-sm focus:outline-none focus:ring-2 focus:ring-primary"
+          />
+        </div>
+      </div>
+
+      <div>
+        <label class="block text-xs font-semibold text-slate-300 uppercase tracking-wider mb-1.5">
+          Features (one per line)
+        </label>
+        <textarea
+          name="features"
+          rows="4"
+          class="w-full px-4 py-2.5 bg-slate-950/80 border border-slate-700/80 rounded-xl text-white text-sm focus:outline-none focus:ring-2 focus:ring-primary"
+        >{product.features.join("\n")}</textarea>
+      </div>
+    </div>
+
+    <!-- Gallery Screenshots -->
+    <div class="bg-slate-900/70 border border-slate-800/80 rounded-2xl p-6 space-y-4">
+      <h2 class="text-sm font-bold text-white uppercase tracking-wider text-primary">Screenshots & Gallery</h2>
+
+      {galleryItems.length > 0 && (
+        <div class="grid grid-cols-2 sm:grid-cols-4 gap-4 mb-4">
+          {galleryItems.map((item) => (
+            <div class="relative group rounded-xl overflow-hidden border border-slate-800 bg-slate-950">
+              <img src={getPublicUrl(item.objectKey, item.disk)} alt={item.caption || "Screenshot"} class="w-full h-28 object-cover" />
+              <form method="POST" class="absolute top-1.5 right-1.5">
+                <input type="hidden" name="_action" value="delete_gallery_image" />
+                <input type="hidden" name="product_media_id" value={item.productMediaId} />
+                <button
+                  type="submit"
+                  class="p-1.5 bg-rose-500/80 hover:bg-rose-600 text-white rounded-lg opacity-0 group-hover:opacity-100 transition shadow"
+                  title="Remove Screenshot"
+                >
+                  <i data-lucide="trash-2" class="w-3.5 h-3.5"></i>
+                </button>
+              </form>
+            </div>
+          ))}
+        </div>
+      )}
+
+      <div>
+        <label class="block text-xs font-semibold text-slate-300 uppercase tracking-wider mb-1.5">
+          Add Screenshot Image
+        </label>
+        <input
+          name="screenshot"
+          type="file"
+          accept="image/png,image/jpeg,image/webp"
+          class="w-full text-xs text-slate-400 file:mr-4 file:py-2 file:px-4 file:rounded-xl file:border-0 file:text-xs file:font-semibold file:bg-slate-800 file:text-slate-200 hover:file:bg-slate-700 cursor-pointer"
+        />
+      </div>
+    </div>
+
+    <!-- Publishing & SEO -->
+    <div class="bg-slate-900/70 border border-slate-800/80 rounded-2xl p-6 space-y-4">
+      <h2 class="text-sm font-bold text-white uppercase tracking-wider text-primary">Publishing & SEO</h2>
+
+      <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+        <div>
+          <label class="block text-xs font-semibold text-slate-300 uppercase tracking-wider mb-1.5">
+            Status
+          </label>
+          <select
+            name="status"
+            class="w-full px-4 py-2.5 bg-slate-950/80 border border-slate-700/80 rounded-xl text-white text-sm focus:outline-none focus:ring-2 focus:ring-primary"
+          >
+            <option value="draft" selected={product.status === "draft"}>Draft</option>
+            <option value="published" selected={product.status === "published"}>Published</option>
+          </select>
+        </div>
+
+        <div>
+          <label class="block text-xs font-semibold text-slate-300 uppercase tracking-wider mb-1.5">
+            Sort Order
+          </label>
+          <input
+            name="sortOrder"
+            type="number"
+            value={product.sortOrder}
+            class="w-full px-4 py-2.5 bg-slate-950/80 border border-slate-700/80 rounded-xl text-white text-sm focus:outline-none focus:ring-2 focus:ring-primary"
+          />
+        </div>
+
+        <div class="flex items-center pt-6">
+          <label class="flex items-center gap-2 cursor-pointer">
+            <input
+              name="isFeatured"
+              type="checkbox"
+              checked={product.isFeatured}
+              class="w-4 h-4 rounded text-primary focus:ring-primary bg-slate-950 border-slate-700"
+            />
+            <span class="text-xs font-semibold text-slate-300 uppercase tracking-wider">Highlight as Featured</span>
+          </label>
+        </div>
+      </div>
+
+      <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+        <div>
+          <label class="block text-xs font-semibold text-slate-300 uppercase tracking-wider mb-1.5">
+            SEO Title
+          </label>
+          <input
+            name="seoTitle"
+            type="text"
+            value={product.seoTitle || ""}
+            class="w-full px-4 py-2.5 bg-slate-950/80 border border-slate-700/80 rounded-xl text-white text-sm focus:outline-none focus:ring-2 focus:ring-primary"
+          />
+        </div>
+
+        <div>
+          <label class="block text-xs font-semibold text-slate-300 uppercase tracking-wider mb-1.5">
+            SEO Meta Description
+          </label>
+          <input
+            name="seoDescription"
+            type="text"
+            value={product.seoDescription || ""}
+            class="w-full px-4 py-2.5 bg-slate-950/80 border border-slate-700/80 rounded-xl text-white text-sm focus:outline-none focus:ring-2 focus:ring-primary"
+          />
+        </div>
+      </div>
+    </div>
+
+    <!-- Actions -->
+    <div class="flex items-center justify-between pt-4">
+      <button
+        type="submit"
+        name="_action"
+        value="delete"
+        onclick="return confirm('Are you sure you want to permanently delete this product?');"
+        class="px-4 py-2.5 bg-rose-500/10 hover:bg-rose-500/20 text-rose-400 border border-rose-500/30 rounded-xl text-xs font-semibold transition"
+      >
+        Delete Product
+      </button>
+
+      <div class="flex items-center gap-3">
+        <a
+          href="/admin/products"
+          class="px-5 py-2.5 bg-slate-800 hover:bg-slate-700 text-slate-300 rounded-xl text-sm font-semibold transition"
+        >
+          Cancel
+        </a>
+        <button
+          type="submit"
+          class="px-6 py-2.5 bg-primary hover:bg-orange-600 text-white rounded-xl text-sm font-semibold shadow-lg shadow-primary/25 transition"
+        >
+          Save Changes
+        </button>
+      </div>
+    </div>
+  </form>
+</AdminLayout>
+
