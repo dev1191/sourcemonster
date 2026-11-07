@@ -1,6 +1,7 @@
 ---
 import AdminLayout from "../../../layouts/AdminLayout.astro";
 import { createService } from "../../../services";
+import { Toast } from "../../../components/ui";
 
 let errorMessage = "";
 
@@ -45,12 +46,7 @@ if (Astro.request.method === "POST") {
     </div>
   </div>
 
-  {errorMessage && (
-    <div class="my-6 p-4 rounded-xl bg-rose-500/10 border border-rose-500/20 text-rose-400 text-xs flex items-center gap-2">
-      <i data-lucide="alert-circle" class="w-4 h-4 shrink-0"></i>
-      <span>{errorMessage}</span>
-    </div>
-  )}
+  <Toast variant="error" message={errorMessage} />
 
   <form method="POST" class="my-6 space-y-6 max-w-2xl bg-slate-900/70 border border-slate-800/80 rounded-2xl p-6">
     <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">

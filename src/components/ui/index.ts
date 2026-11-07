@@ -3,8 +3,9 @@ export { default as Card } from "./Card.astro";
 export { default as Table } from "./Table.astro";
 export type { TableFilterItem } from "./Table.astro";
 export { default as Dropzone } from "./Dropzone.astro";
-export { default as FeedbackAlert } from "./FeedbackAlert.astro";
+export { default as Toast } from "./Toast.astro";
 export { default as ThemeToggle } from "../starwind/theme-toggle/ThemeToggle.astro";
+export { Toaster, toast } from "../starwind/toast";
 
 // Direct Starwind primitives
 export {

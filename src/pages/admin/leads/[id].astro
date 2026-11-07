@@ -9,7 +9,7 @@ import {
 import { Card, CardHeader, CardTitle, CardContent } from "../../../components/starwind/card";
 import { Textarea } from "../../../components/starwind/textarea";
 import { Badge } from "../../../components/starwind/badge";
-import { Button, FeedbackAlert } from "../../../components/ui";
+import { Button, Toast } from "../../../components/ui";
 import { NativeSelect, NativeSelectOption } from "../../../components/starwind/native-select";
 
 const { id } = Astro.params;
@@ -105,7 +105,7 @@ const statusBadgeVariant =
     </div>
   </div>
 
-  <FeedbackAlert variant={isError ? "error" : "success"} message={feedbackMessage} />
+  <Toast variant={isError ? "error" : "success"} message={feedbackMessage} />
 
   <div class="my-6 grid grid-cols-1 lg:grid-cols-3 gap-6">
     <!-- Main Column: Message & Details -->

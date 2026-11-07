@@ -8,7 +8,7 @@ import {
   getAllAdminAddons,
 } from "../../../../services";
 import { getPublicUrl } from "../../../../lib/storage";
-import { Button, Dropzone, FeedbackAlert } from "../../../../components/ui";
+import { Button, Dropzone, Toast } from "../../../../components/ui";
 import { Card, CardHeader, CardTitle, CardContent } from "../../../../components/starwind/card";
 import { Input } from "../../../../components/starwind/input";
 import { Textarea } from "../../../../components/starwind/textarea";
@@ -146,8 +146,8 @@ const addons = await getAllAdminAddons(id);
     </div>
   </div>
 
-  <FeedbackAlert variant="error" message={errorMessage} />
-  <FeedbackAlert variant="success" message={successMessage} />
+  <Toast variant="error" message={errorMessage} />
+  <Toast variant="success" message={successMessage} />
 
   <form method="POST" enctype="multipart/form-data" class="my-6 space-y-6 max-w-4xl">
     <input type="hidden" name="_action" value="update" />

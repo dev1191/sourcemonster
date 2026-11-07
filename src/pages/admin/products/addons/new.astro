@@ -4,7 +4,7 @@ import {
   createAddon,
   getAllAdminProducts,
 } from "../../../../services";
-import { Button, Dropzone } from "../../../../components/ui";
+import { Button, Dropzone, Toast } from "../../../../components/ui";
 import { Card, CardHeader, CardTitle, CardContent } from "../../../../components/starwind/card";
 import { Input } from "../../../../components/starwind/input";
 import { Textarea } from "../../../../components/starwind/textarea";
@@ -75,12 +75,7 @@ if (Astro.request.method === "POST") {
     </div>
   </div>
 
-  {errorMessage && (
-    <div class="my-6 p-4 rounded-xl bg-rose-500/10 border border-rose-500/20 text-rose-400 text-xs flex items-center gap-2">
-      <i data-lucide="alert-circle" class="w-4 h-4 shrink-0"></i>
-      <span>{errorMessage}</span>
-    </div>
-  )}
+  <Toast variant="error" message={errorMessage} />
 
   <form method="POST" enctype="multipart/form-data" class="my-6 space-y-8 max-w-4xl">
     <!-- Parent Product & Basic Info -->

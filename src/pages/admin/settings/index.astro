@@ -4,7 +4,7 @@ import { getSiteSettings, updateSiteSettings } from "../../../lib/settings";
 import { Card, CardHeader, CardTitle, CardContent } from "../../../components/starwind/card";
 import { Input } from "../../../components/starwind/input";
 import { Textarea } from "../../../components/starwind/textarea";
-import { Button, FeedbackAlert } from "../../../components/ui";
+import { Button, Toast } from "../../../components/ui";
 
 let successMessage = "";
 let errorMessage = "";
@@ -45,8 +45,8 @@ const settings = await getSiteSettings();
     </div>
   </div>
 
-  <FeedbackAlert variant="success" message={successMessage} />
-  <FeedbackAlert variant="error" message={errorMessage} />
+  <Toast variant="success" message={successMessage} />
+  <Toast variant="error" message={errorMessage} />
 
   <form method="POST" class="my-6 space-y-6 max-w-4xl">
     <!-- Brand & Identity Card -->

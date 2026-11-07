@@ -1,7 +1,7 @@
 ---
 import AdminLayout from "../../../layouts/AdminLayout.astro";
 import { createProduct } from "../../../services";
-import { Button, Card, Dropzone, FeedbackAlert } from "../../../components/ui";
+import { Button, Card, Dropzone, Toast } from "../../../components/ui";
 import { Input } from "../../../components/starwind/input";
 import { Textarea } from "../../../components/starwind/textarea";
 import { NativeSelect, NativeSelectOption } from "../../../components/starwind/native-select";
@@ -82,7 +82,7 @@ if (Astro.request.method === "POST") {
     <Button href="/admin/products" variant="secondary" size="sm">Cancel</Button>
   </div>
 
-  <FeedbackAlert variant="error" message={errorMessage} />
+  <Toast variant="error" message={errorMessage} />
 
   <form method="POST" enctype="multipart/form-data" class="my-6 space-y-6 max-w-4xl">
     <!-- Basic Info Card -->

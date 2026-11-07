@@ -4,6 +4,7 @@ import { ThemeInitScript } from "@starwind-ui/astro/theme";
 import AdminHeader from "@/components/admin/AdminHeader.astro";
 import AdminSidebar from "@/components/admin/AdminSidebar.astro";
 import { SidebarProvider, SidebarInset } from "@/components/starwind/sidebar";
+import { Toaster } from "@/components/starwind/toast";
 
 interface Props {
   title?: string;
@@ -43,6 +44,9 @@ const user = Astro.locals.adminUser;
         </main>
       </SidebarInset>
     </SidebarProvider>
+
+    <!-- Starwind Floating Toast Viewport -->
+    <Toaster position="bottom-right" />
 
     <script is:inline>
       document.addEventListener("DOMContentLoaded", () => {

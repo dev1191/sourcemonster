@@ -10,7 +10,7 @@ import { adminUsers } from "../../lib/db/schema";
 import { verifyPassword } from "../../lib/auth/password";
 import { createAdminSession } from "../../lib/auth/session";
 import { setSessionCookie } from "../../lib/auth/cookies";
-import { Button, FeedbackAlert } from "../../components/ui";
+import { Button, Toast, Toaster } from "../../components/ui";
 import { ThemeToggle } from "@/components/starwind/theme-toggle";
 import { Input } from "../../components/starwind/input";
 
@@ -127,7 +127,7 @@ if (Astro.request.method === "POST") {
           </p>
         </div>
 
-        <FeedbackAlert variant="error" message={errorMessage} class="mb-6" />
+        <Toast variant="error" message={errorMessage} />
 
         <!-- Form -->
         <form method="POST" class="space-y-4">
@@ -192,5 +192,6 @@ if (Astro.request.method === "POST") {
         </div>
       </div>
     </div>
+    <Toaster position="bottom-right" />
   </body>
 </html>

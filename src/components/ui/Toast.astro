@@ -1,0 +1,75 @@
+---
+interface Props {
+  variant?: "success" | "error" | "warning" | "info" | "default";
+  title?: string;
+  message?: string | null;
+  duration?: number;
+}
+
+const {
+  variant = "info",
+  title,
+  message,
+  duration,
+} = Astro.props;
+
+const shouldTrigger = Boolean(message || title);
+---
+
+{shouldTrigger && (
+  <div
+    data-starwind-toast
+    data-variant={variant}
+    data-title={title || ""}
+    data-message={message || ""}
+    data-duration={duration ? String(duration) : ""}
+    style="display:none;"
+    aria-hidden="true"
+  />
+)}
+
+<script>
+  import { toast } from "../starwind/toast";
+
+  const dispatchToast = (el: HTMLElement) => {
+    const variant = (el.dataset.variant as "info" | "success" | "warning" | "error" | "default") || "info";
+    const title = el.dataset.title || "";
+    const message = el.dataset.message || "";
+    const durationAttr = el.dataset.duration;
+    const duration = durationAttr ? Number(durationAttr) : undefined;
+
+    const toastFn = (typeof toast[variant] === "function" ? toast[variant] : toast) as (
+      msg: string,
+      opts?: Record<string, unknown>
+    ) => string;
+
+    if (title && message) {
+      toastFn(title, { description: message, duration });
+    } else if (message || title) {
+      toastFn(title || message, { duration });
+    }
+    el.remove();
+  };
+
+  const triggerToasts = () => {
+    const elements = document.querySelectorAll<HTMLElement>("[data-starwind-toast]");
+    if (elements.length === 0) return;
+
+    let attempts = 0;
+    const interval = setInterval(() => {
+      attempts++;
+      const viewport = document.querySelector("[data-sw-toast-viewport]");
+      if (window.__starwindRuntime__?.toast || viewport || attempts > 20) {
+        clearInterval(interval);
+        elements.forEach(dispatchToast);
+      }
+    }, 25);
+  };
+
+  if (document.readyState === "loading") {
+    document.addEventListener("DOMContentLoaded", triggerToasts, { once: true });
+  } else {
+    triggerToasts();
+  }
+  document.addEventListener("astro:page-load", triggerToasts);
+</script>
