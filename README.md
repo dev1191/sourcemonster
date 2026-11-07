@@ -1,37 +1,40 @@
 # Source Monster 👾
 
-A premium, high-performance web application, CodeCanyon product showcase, and digital growth agency platform built with **Astro 6 SSR**, **PostgreSQL**, **Drizzle ORM**, and **Tailwind CSS**.
+A premium, high-performance web application, CodeCanyon product showcase, and digital growth agency platform built with **Astro 6 SSR**, **PostgreSQL**, **Drizzle ORM**, **Tailwind CSS**, and **Starwind UI**.
 
 ---
 
 ## 🚀 Key Features
 
 - **Integrated CMS Monolith**: Unified single-application architecture containing the public agency site, CodeCanyon product showcase catalog, and private administrative control center.
-- **SSR & Database**: High-speed hybrid server rendering powered by `@astrojs/node` and PostgreSQL via `drizzle-orm` and connection pooling.
+- **Dedicated Services Layer (`src/services/`)**: Clean, typed business logic layer separating database queries, Drizzle operations, and storage workflows from presentation templates and Astro page routes.
+- **SSR & Database**: High-speed hybrid server rendering powered by `@astrojs/node` and PostgreSQL via `drizzle-orm` with connection pooling.
 - **Admin Control Center** (`/admin`):
   - Stateful session authentication with secure `HttpOnly`, `SameSite=Lax` cookies.
-  - CodeCanyon Product CRUD with screenshot gallery and live preview.
-  - Zero-Loss Lead Capture pipeline with honeypot bot filtering and pipeline management.
-  - Services, Testimonials, and Global Site Settings managers.
+  - **CodeCanyon Products & Add-ons CRUD**: Comprehensive management of main products and companion add-on modules, complete with multi-screenshot galleries, external marketplace links, live demos, and documentation links.
+  - **Reusable Table & Search Filter System**: Custom `<Table>` component with live zero-latency client-side search (`/` hotkey, `Esc` clear), server-side query filters, status tabs, and dynamic empty states.
+  - **Zero-Loss Lead Capture**: Lead capture pipeline with honeypot bot filtering, pipeline status updates, and admin notes.
+  - **Content Management**: Services, Testimonials, and Global Site Settings managers with live previews.
+- **Starwind UI Design System**: Tailored dark-mode UI components (`Table`, `Button`, `Card`, `Dropzone`, `FeedbackAlert`, `ThemeToggle`) built with Astro and Tailwind Variants.
 - **Dual Storage Driver**: Automated Cloudflare R2 bucket integration with seamless local disk fallback (`STORAGE_DRIVER=local`) for offline development.
 - **Email Pipeline**: Contact form and lead notifications powered by **Resend** with sanitized HTML templates.
-- **Docker Ready**: One-command reproducible setup with multi-stage `Dockerfile` and `docker-compose.yml`.
+- **Docker & CI/CD Ready**: Multi-stage `Dockerfile`, `docker-compose.yml`, and GitHub Actions automated deployment pipeline with Docker build cache cleanup.
 
 ---
 
 ## 🛠️ Setup & Installation
 
 ### 1. Environment Configuration
-Copy `.env.example` to `.env` and fill in your values:
+Copy `.env.example` to `.env` and configure your credentials:
 
 ```bash
 cp .env.example .env
 ```
 
-Key variables:
+Key environment variables:
 - `DATABASE_URL`: PostgreSQL connection string (e.g. `postgresql://sourcemonster:change-me-locally@localhost:5432/sourcemonster`)
-- `SESSION_SECRET`: Long random secret string for session signing
-- `RESEND_API_KEY`: API key for email notifications (optional for offline dev)
+- `SESSION_SECRET`: Long random secret string for cryptographic session signing
+- `RESEND_API_KEY`: API key for email notifications (optional for local offline dev)
 - `STORAGE_DRIVER`: `local` (default) or `r2`
 - `SEED_ADMIN_EMAIL` & `SEED_ADMIN_PASSWORD`: Credentials for the initial administrator
 
@@ -61,6 +64,60 @@ pnpm dev
 - Public Site: `http://localhost:4321`
 - Product Showcase: `http://localhost:4321/products`
 - Admin Control Center: `http://localhost:4321/admin`
+
+---
+
+## 🏗️ Architecture & Services Layer
+
+All backend operations and data mutations are consolidated under `src/services/`:
+
+| Service | File | Responsibilities |
+| :--- | :--- | :--- |
+| **Products** | `src/services/products.service.ts` | Product catalog retrieval, single product detail with gallery, product creation, updates, and deletion. |
+| **Add-ons** | `src/services/addons.service.ts` | Companion module listings by parent product, gallery management, creation, updates, and deletion. |
+| **Leads** | `src/services/leads.service.ts` | Lead persistence, status transitions, search/filtering, notes, and zero-loss lead capture. |
+| **Services** | `src/services/services.service.ts` | Bespoke service offerings CRUD and status management. |
+| **Testimonials** | `src/services/testimonials.service.ts` | Client endorsements, quotes, and social proof CRUD. |
+| **Dashboard** | `src/services/dashboard.service.ts` | Aggregated analytics, recent activity streams, and platform KPIs. |
+
+---
+
+## 🎨 UI & Table Component System
+
+The project uses a custom UI abstraction layer in `src/components/ui/` wrapping Starwind primitives:
+
+```astro
+---
+import { Table, TableHeader, TableBody, TableHead, TableRow, TableCell } from "@/components/ui";
+---
+
+<Table
+  searchable={true}
+  searchPlaceholder="Search records..."
+  filters={[
+    { label: "All", value: "all", href: "?status=all", active: true },
+    { label: "Active", value: "active", href: "?status=active" },
+  ]}
+  isEmpty={items.length === 0}
+  emptyTitle="No items found"
+  emptySubtitle="Get started by creating your first item."
+>
+  <TableHeader>
+    <TableRow>
+      <TableHead>Title</TableHead>
+      <TableHead>Status</TableHead>
+    </TableRow>
+  </TableHeader>
+  <TableBody>
+    {items.map((item) => (
+      <TableRow>
+        <TableCell>{item.title}</TableCell>
+        <TableCell>{item.status}</TableCell>
+      </TableRow>
+    ))}
+  </TableBody>
+</Table>
+```
 
 ---
 
@@ -95,13 +152,17 @@ docker compose exec app pnpm db:seed:content
 
 ```text
 sourcemonster/
+├── .github/workflows/    # CI/CD automated deployment workflow
 ├── drizzle/              # Generated SQL migrations
 ├── scripts/
 │   ├── seed.ts           # Seeder runner (--only=admin | --only=content)
 │   └── seeders/          # Admin and content seeders
 ├── src/
 │   ├── actions/          # Astro server actions (e.g., zero-loss lead capture)
-│   ├── components/       # Public UI components (Navbar, Services, Contact, etc.)
+│   ├── components/       # UI Components
+│   │   ├── admin/        # Admin header, sidebar, and layout parts
+│   │   ├── starwind/     # Starwind design system primitives
+│   │   └── ui/           # Reusable Table, Button, Card, Dropzone, Alerts
 │   ├── layouts/
 │   │   ├── BaseLayout.astro   # Public site layout
 │   │   └── AdminLayout.astro  # Admin portal dashboard shell
@@ -111,11 +172,17 @@ sourcemonster/
 │   │   ├── settings/     # Cached global site settings provider
 │   │   ├── storage/      # R2 and local filesystem media driver
 │   │   └── validation/   # Zod validation schemas
+│   ├── services/         # Business logic layer (products, addons, leads, etc.)
 │   ├── middleware.ts     # Route protection middleware
 │   └── pages/
 │       ├── index.astro        # Public homepage
 │       ├── products/          # Dynamic product catalog and detail pages
 │       └── admin/             # Authenticated control center routes
+│           ├── products/      # Products & Add-ons CRUD pages
+│           ├── leads/         # Lead pipeline management
+│           ├── services/      # Bespoke services manager
+│           ├── testimonials/  # Client testimonials manager
+│           └── settings/      # Global site settings
 ├── tests/                # Automated Vitest unit & integration tests
 ├── Dockerfile            # Multi-stage production container
 └── docker-compose.yml    # Development container stack
