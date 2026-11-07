@@ -2,3 +2,28 @@
   --nested-offset: 1rem;
   --nested-scale: 0.05;
 }
+
+/* Native HTML <dialog> styling */
+dialog[data-sw-dialog-content] {
+  position: fixed;
+  inset: 0;
+  margin: auto;
+  max-width: min(calc(100vw - 2rem), 32rem);
+  max-height: calc(100vh - 2rem);
+  overflow: visible;
+  outline: none;
+}
+
+/* Native browser backdrop in top-layer */
+dialog[data-sw-dialog-content]::backdrop {
+  background-color: rgba(2, 6, 23, 0.75);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+}
+
+/* In-DOM backdrop overlay fallback */
+[data-sw-dialog-overlay] {
+  background-color: rgba(2, 6, 23, 0.75) !important;
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+}
