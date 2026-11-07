@@ -36,46 +36,22 @@ const statusOptions = [
     </div>
   </div>
 
-  <!-- Filters & Search Bar -->
-  <div class="my-6 flex flex-col md:flex-row items-stretch md:items-center justify-between gap-4">
-    <!-- Status Filter Pills -->
-    <div class="flex items-center gap-1.5 overflow-x-auto pb-2 md:pb-0">
-      {statusOptions.map((opt) => (
-        <a
-          href={`/admin/leads?status=${opt.value}${searchQuery ? `&q=${encodeURIComponent(searchQuery)}` : ""}`}
-          class={`px-3 py-1.5 rounded-xl text-xs font-semibold whitespace-nowrap transition ${
-            statusFilter === opt.value
-              ? "bg-primary text-white shadow-md shadow-primary/20"
-              : "bg-slate-900 border border-slate-800 text-slate-400 hover:text-white hover:bg-slate-800"
-          }`}
-        >
-          {opt.label}
-        </a>
-      ))}
-    </div>
-
-    <!-- Search Box -->
-    <form method="GET" class="relative shrink-0">
-      <input type="hidden" name="status" value={statusFilter} />
-      <input
-        type="text"
-        name="q"
-        value={searchQuery}
-        placeholder="Search name, email, company..."
-        class="w-full sm:w-64 pl-9 pr-4 py-2 bg-slate-900/90 border border-slate-800 rounded-xl text-xs text-white placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-primary"
-      />
-      <div class="absolute left-3 top-2.5 text-slate-500 pointer-events-none">
-        <i data-lucide="search" class="w-3.5 h-3.5"></i>
-      </div>
-    </form>
-  </div>
-
-  <!-- Leads Table -->
+  <!-- Leads Table with Integrated Filters & Search -->
   <Table
+    searchAction="/admin/leads"
+    searchValue={searchQuery}
+    searchPlaceholder="Search name, email, company..."
+    filters={statusOptions.map((opt) => ({
+      label: opt.label,
+      value: opt.value,
+      href: `/admin/leads?status=${opt.value}${searchQuery ? `&q=${encodeURIComponent(searchQuery)}` : ""}`,
+      active: statusFilter === opt.value,
+    }))}
     isEmpty={allLeads.length === 0}
     emptyIcon="inbox"
     emptyTitle="No inquiries match the current filter"
     emptySubtitle="Try selecting a different status filter or clearing your search query."
+    containerClass="my-6"
   >
     <TableHeader class="bg-slate-950/80 text-[11px] uppercase tracking-wider text-slate-400 border-b border-slate-800">
           <TableRow class="border-b border-slate-800 hover:bg-transparent">

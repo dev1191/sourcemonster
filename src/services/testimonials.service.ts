@@ -88,3 +88,4 @@ export async function deleteTestimonial(id: string): Promise<boolean> {
   const deleted = await db.delete(testimonials).where(eq(testimonials.id, id)).returning();
   return deleted.length > 0;
 }
+

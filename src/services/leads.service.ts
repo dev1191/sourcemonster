@@ -101,3 +101,4 @@ export async function deleteLead(id: string): Promise<boolean> {
   const deleted = await db.delete(leads).where(eq(leads.id, id)).returning();
   return deleted.length > 0;
 }
+

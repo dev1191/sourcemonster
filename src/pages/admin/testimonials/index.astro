@@ -33,6 +33,8 @@ const allTestimonials = await getAllTestimonials();
     emptyIcon="message-circle"
     emptyTitle="No testimonials in database"
     emptySubtitle="Run `pnpm db:seed:content` to import existing static testimonials."
+    searchable={true}
+    searchPlaceholder="Search testimonials by name, role, quote..."
     containerClass="my-6"
   >
     <TableHeader class="bg-slate-950/80 text-[11px] uppercase tracking-wider text-slate-400 border-b border-slate-800">

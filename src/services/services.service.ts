@@ -120,3 +120,4 @@ export async function deleteService(id: string): Promise<boolean> {
   const deleted = await db.delete(services).where(eq(services.id, id)).returning();
   return deleted.length > 0;
 }
+

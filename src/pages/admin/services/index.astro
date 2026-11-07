@@ -33,6 +33,8 @@ const allServices = await getAllServices();
     emptyIcon="layers"
     emptyTitle="No services in database"
     emptySubtitle="Run `pnpm db:seed:content` to import existing static services."
+    searchable={true}
+    searchPlaceholder="Search services by title or description..."
     containerClass="my-6"
   >
     <TableHeader class="bg-slate-950/80 text-[11px] uppercase tracking-wider text-slate-400 border-b border-slate-800">

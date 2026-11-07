@@ -33,6 +33,8 @@ const allProducts = await getAllAdminProducts();
     emptyIcon="package"
     emptyTitle="No products found"
     emptySubtitle="Seed default products or click 'Create Product' above."
+    searchable={true}
+    searchPlaceholder="Search products by title, slug, version..."
     containerClass="my-6"
   >
     <TableHeader class="bg-slate-950/80 text-[11px] uppercase tracking-wider text-slate-400 border-b border-slate-800">

@@ -62,45 +62,22 @@ const allAddons = await getAllAdminAddons(selectedProductId);
   </div>
 
   <!-- Filter by parent product if multiple products exist -->
-  {allProductsList.length > 0 && (
-    <div class="mt-6 flex items-center justify-between gap-4 p-3 bg-slate-900/60 border border-slate-800 rounded-xl text-xs">
-      <div class="flex items-center gap-2 text-slate-400">
-        <i data-lucide="filter" class="w-3.5 h-3.5"></i>
-        <span>Filter by Parent Product:</span>
-      </div>
-      <div class="flex items-center gap-2">
-        <a
-          href="/admin/products/addons"
-          class={`px-2.5 py-1 rounded-lg transition ${
-            !selectedProductId
-              ? "bg-primary text-white font-semibold"
-              : "text-slate-400 hover:text-white hover:bg-slate-800"
-          }`}
-        >
-          All
-        </a>
-        {allProductsList.map((p) => (
-          <a
-            href={`/admin/products/addons?product=${p.id}`}
-            class={`px-2.5 py-1 rounded-lg transition truncate max-w-[180px] ${
-              selectedProductId === p.id
-                ? "bg-primary text-white font-semibold"
-                : "text-slate-400 hover:text-white hover:bg-slate-800"
-            }`}
-            title={p.title}
-          >
-            {p.title}
-          </a>
-        ))}
-      </div>
-    </div>
-  )}
-
   <Table
     isEmpty={allAddons.length === 0}
     emptyIcon="puzzle"
     emptyTitle="No add-on modules found"
     emptySubtitle="Create separate companion plugins, modules, or templates attached to any parent product."
+    searchable={true}
+    searchPlaceholder="Search add-on modules..."
+    filters={[
+      { label: "All Products", value: "", href: "/admin/products/addons", active: !selectedProductId },
+      ...allProductsList.map((p) => ({
+        label: p.title,
+        value: p.id,
+        href: `/admin/products/addons?product=${p.id}`,
+        active: selectedProductId === p.id,
+      })),
+    ]}
     containerClass="my-6"
   >
     <div slot="empty-action" class="flex items-center justify-center gap-3">
