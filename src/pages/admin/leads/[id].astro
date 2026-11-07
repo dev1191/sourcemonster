@@ -6,9 +6,8 @@ import { eq } from "drizzle-orm";
 import { leadStatusSchema } from "../../../lib/validation/lead";
 import { Card, CardHeader, CardTitle, CardContent } from "../../../components/starwind/card";
 import { Textarea } from "../../../components/starwind/textarea";
-import { Button } from "../../../components/starwind/button";
 import { Badge } from "../../../components/starwind/badge";
-import FeedbackAlert from "../../../components/ui/FeedbackAlert.astro";
+import { Button, FeedbackAlert } from "../../../components/ui";
 import { NativeSelect, NativeSelectOption } from "../../../components/starwind/native-select";
 
 const { id } = Astro.params;
@@ -110,17 +109,15 @@ const statusBadgeVariant =
     </div>
 
     <div class="flex items-center gap-2">
-      <a
+      <Button
         href={`mailto:${lead.email}?subject=${encodeURIComponent(`Re: ${lead.subject || "Your Inquiry to SourceMonster"}`)}`}
+        variant="primary"
+        size="sm"
+        icon="mail"
       >
-        <Button variant="primary" size="sm" class="bg-primary hover:bg-orange-600 text-white shadow-md shadow-primary/25">
-          <i data-lucide="mail" class="w-3.5 h-3.5 mr-1.5"></i>
-          Reply via Email
-        </Button>
-      </a>
-      <a href="/admin/leads">
-        <Button variant="secondary" size="sm">Back to list</Button>
-      </a>
+        Reply via Email
+      </Button>
+      <Button href="/admin/leads" variant="secondary" size="sm">Back to list</Button>
     </div>
   </div>
 
@@ -277,9 +274,10 @@ const statusBadgeVariant =
             <input type="hidden" name="_action" value="delete" />
             <Button
               type="submit"
-              variant="error"
+              variant="danger"
               size="sm"
               class="w-full"
+              icon="trash-2"
               onclick="return confirm('Are you sure you want to permanently delete this lead?');"
             >
               Delete Lead Record

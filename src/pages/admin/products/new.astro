@@ -5,11 +5,10 @@ import { products, media } from "../../../lib/db/schema";
 import { eq } from "drizzle-orm";
 import { productSchema } from "../../../lib/validation/product";
 import { uploadFile } from "../../../lib/storage";
-import FeedbackAlert from "../../../components/ui/FeedbackAlert.astro";
+import { Button, FeedbackAlert } from "../../../components/ui";
 import { Card, CardHeader, CardTitle, CardContent } from "../../../components/starwind/card";
 import { Input } from "../../../components/starwind/input";
 import { Textarea } from "../../../components/starwind/textarea";
-import { Button } from "../../../components/starwind/button";
 import { NativeSelect, NativeSelectOption } from "../../../components/starwind/native-select";
 
 let errorMessage = "";
@@ -143,9 +142,7 @@ if (Astro.request.method === "POST") {
       </div>
       <h1 class="text-2xl font-black text-white tracking-tight">Create New Product</h1>
     </div>
-    <a href="/admin/products">
-      <Button variant="secondary" size="sm">Cancel</Button>
-    </a>
+    <Button href="/admin/products" variant="secondary" size="sm">Cancel</Button>
   </div>
 
   <FeedbackAlert variant="error" message={errorMessage} />
@@ -384,14 +381,12 @@ if (Astro.request.method === "POST") {
     </Card>
 
     <div class="flex items-center justify-end gap-3 pt-2">
-      <a href="/admin/products">
-        <Button variant="secondary" size="md">Cancel</Button>
-      </a>
+      <Button href="/admin/products" variant="secondary" size="md">Cancel</Button>
       <Button
         type="submit"
         variant="primary"
         size="md"
-        class="bg-primary hover:bg-orange-600 text-white shadow-lg shadow-primary/25"
+        icon="plus"
       >
         Save & Create Product
       </Button>

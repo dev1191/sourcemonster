@@ -4,7 +4,7 @@ import { db } from "../../../lib/db";
 import { products, media } from "../../../lib/db/schema";
 import { desc, eq } from "drizzle-orm";
 import { getPublicUrl } from "../../../lib/storage";
-import { Button } from "../../../components/starwind/button";
+import { Button } from "../../../components/ui";
 import { Badge } from "../../../components/starwind/badge";
 import { Card } from "../../../components/starwind/card";
 
@@ -36,12 +36,9 @@ try {
       <p class="text-xs text-slate-400 mt-1">Manage product showcases, CodeCanyon links, demos, and pricing metadata.</p>
     </div>
     <div class="flex items-center gap-3">
-      <a href="/admin/products/new">
-        <Button variant="primary" size="sm" class="bg-primary hover:bg-orange-600 text-white shadow-md shadow-primary/20">
-          <i data-lucide="plus" class="w-4 h-4 mr-1"></i>
-          Create Product
-        </Button>
-      </a>
+      <Button href="/admin/products/new" variant="primary" size="sm" icon="plus">
+        Create Product
+      </Button>
     </div>
   </div>
 
@@ -113,13 +110,14 @@ try {
                         <i data-lucide="external-link" class="w-4 h-4"></i>
                       </a>
                     )}
-                    <a
+                    <Button
                       href={`/admin/products/${p.id}/edit`}
-                      class="px-3 py-1.5 bg-slate-800 hover:bg-slate-700 text-slate-200 rounded-lg text-xs font-semibold flex items-center gap-1.5 transition"
+                      variant="secondary"
+                      size="xs"
+                      icon="edit-3"
                     >
-                      <i data-lucide="edit-3" class="w-3.5 h-3.5"></i>
                       Edit
-                    </a>
+                    </Button>
                   </div>
                 </td>
               </tr>

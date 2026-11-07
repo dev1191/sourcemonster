@@ -4,8 +4,7 @@ import { getSiteSettings, updateSiteSettings } from "../../../lib/settings";
 import { Card, CardHeader, CardTitle, CardContent } from "../../../components/starwind/card";
 import { Input } from "../../../components/starwind/input";
 import { Textarea } from "../../../components/starwind/textarea";
-import { Button } from "../../../components/starwind/button";
-import FeedbackAlert from "../../../components/ui/FeedbackAlert.astro";
+import { Button, FeedbackAlert } from "../../../components/ui";
 
 let successMessage = "";
 let errorMessage = "";
@@ -232,7 +231,7 @@ const settings = await getSiteSettings();
         type="submit"
         variant="primary"
         size="md"
-        class="bg-primary hover:bg-orange-600 text-white shadow-lg shadow-primary/25"
+        icon="save"
       >
         Save Site Settings
       </Button>
