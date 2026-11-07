@@ -1,6 +1,8 @@
 node_modules
 dist
 .git
+.github
+tests
 .env
 .env.*
 !.env.example
@@ -8,4 +10,3 @@ dist
 .vscode
 .astro
 uploads
-

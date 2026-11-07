@@ -1,3 +1,4 @@
+# syntax=docker/dockerfile:1
 # ---- base ----
 FROM node:24-slim AS base
 WORKDIR /app
@@ -8,12 +9,13 @@ ENV PATH="$PNPM_HOME:$PATH"
 ENV PNPM_CONFIG_MANAGE_PACKAGE_MANAGER_VERSIONS=false
 
 RUN mkdir -p /pnpm && chmod 777 /pnpm \
- && npm install -g pnpm@10.5.2
+ && corepack enable && corepack prepare pnpm@10.5.2 --activate
 
 # ---- deps ----
 FROM base AS deps
 COPY package.json pnpm-lock.yaml .npmrc* ./
-RUN pnpm install --no-frozen-lockfile --reporter=default
+RUN --mount=type=cache,id=pnpm,target=/pnpm/store \
+    pnpm install --frozen-lockfile --reporter=default
 
 # ---- build ----
 FROM deps AS build

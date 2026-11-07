@@ -5,6 +5,12 @@ on:
     branches:
       - main
   workflow_dispatch:
+    inputs:
+      clean_docker_cache:
+        description: "Force remove all Docker build cache before building on VPS"
+        required: false
+        type: boolean
+        default: false
 
 jobs:
   test-and-build:
@@ -16,9 +22,10 @@ jobs:
         uses: actions/checkout@v4
 
       - name: Install pnpm
-        uses: pnpm/action-setup@v3
+        uses: pnpm/action-setup@v4
         with:
-          version: 10
+          version: 10.5.2
+          run_install: false
 
       - name: Setup Node.js (v24)
         uses: actions/setup-node@v4
@@ -27,7 +34,7 @@ jobs:
           cache: "pnpm"
 
       - name: Install Dependencies
-        run: pnpm install --no-frozen-lockfile
+        run: pnpm install --frozen-lockfile --prefer-offline
 
       - name: Run Test Suite
         run: pnpm test
@@ -58,19 +65,43 @@ jobs:
             cd /opt/docker-apps/sourcemonster
 
             # 2. Pull latest code from main
-            git fetch origin main
+            git fetch origin main --depth=1
             git reset --hard origin/main
 
             # 3. Check if Docker deployment or PM2 deployment
             if command -v docker >/dev/null 2>&1 && [ -f "docker-compose.yml" ]; then
-              echo "🐳 Detected Docker environment. Building and deploying with Docker Compose..."
+              echo "🐳 Detected Docker environment."
+              
+              # Enable BuildKit for faster builds and cache mounting
+              export DOCKER_BUILDKIT=1
+              export COMPOSE_DOCKER_CLI_BUILD=1
+
+              # Optional: Force clear builder cache if dispatched with clean_docker_cache=true
+              if [ "${{ inputs.clean_docker_cache }}" = "true" ]; then
+                echo "🧹 Force removing all Docker builder cache before build..."
+                docker builder prune -af --volumes || true
+              fi
+
+              # Build container using cached layers
+              echo "🔨 Building Docker images..."
               docker compose -f docker-compose.yml -f docker-compose.prod.yml build
+
+              # Run database migrations
+              echo "📦 Running database migrations..."
               docker compose -f docker-compose.yml -f docker-compose.prod.yml run --rm app pnpm db:migrate
-              docker compose -f docker-compose.yml -f docker-compose.prod.yml up -d
+
+              # Bring up containers with minimal downtime
+              echo "🚀 Starting containers..."
+              docker compose -f docker-compose.yml -f docker-compose.prod.yml up -d --remove-orphans
+
+              # Clean up dangling images and old build cache to free VPS disk space
+              echo "🧹 Removing Docker dangling images and old builder cache..."
+              docker image prune -f
+              docker builder prune -f --keep-storage=1GB || docker builder prune -f
             else
               echo "⚡ Deploying with Node / PM2..."
               corepack enable
-              pnpm install --no-frozen-lockfile
+              pnpm install --frozen-lockfile --prefer-offline
               pnpm db:migrate
               pnpm build
               pm2 reload ecosystem.config.cjs || pm2 start ecosystem.config.cjs
