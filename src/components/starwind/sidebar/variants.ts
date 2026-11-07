@@ -6,26 +6,26 @@ export const sidebar = tv({
 
 export const sidebarContent = tv({
   base: [
-    "flex min-h-0 flex-1 flex-col gap-2 overflow-auto",
+    "flex min-h-0 flex-1 flex-col gap-2 overflow-y-auto overscroll-contain",
     "group-data-[collapsible=icon]:overflow-hidden",
   ],
 });
 
 export const sidebarFooter = tv({
-  base: "flex flex-col gap-2 p-2",
+  base: "flex flex-col gap-2 p-2 shrink-0 mt-auto",
 });
 
 export const sidebarGap = tv({
   base: [
-    "relative w-(--sidebar-width) bg-transparent transition-[width] duration-200 ease-linear",
+    "relative w-[var(--sidebar-width,18rem)] bg-transparent shrink-0 transition-[width] duration-200 ease-linear",
     "group-data-[collapsible=offcanvas]:w-0",
     "group-data-[side=right]:rotate-180",
   ],
   variants: {
     variant: {
-      sidebar: "group-data-[collapsible=icon]:w-(--sidebar-width-icon)",
-      floating: "group-data-[collapsible=icon]:w-[calc(var(--sidebar-width-icon)+1rem)]",
-      inset: "group-data-[collapsible=icon]:w-[calc(var(--sidebar-width-icon)+1rem)]",
+      sidebar: "group-data-[collapsible=icon]:w-[var(--sidebar-width-icon,3.5rem)]",
+      floating: "group-data-[collapsible=icon]:w-[calc(var(--sidebar-width-icon,3.5rem)+1rem)]",
+      inset: "group-data-[collapsible=icon]:w-[calc(var(--sidebar-width-icon,3.5rem)+1rem)]",
     },
   },
   defaultVariants: {
@@ -34,19 +34,19 @@ export const sidebarGap = tv({
 });
 
 export const sidebarContainer = tv({
-  base: "fixed inset-y-0 z-10 hidden h-svh w-(--sidebar-width) transition-[left,right,width] duration-200 ease-linear md:flex",
+  base: "fixed inset-y-0 z-30 hidden h-screen max-h-screen w-[var(--sidebar-width,18rem)] transition-[left,right,width] duration-200 ease-linear md:flex flex-col",
   variants: {
     side: {
-      left: "left-0 group-data-[collapsible=offcanvas]:left-[calc(var(--sidebar-width)*-1)]",
-      right: "right-0 group-data-[collapsible=offcanvas]:right-[calc(var(--sidebar-width)*-1)]",
+      left: "left-0 group-data-[collapsible=offcanvas]:left-[calc(var(--sidebar-width,18rem)*-1)]",
+      right: "right-0 group-data-[collapsible=offcanvas]:right-[calc(var(--sidebar-width,18rem)*-1)]",
     },
     variant: {
       sidebar: [
-        "group-data-[collapsible=icon]:w-(--sidebar-width-icon)",
+        "group-data-[collapsible=icon]:w-[var(--sidebar-width-icon,3.5rem)]",
         "group-data-[side=left]:border-r group-data-[side=right]:border-l",
       ],
-      floating: "p-2 group-data-[collapsible=icon]:w-[calc(var(--sidebar-width-icon)+1rem+2px)]",
-      inset: "p-2 group-data-[collapsible=icon]:w-[calc(var(--sidebar-width-icon)+1rem+2px)]",
+      floating: "p-2 group-data-[collapsible=icon]:w-[calc(var(--sidebar-width-icon,3.5rem)+1rem+2px)]",
+      inset: "p-2 group-data-[collapsible=icon]:w-[calc(var(--sidebar-width-icon,3.5rem)+1rem+2px)]",
     },
   },
   defaultVariants: {
@@ -88,11 +88,11 @@ export const sidebarGroupLabel = tv({
 });
 
 export const sidebarHeader = tv({
-  base: "flex flex-col gap-2 p-2",
+  base: "flex flex-col gap-2 p-2 shrink-0",
 });
 
 export const sidebarInner = tv({
-  base: "bg-sidebar flex h-full w-full flex-col",
+  base: "bg-slate-900 border-r border-slate-800/80 flex h-full max-h-screen w-full flex-col overflow-hidden",
   variants: {
     variant: {
       sidebar: "",
@@ -240,12 +240,12 @@ export const sidebarMenuSubItem = tv({
 });
 
 export const sidebarMobileContent = tv({
-  base: "bg-sidebar text-sidebar-foreground w-(--sidebar-width) p-0 [&>button]:hidden",
+  base: "bg-slate-900 text-slate-200 w-[var(--sidebar-width,18rem)] p-0 [&>button]:hidden",
 });
 
 export const sidebarProvider = tv({
   base: [
-    "group/sidebar-wrapper flex min-h-svh w-full",
+    "group/sidebar-wrapper flex min-h-screen w-full",
     "has-data-[variant=inset]:bg-sidebar",
   ],
 });

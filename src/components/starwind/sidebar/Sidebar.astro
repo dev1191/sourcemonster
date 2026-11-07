@@ -25,7 +25,7 @@ const mobileStyle = { "--sidebar-width": "18rem" };
   collapsible === "none" ? (
     <div
       {...rest}
-      class={["bg-sidebar text-sidebar-foreground flex h-full w-(--sidebar-width) flex-col", className].filter(Boolean).join(" ")}
+      class={["bg-sidebar text-sidebar-foreground flex h-full w-[var(--sidebar-width,18rem)] flex-col", className].filter(Boolean).join(" ")}
       data-slot="sidebar"
     >
       <slot />

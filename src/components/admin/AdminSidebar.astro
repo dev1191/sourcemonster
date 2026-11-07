@@ -32,7 +32,7 @@ const currentPath = Astro.url.pathname;
 const isProductActive = activeNav === "products" || activeNav === "addons" || currentPath.startsWith("/admin/products");
 ---
 
-<Sidebar collapsible="icon" class="border-r border-slate-800/80 bg-slate-900/95 backdrop-blur-md">
+<Sidebar collapsible="icon" class="border-r border-slate-800/80 bg-slate-900/95">
   <!-- Brand Logo Header -->
   <SidebarHeader class="p-4 border-b border-slate-800">
     <div class="flex items-center justify-between">
