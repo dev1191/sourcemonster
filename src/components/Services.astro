@@ -1,8 +1,6 @@
 ---
 import { getCollection } from 'astro:content';
-import { db } from '../lib/db';
-import { services as servicesTable } from '../lib/db/schema';
-import { eq, desc } from 'drizzle-orm';
+import { getAllServices } from '../services';
 
 let servicesList: Array<{
   data: {
@@ -15,20 +13,16 @@ let servicesList: Array<{
 }> = [];
 
 try {
-  const dbServices = await db
-    .select()
-    .from(servicesTable)
-    .where(eq(servicesTable.status, 'published'))
-    .orderBy(desc(servicesTable.sortOrder), servicesTable.createdAt);
+  const dbServices = await getAllServices({ onlyPublished: true });
 
   if (dbServices.length > 0) {
-    servicesList = dbServices.map((s) => ({
+    servicesList = dbServices.map((s, idx) => ({
       data: {
         title: s.title,
         description: s.description,
         icon: s.icon,
         color: s.color,
-        delay: s.delay,
+        delay: idx * 100,
       },
     }));
   } else {

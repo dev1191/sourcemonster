@@ -1,8 +1,6 @@
 ---
 import { getCollection } from 'astro:content';
-import { db } from '../lib/db';
-import { testimonials as testimonialsTable } from '../lib/db/schema';
-import { eq, desc } from 'drizzle-orm';
+import { getAllTestimonials } from '../services';
 
 let testimonialsList: Array<{
   data: {
@@ -15,20 +13,16 @@ let testimonialsList: Array<{
 }> = [];
 
 try {
-  const dbTestimonials = await db
-    .select()
-    .from(testimonialsTable)
-    .where(eq(testimonialsTable.status, 'published'))
-    .orderBy(desc(testimonialsTable.sortOrder), testimonialsTable.createdAt);
+  const dbTestimonials = await getAllTestimonials({ onlyPublished: true });
 
   if (dbTestimonials.length > 0) {
-    testimonialsList = dbTestimonials.map((t) => ({
+    testimonialsList = dbTestimonials.map((t, idx) => ({
       data: {
         name: t.name,
         role: t.role,
         quote: t.quote,
         color: t.color || 'primary',
-        delay: t.delay,
+        delay: idx * 100,
       },
     }));
   } else {
