@@ -1,6 +1,7 @@
 ---
 import AdminLayout from "../../../layouts/AdminLayout.astro";
 import { createProduct } from "../../../services";
+import { slugify } from "../../../lib/utils";
 import { Button, Card, Dropzone, Toast } from "../../../components/ui";
 import { Input } from "../../../components/starwind/input";
 import { Textarea } from "../../../components/starwind/textarea";
@@ -13,7 +14,7 @@ if (Astro.request.method === "POST") {
     const formData = await Astro.request.formData();
 
     const title = formData.get("title")?.toString().trim() || "";
-    const slug = formData.get("slug")?.toString().trim().toLowerCase() || "";
+    const slug = slugify(formData.get("slug")?.toString().trim() || "");
     const shortDescription = formData.get("shortDescription")?.toString().trim() || "";
     const description = formData.get("description")?.toString().trim() || "";
     const codecanyonUrl = formData.get("codecanyonUrl")?.toString().trim() || "";
@@ -317,17 +318,16 @@ if (Astro.request.method === "POST") {
     </div>
   </form>
 
-  <script is:inline>
-    // Auto-generate slug from title
-    const titleInput = document.getElementById("title-input");
-    const slugInput = document.getElementById("slug-input");
+  <script>
+    import { slugify } from "../../../lib/utils";
+
+    const titleInput = document.getElementById("title-input") as HTMLInputElement | null;
+    const slugInput = document.getElementById("slug-input") as HTMLInputElement | null;
+
     if (titleInput && slugInput) {
       titleInput.addEventListener("input", () => {
         if (!slugInput.dataset.touched) {
-          slugInput.value = titleInput.value
-            .toLowerCase()
-            .replace(/[^a-z0-9]+/g, "-")
-            .replace(/^-+|-+$/g, "");
+          slugInput.value = slugify(titleInput.value);
         }
       });
       slugInput.addEventListener("input", () => {

@@ -1,6 +1,7 @@
 ---
 import AdminLayout from "../../../layouts/AdminLayout.astro";
 import { createService } from "../../../services";
+import { slugify } from "../../../lib/utils";
 import { Toast } from "../../../components/ui";
 
 let errorMessage = "";
@@ -9,7 +10,7 @@ if (Astro.request.method === "POST") {
   try {
     const formData = await Astro.request.formData();
     const title = formData.get("title")?.toString().trim() || "";
-    const slug = formData.get("slug")?.toString().trim().toLowerCase() || "";
+    const slug = slugify(formData.get("slug")?.toString().trim() || "");
     const description = formData.get("description")?.toString().trim() || "";
     const icon = formData.get("icon")?.toString().trim() || "code";
     const color = formData.get("color")?.toString().trim() || "primary";
@@ -52,11 +53,11 @@ if (Astro.request.method === "POST") {
     <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
       <div>
         <label class="block text-xs font-semibold text-slate-300 uppercase tracking-wider mb-1.5">Title *</label>
-        <input name="title" type="text" required placeholder="e.g. Web Engineering" class="w-full px-4 py-2.5 bg-slate-950 border border-slate-700 rounded-xl text-white text-sm" />
+        <input id="title-input" name="title" type="text" required placeholder="e.g. Web Engineering" class="w-full px-4 py-2.5 bg-slate-950 border border-slate-700 rounded-xl text-white text-sm" />
       </div>
       <div>
         <label class="block text-xs font-semibold text-slate-300 uppercase tracking-wider mb-1.5">Slug *</label>
-        <input name="slug" type="text" required placeholder="e.g. web-engineering" class="w-full px-4 py-2.5 bg-slate-950 border border-slate-700 rounded-xl text-white text-sm font-mono" />
+        <input id="slug-input" name="slug" type="text" required placeholder="e.g. web-engineering" class="w-full px-4 py-2.5 bg-slate-950 border border-slate-700 rounded-xl text-white text-sm font-mono" />
       </div>
     </div>
 
@@ -95,5 +96,23 @@ if (Astro.request.method === "POST") {
       <button type="submit" class="px-6 py-2.5 bg-primary hover:bg-orange-600 text-white rounded-xl text-sm font-semibold shadow-lg shadow-primary/25 transition">Save Service</button>
     </div>
   </form>
+
+  <script>
+    import { slugify } from "../../../lib/utils";
+
+    const titleInput = document.getElementById("title-input") as HTMLInputElement | null;
+    const slugInput = document.getElementById("slug-input") as HTMLInputElement | null;
+
+    if (titleInput && slugInput) {
+      titleInput.addEventListener("input", () => {
+        if (!slugInput.dataset.touched) {
+          slugInput.value = slugify(titleInput.value);
+        }
+      });
+      slugInput.addEventListener("input", () => {
+        slugInput.dataset.touched = "true";
+      });
+    }
+  </script>
 </AdminLayout>
 
