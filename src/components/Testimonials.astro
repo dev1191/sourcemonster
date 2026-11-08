@@ -44,7 +44,7 @@ try {
 
         <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
             {testimonialsList.map((item) => (
-                <div class="glass-card dark:bg-slate-900/80 dark:border-slate-800 p-10 rounded-[3rem] hover:translate-y-[-10px] transition-all duration-500" data-aos="fade-up" data-aos-delay={item.data.delay}>
+                <div class="glass-card dark:bg-slate-900/80 dark:border-slate-800 p-10 rounded-[3rem] hover:translate-y-[-10px] transition-all duration-500 shadow-xl dark:shadow-none" data-aos="fade-up" data-aos-delay={item.data.delay}>
                     <div class="flex text-primary mb-6">
                         <i data-lucide="star" class="w-5 h-5 fill-current"></i><i data-lucide="star" class="w-5 h-5 fill-current"></i><i data-lucide="star" class="w-5 h-5 fill-current"></i><i data-lucide="star" class="w-5 h-5 fill-current"></i><i data-lucide="star" class="w-5 h-5 fill-current"></i>
                     </div>
@@ -74,5 +74,9 @@ try {
         background: rgba(255, 255, 255, 0.7);
         backdrop-filter: blur(10px);
         border: 1px solid rgba(255, 255, 255, 0.2);
+    }
+    :global(.dark) .glass-card {
+        background: rgba(15, 23, 42, 0.75);
+        border: 1px solid rgba(255, 255, 255, 0.08);
     }
 </style>

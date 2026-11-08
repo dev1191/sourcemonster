@@ -6,6 +6,16 @@
   --dark: #0f172a;
   --glass: rgba(255, 255, 255, 0.7);
   --glass-border: rgba(0, 0, 0, 0.05);
+  --glass-shadow: rgba(0, 40, 162, 0.05);
+}
+
+.dark,
+:root[class~="dark"],
+html.dark {
+  --dark: #020617;
+  --glass: rgba(15, 23, 42, 0.75);
+  --glass-border: rgba(255, 255, 255, 0.08);
+  --glass-shadow: rgba(0, 0, 0, 0.5);
 }
 
 @layer base {
@@ -36,10 +46,20 @@ body {
 }
 
 .bg-mesh {
+  background-color: #f8fafc;
   background-image:
     radial-gradient(at 0% 0%, hsla(210, 40%, 96%, 1) 0, transparent 50%),
     radial-gradient(at 50% 0%, hsla(11, 81%, 55%, 0.1) 0, transparent 50%),
     radial-gradient(at 100% 0%, hsla(225, 100%, 32%, 0.05) 0, transparent 50%);
+}
+
+.dark .bg-mesh,
+html.dark .bg-mesh {
+  background-color: #020617;
+  background-image:
+    radial-gradient(at 0% 0%, rgba(15, 23, 42, 0.9) 0, transparent 50%),
+    radial-gradient(at 50% 0%, hsla(11, 81%, 55%, 0.1) 0, transparent 50%),
+    radial-gradient(at 100% 0%, hsla(225, 100%, 32%, 0.08) 0, transparent 50%);
 }
 
 .glass-card {
@@ -47,7 +67,7 @@ body {
   backdrop-filter: blur(12px);
   -webkit-backdrop-filter: blur(12px);
   border: 1px solid var(--glass-border);
-  box-shadow: 0 10px 30px -10px rgba(0, 40, 162, 0.05);
+  box-shadow: 0 10px 30px -10px var(--glass-shadow);
 }
 
 .hero-glow {
@@ -101,9 +121,15 @@ body {
   width: 10px;
   height: 10px;
   background: var(--dark) !important;
-  opacity: 0.1 !important;
+  opacity: 0.2 !important;
   transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275) !important;
   border-radius: 20px !important;
+}
+
+.dark .swiper-pagination-bullet,
+html.dark .swiper-pagination-bullet {
+  background: #ffffff !important;
+  opacity: 0.25 !important;
 }
 
 .swiper-pagination-bullet-active {

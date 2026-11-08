@@ -8,7 +8,7 @@ const displayProducts = featuredProducts.length > 0 ? featuredProducts.slice(0, 
 ---
 
 {displayProducts.length > 0 && (
-  <section id="products" class="py-32 bg-slate-900 text-white relative overflow-hidden">
+  <section id="products" class="py-32 bg-slate-100 dark:bg-slate-900 text-slate-900 dark:text-white relative overflow-hidden transition-colors">
     <!-- Background glows -->
     <div class="absolute top-0 right-0 w-[500px] h-[500px] bg-primary/10 rounded-full blur-[130px] -mr-64 -mt-64 pointer-events-none"></div>
     <div class="absolute bottom-0 left-0 w-[500px] h-[500px] bg-secondary/10 rounded-full blur-[130px] -ml-64 -mb-64 pointer-events-none"></div>
@@ -17,10 +17,10 @@ const displayProducts = featuredProducts.length > 0 ? featuredProducts.slice(0, 
       <div class="flex flex-col md:flex-row md:items-end justify-between mb-16" data-aos="fade-up">
         <div>
  
-          <h2 class="text-4xl sm:text-5xl lg:text-6xl font-black font-heading tracking-tight text-white leading-tight">
+          <h2 class="text-4xl sm:text-5xl lg:text-6xl font-black font-heading tracking-tight text-slate-900 dark:text-white leading-tight">
             ENGINEERED <span class="text-gradient">SOFTWARE BEASTS.</span>
           </h2>
-          <p class="mt-4 text-slate-400 max-w-xl text-base sm:text-lg leading-relaxed">
+          <p class="mt-4 text-slate-600 dark:text-slate-400 max-w-xl text-base sm:text-lg leading-relaxed">
             Production-tested SaaS boilerplates, mobile apps, and automated workflows ready for immediate commercial deployment.
           </p>
         </div>
@@ -28,7 +28,7 @@ const displayProducts = featuredProducts.length > 0 ? featuredProducts.slice(0, 
         <div class="mt-8 md:mt-0">
           <a
             href="/products"
-            class="inline-flex items-center gap-2 px-6 py-3.5 rounded-2xl bg-slate-800/90 hover:bg-slate-800 text-white text-sm font-bold border border-slate-700/80 hover:border-primary/50 transition-all shadow-xl hover:-translate-y-0.5 group"
+            class="inline-flex items-center gap-2 px-6 py-3.5 rounded-2xl bg-white hover:bg-slate-50 dark:bg-slate-800/90 dark:hover:bg-slate-800 text-slate-900 dark:text-white text-sm font-bold border border-slate-200 dark:border-slate-700/80 hover:border-primary/50 transition-all shadow-xl hover:-translate-y-0.5 group"
           >
             <span>View All Products</span>
             <i data-lucide="arrow-right" class="w-4 h-4 text-primary group-hover:translate-x-1 transition-transform"></i>
@@ -40,12 +40,12 @@ const displayProducts = featuredProducts.length > 0 ? featuredProducts.slice(0, 
       <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
         {displayProducts.map((p, idx) => (
           <article
-            class="bg-slate-950/70 border border-slate-800/80 hover:border-slate-700 rounded-3xl overflow-hidden transition-all duration-300 flex flex-col group shadow-xl hover:shadow-2xl hover:shadow-black/60"
+            class="bg-white dark:bg-slate-950/70 border border-slate-200 dark:border-slate-800/80 hover:border-slate-300 dark:hover:border-slate-700 rounded-3xl overflow-hidden transition-all duration-300 flex flex-col group shadow-xl hover:shadow-2xl hover:shadow-slate-300/40 dark:hover:shadow-black/60"
             data-aos="fade-up"
             data-aos-delay={idx * 150}
           >
             <!-- Thumbnail preview -->
-            <a href={`/products/${p.slug}`} class="block relative h-64 overflow-hidden bg-slate-950 border-b border-slate-800/80 group">
+            <a href={`/products/${p.slug}`} class="block relative h-64 overflow-hidden bg-slate-100 dark:bg-slate-950 border-b border-slate-200 dark:border-slate-800/80 group">
               {p.thumbnailUrl ? (
                 <img
                   src={p.thumbnailUrl}
@@ -53,15 +53,15 @@ const displayProducts = featuredProducts.length > 0 ? featuredProducts.slice(0, 
                   class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
                 />
               ) : (
-                <div class="w-full h-full flex flex-col items-center justify-center text-slate-700">
-                  <i data-lucide="package" class="w-12 h-12 mb-2 text-slate-700"></i>
-                  <span class="text-xs uppercase tracking-wider text-slate-600 font-mono">SourceMonster Product</span>
+                <div class="w-full h-full flex flex-col items-center justify-center text-slate-400 dark:text-slate-700">
+                  <i data-lucide="package" class="w-12 h-12 mb-2 text-slate-400 dark:text-slate-700"></i>
+                  <span class="text-xs uppercase tracking-wider text-slate-500 dark:text-slate-600 font-mono">SourceMonster Product</span>
                 </div>
               )}
 
               <div class="absolute top-4 left-4 flex items-center gap-2">
                 {p.version && (
-                  <span class="px-2.5 py-1 rounded-full bg-slate-950/80 backdrop-blur-md border border-slate-800 text-[11px] font-mono text-slate-300 font-bold">
+                  <span class="px-2.5 py-1 rounded-full bg-white/90 dark:bg-slate-950/80 backdrop-blur-md border border-slate-200 dark:border-slate-800 text-[11px] font-mono text-slate-700 dark:text-slate-300 font-bold shadow-xs">
                     {p.version}
                   </span>
                 )}
@@ -77,12 +77,12 @@ const displayProducts = featuredProducts.length > 0 ? featuredProducts.slice(0, 
             <div class="p-6 sm:p-8 flex flex-col flex-1 justify-between">
               <div>
                 <a href={`/products/${p.slug}`} class="block group">
-                  <h3 class="text-xl sm:text-2xl font-black text-white group-hover:text-primary transition-colors tracking-tight mb-3">
+                  <h3 class="text-xl sm:text-2xl font-black text-slate-900 dark:text-white group-hover:text-primary transition-colors tracking-tight mb-3">
                     {p.title}
                   </h3>
                 </a>
 
-                <p class="text-sm text-slate-400 leading-relaxed line-clamp-2 mb-6">
+                <p class="text-sm text-slate-600 dark:text-slate-400 leading-relaxed line-clamp-2 mb-6">
                   {p.shortDescription}
                 </p>
 
@@ -90,12 +90,12 @@ const displayProducts = featuredProducts.length > 0 ? featuredProducts.slice(0, 
                 {p.technologies && p.technologies.length > 0 && (
                   <div class="flex flex-wrap gap-2 mb-6">
                     {p.technologies.slice(0, 4).map((tech) => (
-                      <span class="px-2.5 py-1 rounded-lg bg-slate-900 border border-slate-800 text-[11px] text-slate-300 font-mono font-medium">
+                      <span class="px-2.5 py-1 rounded-lg bg-slate-100 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 text-[11px] text-slate-700 dark:text-slate-300 font-mono font-medium">
                         {tech}
                       </span>
                     ))}
                     {p.technologies.length > 4 && (
-                      <span class="px-2 py-1 rounded-lg bg-slate-900/60 text-[11px] text-slate-500 font-mono">
+                      <span class="px-2 py-1 rounded-lg bg-slate-100/60 dark:bg-slate-900/60 text-[11px] text-slate-500 font-mono">
                         +{p.technologies.length - 4} more
                       </span>
                     )}
@@ -104,10 +104,10 @@ const displayProducts = featuredProducts.length > 0 ? featuredProducts.slice(0, 
               </div>
 
               <!-- Action buttons -->
-              <div class="flex items-center gap-3 pt-4 border-t border-slate-800/80">
+              <div class="flex items-center gap-3 pt-4 border-t border-slate-200 dark:border-slate-800/80">
                 <a
                   href={`/products/${p.slug}`}
-                  class="flex-1 py-3 px-4 rounded-xl bg-slate-800 hover:bg-slate-700 text-white font-bold text-xs text-center border border-slate-700 transition flex items-center justify-center gap-2"
+                  class="flex-1 py-3 px-4 rounded-xl bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-900 dark:text-white font-bold text-xs text-center border border-slate-200 dark:border-slate-700 transition flex items-center justify-center gap-2"
                 >
                   <span>Explore Architecture</span>
                   <i data-lucide="arrow-right" class="w-3.5 h-3.5 text-primary"></i>

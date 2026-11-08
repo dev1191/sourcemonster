@@ -1,7 +1,7 @@
 ---
 ---
 <!-- Hero Section -->
-<section id="home" class="min-h-screen relative flex items-center pt-24 overflow-hidden bg-mesh">
+<section id="home" class="min-h-screen relative flex items-center pt-24 overflow-hidden bg-mesh bg-slate-50 dark:bg-slate-950 transition-colors duration-200">
     <div class="hero-glow top-20 -left-20"></div>
     <div class="hero-glow bottom-20 -right-20 opacity-50"></div>
 
@@ -38,16 +38,16 @@
 
             <div class="mt-16 flex items-center space-x-8">
                 <div class="flex -space-x-3">
-                    <img src="/assets/images/resource/ankit.jpeg" class="w-12 h-12 rounded-full border-4 border-dark object-cover" alt="Team" />
-                    <img src="/assets/images/resource/dev.jpeg" class="w-12 h-12 rounded-full border-4 border-dark object-cover" alt="Team" />
-                    <img src="/assets/images/resource/anil.jpeg" class="w-12 h-12 rounded-full border-4 border-dark object-cover" alt="Team" />
-                    <div class="w-12 h-12 rounded-full border-4 border-dark bg-secondary flex items-center justify-center text-xs font-bold">
+                    <img src="/assets/images/resource/ankit.jpeg" class="w-12 h-12 rounded-full border-4 border-slate-50 dark:border-slate-950 object-cover" alt="Team" />
+                    <img src="/assets/images/resource/dev.jpeg" class="w-12 h-12 rounded-full border-4 border-slate-50 dark:border-slate-950 object-cover" alt="Team" />
+                    <img src="/assets/images/resource/anil.jpeg" class="w-12 h-12 rounded-full border-4 border-slate-50 dark:border-slate-950 object-cover" alt="Team" />
+                    <div class="w-12 h-12 rounded-full border-4 border-slate-50 dark:border-slate-950 bg-secondary flex items-center justify-center text-xs font-bold text-white">
                         +12
                     </div>
                 </div>
                 <div class="text-sm text-slate-500 dark:text-slate-400 font-semibold tracking-wide">
                     TRUSTED BY
-                    <span class="text-slate-900 dark:text-white">110+ BRANDS</span> GLOBALLY
+                    <span class="text-slate-900 dark:text-white font-bold">110+ BRANDS</span> GLOBALLY
                 </div>
             </div>
         </div>
@@ -57,21 +57,21 @@
             <img src="/assets/images/resource/banner-1.png" class="relative z-10 w-full h-auto animate-float" alt="Modern Tech" />
 
             <!-- Floating Stats -->
-            <div class="absolute top-10 right-0 glass-card p-6 rounded-3xl animate-float" style="animation-delay: 1s">
+            <div class="absolute top-10 right-0 glass-card p-6 rounded-3xl animate-float shadow-xl" style="animation-delay: 1s">
                 <div class="text-3xl font-black text-primary mb-1">99.9%</div>
-                <div class="text-[10px] text-slate-500 uppercase tracking-widest font-bold">
+                <div class="text-[10px] text-slate-500 dark:text-slate-400 uppercase tracking-widest font-bold">
                     Uptime Performance
                 </div>
             </div>
 
-            <div class="absolute bottom-20 -left-10 glass-card p-6 rounded-3xl animate-float" style="animation-delay: 2s">
+            <div class="absolute bottom-20 -left-10 glass-card p-6 rounded-3xl animate-float shadow-xl" style="animation-delay: 2s">
                 <div class="flex items-center space-x-3">
                     <div class="w-10 h-10 bg-green-500/20 text-green-500 rounded-lg flex items-center justify-center">
                         <i data-lucide="check" class="w-6 h-6"></i>
                     </div>
                     <div>
-                        <div class="text-xl font-bold">Secure Pack</div>
-                        <div class="text-[10px] text-slate-500 uppercase tracking-widest font-bold">
+                        <div class="text-xl font-bold text-slate-900 dark:text-white">Secure Pack</div>
+                        <div class="text-[10px] text-slate-500 dark:text-slate-400 uppercase tracking-widest font-bold">
                             SSL & Encryption
                         </div>
                     </div>
@@ -92,6 +92,11 @@
 		background-image: radial-gradient(at 0% 0%, rgba(255, 77, 28, 0.05) 0px, transparent 50%),
 						  radial-gradient(at 100% 0%, rgba(0, 40, 162, 0.05) 0px, transparent 50%);
 	}
+	:global(.dark) .bg-mesh {
+		background-color: #020617;
+		background-image: radial-gradient(at 0% 0%, rgba(255, 77, 28, 0.08) 0px, transparent 50%),
+						  radial-gradient(at 100% 0%, rgba(0, 40, 162, 0.12) 0px, transparent 50%);
+	}
 	.hero-glow {
 		position: absolute;
 		width: 600px;
@@ -105,5 +110,9 @@
         background: rgba(255, 255, 255, 0.7);
         backdrop-filter: blur(10px);
         border: 1px solid rgba(255, 255, 255, 0.2);
+    }
+    :global(.dark) .glass-card {
+        background: rgba(15, 23, 42, 0.75);
+        border: 1px solid rgba(255, 255, 255, 0.08);
     }
 </style>
