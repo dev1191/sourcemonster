@@ -35,18 +35,18 @@ try {
 }
 ---
 <!-- Services Section -->
-<section id="services" class="py-32 relative bg-slate-50">
+<section id="services" class="py-32 relative bg-slate-50 dark:bg-slate-950 transition-colors">
     <div class="max-w-7xl mx-auto px-6">
         <div class="flex flex-col lg:flex-row lg:items-end justify-between mb-20">
             <div data-aos="fade-up">
                 <div class="text-primary font-bold tracking-widest uppercase mb-4">
                     Our Specializations
                 </div>
-                <h2 class="text-5xl md:text-6xl font-black font-heading leading-tight">
+                <h2 class="text-5xl md:text-6xl font-black font-heading leading-tight text-slate-900 dark:text-white">
                     DOMINATE THE <br /><span class="text-gradient">DIGITAL WILD.</span>
                 </h2>
             </div>
-            <p class="mt-8 lg:mt-0 text-slate-500 max-w-sm text-lg leading-relaxed" data-aos="fade-left">
+            <p class="mt-8 lg:mt-0 text-slate-500 dark:text-slate-400 max-w-sm text-lg leading-relaxed" data-aos="fade-left">
                 We provide the artillery needed for your business to overcome every
                 digital obstacle. High speed, high quality, no compromise.
             </p>
@@ -54,12 +54,12 @@ try {
 
         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
             {servicesList.map((item) => (
-                <div class={`group p-10 glass-card rounded-[3rem] hover:bg-${item.data.color} transition-all duration-500 cursor-pointer`} data-aos="fade-up" data-aos-delay={item.data.delay}>
+                <div class={`group p-10 glass-card dark:bg-slate-900/70 dark:border-slate-800 rounded-[3rem] hover:bg-${item.data.color} transition-all duration-500 cursor-pointer`} data-aos="fade-up" data-aos-delay={item.data.delay}>
                     <div class={`w-20 h-20 bg-${item.data.color}/10 rounded-2xl flex items-center justify-center mb-8 group-hover:bg-white transition-colors`}>
                         <i data-lucide={item.data.icon} class={`text-${item.data.color} w-10 h-10 transition-colors`}></i>
                     </div>
-                    <h3 class="text-2xl font-bold mb-4 font-heading group-hover:text-white transition-colors tracking-tight">{item.data.title}</h3>
-                    <p class="text-slate-500 group-hover:text-white/70 transition-colors leading-relaxed">
+                    <h3 class="text-2xl font-bold mb-4 font-heading text-slate-900 dark:text-white group-hover:text-white transition-colors tracking-tight">{item.data.title}</h3>
+                    <p class="text-slate-500 dark:text-slate-400 group-hover:text-white/70 transition-colors leading-relaxed">
                         {item.data.description}
                     </p>
                 </div>

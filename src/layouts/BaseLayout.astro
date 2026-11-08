@@ -1,5 +1,6 @@
 ---
 import "@/styles/starwind.css";
+import { ThemeInitScript } from "@starwind-ui/astro/theme";
 import { getSiteSettings } from "../lib/settings";
 
 interface Props {
@@ -16,15 +17,16 @@ const {
 	dark,
 } = Astro.props;
 
-const isDark = dark ?? Astro.url.pathname.startsWith("/products");
+const defaultTheme = dark ? "dark" : (Astro.url.pathname.startsWith("/products") ? "dark" : "dark");
 ---
 
 <!doctype html>
-<html lang="en" class="scroll-smooth" class:list={[{ dark: isDark }]}>
+<html lang="en" class="scroll-smooth">
 	<head>
 		<meta charset="UTF-8" />
 		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
 		<link rel="icon" type="image/png" href="/favicon.png" />
+		<ThemeInitScript defaultTheme={defaultTheme} />
 
 		<meta name="generator" content={Astro.generator} />
 		<title>{title}</title>
@@ -73,10 +75,7 @@ const isDark = dark ?? Astro.url.pathname.startsWith("/products");
 			href="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.css"
 		/>
 	</head>
-	<body class:list={[
-		"selection:bg-primary/30 selection:text-primary",
-		isDark ? "bg-slate-950 text-slate-100" : "bg-slate-50 text-slate-800"
-	]}>
+	<body class="bg-slate-50 dark:bg-slate-950 text-slate-800 dark:text-slate-100 selection:bg-primary/30 selection:text-primary transition-colors duration-200">
 		<slot />
 
 		<!-- Scripts -->

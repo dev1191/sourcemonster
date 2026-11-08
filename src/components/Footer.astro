@@ -1,46 +1,42 @@
 ---
 import { getSiteSettings } from "../lib/settings";
 
-interface Props {
-  dark?: boolean;
-}
-
-const { dark } = Astro.props;
-const isDark = dark ?? Astro.url.pathname.startsWith("/products");
 const settings = await getSiteSettings();
 ---
-<footer class:list={[
-  "pb-16 overflow-hidden relative border-t transition-colors",
-  isDark ? "bg-slate-950 border-slate-800 text-slate-400" : "bg-white border-slate-100 text-slate-600"
-]}>
+<footer class="pb-16 overflow-hidden relative border-t transition-colors bg-white dark:bg-slate-950 border-slate-200 dark:border-slate-800 text-slate-600 dark:text-slate-400">
   <div class="max-w-7xl mx-auto px-6 relative z-10">
 	<div class="pt-16 flex flex-col md:flex-row justify-between items-center">
 	  <div class="flex items-center space-x-3 mb-8 md:mb-0">
 		<img
-		  src={isDark ? "/assets/images/logo-2.png" : "/assets/images/logo.png"}
+		  src="/assets/images/logo.png"
 		  alt={settings.site_name}
-		  class:list={["h-6 w-auto", isDark ? "opacity-90" : "opacity-70"]}
+		  class="h-6 w-auto opacity-70 dark:hidden"
 		/>
-		<span class:list={["text-[10px] font-bold mt-1 uppercase tracking-widest", isDark ? "text-slate-500" : "text-slate-400"]}>V2.0</span>
+		<img
+		  src="/assets/images/logo-2.png"
+		  alt={settings.site_name}
+		  class="h-6 w-auto opacity-90 hidden dark:block"
+		/>
+		<span class="text-[10px] font-bold mt-1 uppercase tracking-widest text-slate-400 dark:text-slate-500">V2.0</span>
 	  </div>
 
-	  <p class:list={["text-sm font-semibold uppercase", isDark ? "text-slate-400" : "text-slate-600"]}>
+	  <p class="text-sm font-semibold uppercase text-slate-600 dark:text-slate-400">
 		{settings.footer_copyright}
 	  </p>
 
 	  <div class="flex space-x-6 mt-8 md:mt-0">
 		{settings.social_twitter && (
-		  <a href={settings.social_twitter} target="_blank" rel="noopener noreferrer" class:list={["hover:text-primary transition-colors", isDark ? "text-slate-400" : "text-slate-500"]} title="Twitter / X">
+		  <a href={settings.social_twitter} target="_blank" rel="noopener noreferrer" class="hover:text-primary transition-colors text-slate-500 dark:text-slate-400" title="Twitter / X">
 			<i data-lucide="twitter"></i>
 		  </a>
 		)}
 		{settings.social_github && (
-		  <a href={settings.social_github} target="_blank" rel="noopener noreferrer" class:list={["hover:text-primary transition-colors", isDark ? "text-slate-400" : "text-slate-500"]} title="GitHub">
+		  <a href={settings.social_github} target="_blank" rel="noopener noreferrer" class="hover:text-primary transition-colors text-slate-500 dark:text-slate-400" title="GitHub">
 			<i data-lucide="github"></i>
 		  </a>
 		)}
 		{settings.social_linkedin && (
-		  <a href={settings.social_linkedin} target="_blank" rel="noopener noreferrer" class:list={["hover:text-primary transition-colors", isDark ? "text-slate-400" : "text-slate-500"]} title="LinkedIn">
+		  <a href={settings.social_linkedin} target="_blank" rel="noopener noreferrer" class="hover:text-primary transition-colors text-slate-500 dark:text-slate-400" title="LinkedIn">
 			<i data-lucide="linkedin"></i>
 		  </a>
 		)}
