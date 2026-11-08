@@ -10,17 +10,17 @@ const publishedProducts = await getPublishedProducts();
 <BaseLayout title="CodeCanyon Products & Solutions | SourceMonster">
   <Navbar />
 
-  <main class="pt-32 pb-24 min-h-screen bg-slate-950 text-slate-100">
+  <main class="pt-32 pb-24 min-h-screen transition-colors duration-200">
     <!-- Header Banner -->
     <section class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mb-16 text-center">
       <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-primary/10 border border-primary/20 text-primary text-xs font-bold tracking-widest uppercase mb-4">
         <span class="w-2 h-2 rounded-full bg-primary animate-pulse"></span>
         Elite CodeCanyon Products
       </div>
-      <h1 class="text-4xl sm:text-5xl lg:text-6xl font-black tracking-tight text-white mb-6">
+      <h1 class="text-4xl sm:text-5xl lg:text-6xl font-black font-heading tracking-tight text-slate-900 dark:text-white mb-6">
         Architected for <span class="text-primary">Performance</span> & Scale
       </h1>
-      <p class="max-w-2xl mx-auto text-base sm:text-lg text-slate-400">
+      <p class="max-w-2xl mx-auto text-base sm:text-lg text-slate-600 dark:text-slate-400">
         Production-tested web applications, full-stack SaaS boilerplates, and automated toolkits ready for immediate deployment.
       </p>
     </section>
@@ -28,15 +28,15 @@ const publishedProducts = await getPublishedProducts();
     <!-- Product Grid -->
     <section class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
       {publishedProducts.length === 0 ? (
-        <div class="py-20 text-center text-slate-500">
+        <div class="py-20 text-center text-slate-500 dark:text-slate-400">
           <p class="text-lg">Our product catalog is currently being updated. Check back shortly!</p>
         </div>
       ) : (
         <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
           {publishedProducts.map((p) => (
-            <article class="bg-slate-900/80 border border-slate-800 rounded-3xl overflow-hidden hover:border-slate-700 transition duration-300 flex flex-col group shadow-xl shadow-black/50">
+            <article class="bg-white dark:bg-slate-900/80 border border-slate-200 dark:border-slate-800 rounded-3xl overflow-hidden hover:border-primary/50 dark:hover:border-slate-700 transition duration-300 flex flex-col group shadow-xl shadow-slate-200/50 dark:shadow-black/50">
               <!-- Thumbnail -->
-              <div class="relative h-60 bg-slate-950 overflow-hidden border-b border-slate-800/80">
+              <div class="relative h-60 bg-slate-100 dark:bg-slate-950 overflow-hidden border-b border-slate-200 dark:border-slate-800/80">
                 {p.thumbnailUrl ? (
                   <img
                     src={p.thumbnailUrl}
@@ -44,9 +44,9 @@ const publishedProducts = await getPublishedProducts();
                     class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
                   />
                 ) : (
-                  <div class="w-full h-full flex flex-col items-center justify-center text-slate-700">
-                    <i data-lucide="package" class="w-12 h-12 mb-2 text-slate-700"></i>
-                    <span class="text-xs uppercase tracking-wider text-slate-600 font-mono">SourceMonster Item</span>
+                  <div class="w-full h-full flex flex-col items-center justify-center text-slate-400 dark:text-slate-700">
+                    <i data-lucide="package" class="w-12 h-12 mb-2 text-slate-400 dark:text-slate-700"></i>
+                    <span class="text-xs uppercase tracking-wider text-slate-500 dark:text-slate-600 font-mono">SourceMonster Item</span>
                   </div>
                 )}
 
@@ -57,7 +57,7 @@ const publishedProducts = await getPublishedProducts();
                     </span>
                   )}
                   {p.version && (
-                    <span class="px-2.5 py-1 rounded-full bg-slate-900/90 backdrop-blur-md text-slate-300 border border-slate-700 text-[11px] font-mono">
+                    <span class="px-2.5 py-1 rounded-full bg-white/90 dark:bg-slate-900/90 backdrop-blur-md text-slate-700 dark:text-slate-300 border border-slate-200 dark:border-slate-700 text-[11px] font-mono font-medium shadow-xs">
                       {p.version}
                     </span>
                   )}
@@ -67,11 +67,11 @@ const publishedProducts = await getPublishedProducts();
               <!-- Content Body -->
               <div class="p-6 sm:p-8 flex-1 flex flex-col justify-between">
                 <div>
-                  <h2 class="text-2xl font-black text-white group-hover:text-primary transition-colors tracking-tight mb-3">
+                  <h2 class="text-2xl font-black font-heading text-slate-900 dark:text-white group-hover:text-primary transition-colors tracking-tight mb-3">
                     <a href={`/products/${p.slug}`}>{p.title}</a>
                   </h2>
 
-                  <p class="text-slate-400 text-sm leading-relaxed mb-6 line-clamp-3">
+                  <p class="text-slate-600 dark:text-slate-400 text-sm leading-relaxed mb-6 line-clamp-3">
                     {p.shortDescription}
                   </p>
 
@@ -79,7 +79,7 @@ const publishedProducts = await getPublishedProducts();
                   {p.technologies && p.technologies.length > 0 && (
                     <div class="flex flex-wrap gap-1.5 mb-6">
                       {p.technologies.map((t) => (
-                        <span class="px-2.5 py-1 rounded-lg bg-slate-950 border border-slate-800 text-[11px] font-medium text-slate-300 font-mono">
+                        <span class="px-2.5 py-1 rounded-lg bg-slate-100 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 text-[11px] font-medium text-slate-700 dark:text-slate-300 font-mono">
                           {t}
                         </span>
                       ))}
@@ -88,13 +88,13 @@ const publishedProducts = await getPublishedProducts();
                 </div>
 
                 <!-- Action Buttons -->
-                <div class="pt-6 border-t border-slate-800/80 flex flex-wrap items-center justify-between gap-3">
+                <div class="pt-6 border-t border-slate-200 dark:border-slate-800/80 flex flex-wrap items-center justify-between gap-3">
                   <a
                     href={`/products/${p.slug}`}
-                    class="inline-flex items-center gap-2 text-sm font-bold text-white hover:text-primary transition"
+                    class="inline-flex items-center gap-2 text-sm font-bold text-slate-800 dark:text-white hover:text-primary dark:hover:text-primary transition"
                   >
                     <span>View Details & Specs</span>
-                    <i data-lucide="arrow-right" class="w-4 h-4"></i>
+                    <i data-lucide="arrow-right" class="w-4 h-4 text-primary"></i>
                   </a>
 
                   {p.codecanyonUrl && (
