@@ -12,7 +12,7 @@ export interface UploadResult {
   publicUrl: string;
 }
 
-const STORAGE_DRIVER = process.env.STORAGE_DRIVER || "local";
+const STORAGE_DRIVER = (process.env.STORAGE_DRIVER || "local").toLowerCase();
 const LOCAL_UPLOAD_DIR = path.join(process.cwd(), "public", "uploads");
 
 // Ensure upload directory exists for local driver
