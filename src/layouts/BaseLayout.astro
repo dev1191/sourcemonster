@@ -5,6 +5,7 @@ import { getSiteSettings } from "../lib/settings";
 interface Props {
 	title?: string;
 	description?: string;
+	dark?: boolean;
 }
 
 const settings = await getSiteSettings();
@@ -12,11 +13,14 @@ const settings = await getSiteSettings();
 const {
 	title = settings.seo_default_title,
 	description = settings.seo_default_description,
+	dark,
 } = Astro.props;
+
+const isDark = dark ?? Astro.url.pathname.startsWith("/products");
 ---
 
 <!doctype html>
-<html lang="en" class="scroll-smooth">
+<html lang="en" class="scroll-smooth" class:list={[{ dark: isDark }]}>
 	<head>
 		<meta charset="UTF-8" />
 		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
@@ -69,7 +73,10 @@ const {
 			href="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.css"
 		/>
 	</head>
-	<body class="bg-slate-50 text-slate-800 selection:bg-primary/30 selection:text-primary">
+	<body class:list={[
+		"selection:bg-primary/30 selection:text-primary",
+		isDark ? "bg-slate-950 text-slate-100" : "bg-slate-50 text-slate-800"
+	]}>
 		<slot />
 
 		<!-- Scripts -->

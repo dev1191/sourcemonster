@@ -8,20 +8,24 @@
   --glass-border: rgba(0, 0, 0, 0.05);
 }
 
-body {
-  font-family: "Inter", sans-serif;
-  background-color: #f8fafc;
-  color: #1e293b;
-  overflow-x: hidden;
+@layer base {
+  body {
+    font-family: "Inter", sans-serif;
+    color: #1e293b;
+  }
+
+  h1,
+  h2,
+  h3,
+  h4,
+  .font-heading {
+    font-family: "Outfit", sans-serif;
+    color: inherit;
+  }
 }
 
-h1,
-h2,
-h3,
-h4,
-.font-heading {
-  font-family: "Outfit", sans-serif;
-  color: #0f172a;
+body {
+  overflow-x: hidden;
 }
 
 .text-gradient {
