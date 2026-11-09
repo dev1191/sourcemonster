@@ -1,0 +1,543 @@
+---
+import type { HTMLAttributes } from "astro/types";
+import { Prose } from "../starwind/prose";
+
+interface Props extends HTMLAttributes<"div"> {
+  name: string;
+  id?: string;
+  value?: string;
+  label?: string;
+  required?: boolean;
+  placeholder?: string;
+  minHeight?: string;
+  helperText?: string;
+  class?: string;
+}
+
+const {
+  name,
+  id = `editor-${name}`,
+  value = "",
+  label,
+  required = false,
+  placeholder = "Write comprehensive product breakdown, architectural capabilities, setup steps...",
+  minHeight = "280px",
+  helperText,
+  class: className = "",
+  ...rest
+} = Astro.props;
+---
+
+<div
+  class:list={["html-editor-container space-y-1.5", className]}
+  data-html-editor
+  data-editor-id={id}
+  {...rest}
+>
+  {label && (
+    <div class="flex items-center justify-between">
+      <label for={id} class="block text-xs font-semibold text-slate-300 uppercase tracking-wider">
+        {label}
+        {required && <span class="text-primary ml-0.5">*</span>}
+      </label>
+      <span class="text-[11px] text-slate-500 font-mono">HTML Rich Text</span>
+    </div>
+  )}
+
+  <div class="rounded-2xl border border-slate-700/80 bg-slate-950/80 shadow-xl overflow-hidden focus-within:border-primary/60 transition-colors">
+    <!-- Top Bar: Mode Switcher & Word Count -->
+    <div class="flex flex-wrap items-center justify-between gap-2 px-3 py-2 bg-slate-900/90 border-b border-slate-800">
+      <!-- Left: Formatting Toolbar (active in Visual mode) -->
+      <div class="editor-toolbar flex flex-wrap items-center gap-1" data-toolbar>
+        <!-- Heading / Paragraph Selector -->
+        <select
+          data-command="formatBlock"
+          class="bg-slate-950 border border-slate-700/80 text-slate-200 text-xs rounded-lg px-2.5 py-1.5 focus:ring-1 focus:ring-primary outline-none cursor-pointer"
+          title="Text Style"
+        >
+          <option value="p">Paragraph</option>
+          <option value="h2">Heading 2</option>
+          <option value="h3">Heading 3</option>
+          <option value="h4">Heading 4</option>
+          <option value="blockquote">Quote</option>
+        </select>
+
+        <span class="w-px h-5 bg-slate-800 mx-1"></span>
+
+        <!-- Inline Styles -->
+        <button
+          type="button"
+          data-command="bold"
+          class="toolbar-btn p-1.5 rounded-lg text-slate-300 hover:text-white hover:bg-slate-800 transition"
+          title="Bold (Ctrl+B)"
+        >
+          <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M6 12h9a4 4 0 0 1 0 8H6v-8zm0-8h8a4 4 0 0 1 0 8H6V4z"/></svg>
+        </button>
+
+        <button
+          type="button"
+          data-command="italic"
+          class="toolbar-btn p-1.5 rounded-lg text-slate-300 hover:text-white hover:bg-slate-800 transition"
+          title="Italic (Ctrl+I)"
+        >
+          <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="19" y1="4" x2="10" y2="4"/><line x1="14" y1="20" x2="5" y2="20"/><line x1="15" y1="4" x2="9" y2="20"/></svg>
+        </button>
+
+        <button
+          type="button"
+          data-command="underline"
+          class="toolbar-btn p-1.5 rounded-lg text-slate-300 hover:text-white hover:bg-slate-800 transition"
+          title="Underline (Ctrl+U)"
+        >
+          <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M6 3v7a6 6 0 0 0 6 6 6 6 0 0 0 6-6V3"/><line x1="4" y1="21" x2="20" y2="21"/></svg>
+        </button>
+
+        <button
+          type="button"
+          data-command="strikeThrough"
+          class="toolbar-btn p-1.5 rounded-lg text-slate-300 hover:text-white hover:bg-slate-800 transition"
+          title="Strikethrough"
+        >
+          <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 4H9a3 3 0 0 0-2.83 4"/><path d="M14 12a4 4 0 0 1 0 8H6"/><line x1="4" y1="12" x2="20" y2="12"/></svg>
+        </button>
+
+        <span class="w-px h-5 bg-slate-800 mx-1"></span>
+
+        <!-- Lists -->
+        <button
+          type="button"
+          data-command="insertUnorderedList"
+          class="toolbar-btn p-1.5 rounded-lg text-slate-300 hover:text-white hover:bg-slate-800 transition"
+          title="Bulleted List"
+        >
+          <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><line x1="3" y1="6" x2="3.01" y2="6"/><line x1="3" y1="12" x2="3.01" y2="12"/><line x1="3" y1="18" x2="3.01" y2="18"/></svg>
+        </button>
+
+        <button
+          type="button"
+          data-command="insertOrderedList"
+          class="toolbar-btn p-1.5 rounded-lg text-slate-300 hover:text-white hover:bg-slate-800 transition"
+          title="Numbered List"
+        >
+          <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="10" y1="6" x2="21" y2="6"/><line x1="10" y1="12" x2="21" y2="12"/><line x1="10" y1="18" x2="21" y2="18"/><path d="M4 6h1v4"/><path d="M4 10h2"/><path d="M6 18H4c0-1 2-2 2-3s-1-1.5-2-1"/></svg>
+        </button>
+
+        <span class="w-px h-5 bg-slate-800 mx-1"></span>
+
+        <!-- Code & Insertions -->
+        <button
+          type="button"
+          data-action="insert-code"
+          class="toolbar-btn p-1.5 rounded-lg text-slate-300 hover:text-white hover:bg-slate-800 transition font-mono text-xs font-bold"
+          title="Inline Code"
+        >
+          &lt;/&gt;
+        </button>
+
+        <button
+          type="button"
+          data-action="insert-pre"
+          class="toolbar-btn p-1.5 rounded-lg text-slate-300 hover:text-white hover:bg-slate-800 transition text-xs font-mono"
+          title="Code Block"
+        >
+          [pre]
+        </button>
+
+        <button
+          type="button"
+          data-action="insert-link"
+          class="toolbar-btn p-1.5 rounded-lg text-slate-300 hover:text-white hover:bg-slate-800 transition"
+          title="Insert Link"
+        >
+          <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg>
+        </button>
+
+        <button
+          type="button"
+          data-command="insertHorizontalRule"
+          class="toolbar-btn p-1.5 rounded-lg text-slate-300 hover:text-white hover:bg-slate-800 transition"
+          title="Horizontal Rule"
+        >
+          <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"/></svg>
+        </button>
+
+        <span class="w-px h-5 bg-slate-800 mx-1"></span>
+
+        <!-- Clean / Undo / Redo -->
+        <button
+          type="button"
+          data-command="removeFormat"
+          class="toolbar-btn p-1.5 rounded-lg text-slate-300 hover:text-white hover:bg-slate-800 transition"
+          title="Clear Formatting"
+        >
+          <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 7v1a3 3 0 0 0 3 3h12a3 3 0 0 0 3-3V7"/><line x1="12" y1="11" x2="12" y2="21"/><line x1="4" y1="4" x2="20" y2="20"/></svg>
+        </button>
+
+        <button
+          type="button"
+          data-command="undo"
+          class="toolbar-btn p-1.5 rounded-lg text-slate-300 hover:text-white hover:bg-slate-800 transition"
+          title="Undo (Ctrl+Z)"
+        >
+          <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 7v6h6"/><path d="M21 17a9 9 0 0 0-9-9 9 9 0 0 0-6 2.3L3 13"/></svg>
+        </button>
+
+        <button
+          type="button"
+          data-command="redo"
+          class="toolbar-btn p-1.5 rounded-lg text-slate-300 hover:text-white hover:bg-slate-800 transition"
+          title="Redo (Ctrl+Y)"
+        >
+          <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 7v6h-6"/><path d="M3 17a9 9 0 0 1 9-9 9 9 0 0 1 6 2.3l3 2.7"/></svg>
+        </button>
+      </div>
+
+      <!-- Right: Mode Switch Tabs -->
+      <div class="flex items-center gap-1 bg-slate-950 p-1 rounded-xl border border-slate-800 ml-auto">
+        <button
+          type="button"
+          data-tab="visual"
+          class="mode-btn px-2.5 py-1 text-xs font-semibold rounded-lg bg-primary text-white shadow-xs transition"
+          title="Visual Rich Text Editor"
+        >
+          Visual
+        </button>
+        <button
+          type="button"
+          data-tab="code"
+          class="mode-btn px-2.5 py-1 text-xs font-semibold rounded-lg text-slate-400 hover:text-white transition"
+          title="HTML Source Code Editor"
+        >
+          HTML Code
+        </button>
+        <button
+          type="button"
+          data-tab="preview"
+          class="mode-btn px-2.5 py-1 text-xs font-semibold rounded-lg text-slate-400 hover:text-white transition"
+          title="Starwind Prose Live Preview"
+        >
+          Preview
+        </button>
+      </div>
+    </div>
+
+    <!-- Main Content Panes -->
+    <div class="relative">
+      <!-- 1. Visual WYSIWYG Contenteditable (Styled with Starwind Prose) -->
+      <div
+        id={id}
+        data-visual-editor
+        contenteditable="true"
+        role="textbox"
+        aria-multiline="true"
+        data-placeholder={placeholder}
+        class="sw-prose prose dark:prose-invert max-w-none p-5 text-slate-100 outline-none leading-relaxed overflow-y-auto"
+        style={`min-height: ${minHeight}; max-height: 550px;`}
+        set:html={value}
+      />
+
+      <!-- 2. Raw HTML Code Area -->
+      <textarea
+        data-code-editor
+        class="hidden w-full p-5 bg-slate-950 font-mono text-xs sm:text-sm text-emerald-400 leading-relaxed outline-none resize-y border-0 focus:ring-0"
+        style={`min-height: ${minHeight}; max-height: 550px;`}
+        placeholder="<h2>Overview</h2><p>Describe your product architecture here...</p>"
+      >{value}</textarea>
+
+      <!-- 3. Starwind Prose Live Preview -->
+      <div
+        data-preview-container
+        class="hidden p-5 bg-slate-950/60 overflow-y-auto"
+        style={`min-height: ${minHeight}; max-height: 550px;`}
+      >
+        <Prose class="max-w-none text-slate-200">
+          <div data-preview-content set:html={value} />
+        </Prose>
+      </div>
+
+      <!-- Hidden Form Submission Textarea (Always synchronized with HTML value) -->
+      <textarea
+        name={name}
+        data-sync-textarea
+        required={required}
+        class="sr-only"
+        tabindex="-1"
+        aria-hidden="true"
+      >{value}</textarea>
+    </div>
+
+    <!-- Bottom Status Bar -->
+    <div class="flex items-center justify-between px-4 py-2 bg-slate-900/60 border-t border-slate-800 text-[11px] text-slate-500 font-mono">
+      <div class="flex items-center gap-3">
+        <span class="flex items-center gap-1.5">
+          <span class="w-1.5 h-1.5 rounded-full bg-emerald-500"></span>
+          <span data-mode-label>Visual Mode</span>
+        </span>
+        <span class="hidden sm:inline text-slate-600">|</span>
+        <span class="hidden sm:inline text-slate-500">Starwind Prose typography engine active</span>
+      </div>
+      <div class="flex items-center gap-3">
+        <span data-word-count>0 words</span>
+        <span>&bull;</span>
+        <span data-char-count>0 chars</span>
+      </div>
+    </div>
+  </div>
+
+  {helperText && (
+    <p class="text-xs text-slate-500">{helperText}</p>
+  )}
+</div>
+
+<style>
+  [data-visual-editor]:empty:before {
+    content: attr(data-placeholder);
+    color: #64748b;
+    pointer-events: none;
+    display: block;
+  }
+  .toolbar-btn.is-active {
+    background-color: var(--color-primary, #ff4d1c);
+    color: #ffffff !important;
+  }
+</style>
+
+<script>
+  function setupHtmlEditors() {
+    const editors = document.querySelectorAll<HTMLElement>("[data-html-editor]");
+
+    editors.forEach((container) => {
+      if (container.dataset.initialized === "true") return;
+      container.dataset.initialized = "true";
+
+      const visualEditor = container.querySelector<HTMLElement>("[data-visual-editor]");
+      const codeEditor = container.querySelector<HTMLTextAreaElement>("[data-code-editor]");
+      const previewContainer = container.querySelector<HTMLElement>("[data-preview-container]");
+      const previewContent = container.querySelector<HTMLElement>("[data-preview-content]");
+      const syncTextarea = container.querySelector<HTMLTextAreaElement>("[data-sync-textarea]");
+      const toolbar = container.querySelector<HTMLElement>("[data-toolbar]");
+      const modeLabel = container.querySelector<HTMLElement>("[data-mode-label]");
+      const wordCountEl = container.querySelector<HTMLElement>("[data-word-count]");
+      const charCountEl = container.querySelector<HTMLElement>("[data-char-count]");
+      const modeButtons = container.querySelectorAll<HTMLButtonElement>("[data-tab]");
+
+      if (!visualEditor || !codeEditor || !syncTextarea) return;
+
+      let currentMode: "visual" | "code" | "preview" = "visual";
+
+      // Update counters
+      const updateCounters = (html: string) => {
+        const text = visualEditor.innerText || "";
+        const chars = text.length;
+        const words = text.trim() ? text.trim().split(/\s+/).length : 0;
+        if (wordCountEl) wordCountEl.textContent = `${words} ${words === 1 ? "word" : "words"}`;
+        if (charCountEl) charCountEl.textContent = `${chars} chars`;
+      };
+
+      // Sync all representations
+      const syncFromVisual = () => {
+        const html = visualEditor.innerHTML;
+        // Clean empty tags
+        const isActuallyEmpty = !visualEditor.innerText.trim() && !visualEditor.querySelector("img, hr, iframe");
+        const cleanVal = isActuallyEmpty ? "" : html;
+
+        syncTextarea.value = cleanVal;
+        codeEditor.value = html;
+        if (previewContent) previewContent.innerHTML = html;
+        updateCounters(html);
+      };
+
+      const syncFromCode = () => {
+        const html = codeEditor.value;
+        visualEditor.innerHTML = html;
+        syncTextarea.value = html;
+        if (previewContent) previewContent.innerHTML = html;
+        updateCounters(html);
+      };
+
+      // Initial count
+      updateCounters(visualEditor.innerHTML);
+
+      // Event listeners for changes
+      visualEditor.addEventListener("input", syncFromVisual);
+      codeEditor.addEventListener("input", syncFromCode);
+
+      // Parent form submission assurance
+      const parentForm = container.closest("form");
+      if (parentForm) {
+        parentForm.addEventListener("submit", (e) => {
+          if (currentMode === "code") {
+            syncFromCode();
+          } else {
+            syncFromVisual();
+          }
+
+          if (syncTextarea.required && !syncTextarea.value.trim()) {
+            e.preventDefault();
+            visualEditor.focus();
+            visualEditor.scrollIntoView({ behavior: "smooth", block: "center" });
+            container.classList.add("ring-2", "ring-red-500", "rounded-2xl");
+            setTimeout(() => {
+              container.classList.remove("ring-2", "ring-red-500");
+            }, 3000);
+          }
+        });
+      }
+
+      // Mode switching
+      modeButtons.forEach((btn) => {
+        btn.addEventListener("click", () => {
+          const mode = btn.dataset.tab as "visual" | "code" | "preview";
+          if (!mode || mode === currentMode) return;
+
+          // Sync before switching
+          if (currentMode === "visual") syncFromVisual();
+          if (currentMode === "code") syncFromCode();
+
+          currentMode = mode;
+
+          // Update tab button styles
+          modeButtons.forEach((b) => {
+            b.classList.remove("bg-primary", "text-white", "shadow-xs");
+            b.classList.add("text-slate-400");
+          });
+          btn.classList.add("bg-primary", "text-white", "shadow-xs");
+          btn.classList.remove("text-slate-400");
+
+          // Toggle view panes
+          if (mode === "visual") {
+            visualEditor.classList.remove("hidden");
+            codeEditor.classList.add("hidden");
+            if (previewContainer) previewContainer.classList.add("hidden");
+            if (toolbar) toolbar.style.opacity = "1";
+            if (toolbar) toolbar.style.pointerEvents = "auto";
+            if (modeLabel) modeLabel.textContent = "Visual Mode";
+            visualEditor.focus();
+          } else if (mode === "code") {
+            visualEditor.classList.add("hidden");
+            codeEditor.classList.remove("hidden");
+            if (previewContainer) previewContainer.classList.add("hidden");
+            if (toolbar) toolbar.style.opacity = "0.3";
+            if (toolbar) toolbar.style.pointerEvents = "none";
+            if (modeLabel) modeLabel.textContent = "HTML Source Mode";
+            codeEditor.focus();
+          } else if (mode === "preview") {
+            visualEditor.classList.add("hidden");
+            codeEditor.classList.add("hidden");
+            if (previewContainer) previewContainer.classList.remove("hidden");
+            if (previewContent) previewContent.innerHTML = syncTextarea.value;
+            if (toolbar) toolbar.style.opacity = "0.3";
+            if (toolbar) toolbar.style.pointerEvents = "none";
+            if (modeLabel) modeLabel.textContent = "Starwind Live Preview";
+          }
+        });
+      });
+
+      // Toolbar Command Execution
+      toolbar?.querySelectorAll<HTMLButtonElement>("button[data-command]").forEach((btn) => {
+        btn.addEventListener("click", (e) => {
+          e.preventDefault();
+          const cmd = btn.dataset.command;
+          if (!cmd) return;
+          visualEditor.focus();
+          document.execCommand(cmd, false, undefined);
+          syncFromVisual();
+          updateToolbarActiveStates();
+        });
+      });
+
+      // Format Block (p, h2, h3, h4, blockquote)
+      const formatSelect = toolbar?.querySelector<HTMLSelectElement>("select[data-command='formatBlock']");
+      if (formatSelect) {
+        formatSelect.addEventListener("change", () => {
+          const val = formatSelect.value;
+          visualEditor.focus();
+          document.execCommand("formatBlock", false, `<${val}>`);
+          syncFromVisual();
+        });
+      }
+
+      // Custom Actions: Insert Link, Code, Code Block
+      const linkBtn = toolbar?.querySelector<HTMLButtonElement>("button[data-action='insert-link']");
+      if (linkBtn) {
+        linkBtn.addEventListener("click", (e) => {
+          e.preventDefault();
+          visualEditor.focus();
+          const existingUrl = document.queryCommandValue("createLink") || "";
+          const url = window.prompt("Enter destination URL (https://...):", existingUrl);
+          if (url !== null) {
+            if (url.trim() === "") {
+              document.execCommand("unlink", false, undefined);
+            } else {
+              document.execCommand("createLink", false, url.trim());
+            }
+            syncFromVisual();
+          }
+        });
+      }
+
+      const inlineCodeBtn = toolbar?.querySelector<HTMLButtonElement>("button[data-action='insert-code']");
+      if (inlineCodeBtn) {
+        inlineCodeBtn.addEventListener("click", (e) => {
+          e.preventDefault();
+          visualEditor.focus();
+          const selection = window.getSelection();
+          if (selection && selection.rangeCount > 0 && !selection.isCollapsed) {
+            const range = selection.getRangeAt(0);
+            const selectedText = range.toString();
+            const codeEl = document.createElement("code");
+            codeEl.className = "px-1.5 py-0.5 rounded bg-slate-800 text-primary font-mono text-xs";
+            codeEl.textContent = selectedText;
+            range.deleteContents();
+            range.insertNode(codeEl);
+            selection.removeAllRanges();
+          } else {
+            document.execCommand("insertHTML", false, "<code>code</code>");
+          }
+          syncFromVisual();
+        });
+      }
+
+      const preBtn = toolbar?.querySelector<HTMLButtonElement>("button[data-action='insert-pre']");
+      if (preBtn) {
+        preBtn.addEventListener("click", (e) => {
+          e.preventDefault();
+          visualEditor.focus();
+          const codeSnippet = `<pre class="bg-slate-900 border border-slate-800 p-4 rounded-xl font-mono text-xs text-emerald-400 overflow-x-auto my-3"><code>// Insert code or config here\nconsole.log("Ready");</code></pre><p><br></p>`;
+          document.execCommand("insertHTML", false, codeSnippet);
+          syncFromVisual();
+        });
+      }
+
+      // Toolbar active states indicator on selection change
+      const updateToolbarActiveStates = () => {
+        if (currentMode !== "visual") return;
+        const commands = ["bold", "italic", "underline", "strikeThrough", "insertUnorderedList", "insertOrderedList"];
+        commands.forEach((cmd) => {
+          const btn = toolbar?.querySelector<HTMLButtonElement>(`button[data-command='${cmd}']`);
+          if (btn) {
+            if (document.queryCommandState(cmd)) {
+              btn.classList.add("is-active");
+            } else {
+              btn.classList.remove("is-active");
+            }
+          }
+        });
+      };
+
+      visualEditor.addEventListener("keyup", updateToolbarActiveStates);
+      visualEditor.addEventListener("mouseup", updateToolbarActiveStates);
+      document.addEventListener("selectionchange", () => {
+        if (document.activeElement === visualEditor) {
+          updateToolbarActiveStates();
+        }
+      });
+    });
+  }
+
+  // Initialize on load and on Astro navigation
+  document.addEventListener("DOMContentLoaded", setupHtmlEditors);
+  document.addEventListener("astro:page-load", setupHtmlEditors);
+  document.addEventListener("astro:after-swap", setupHtmlEditors);
+</script>
+

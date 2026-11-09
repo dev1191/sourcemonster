@@ -120,6 +120,12 @@
       "version": "2.1.1",
       "framework": "astro",
       "registry": "default"
+    },
+    {
+      "name": "prose",
+      "version": "1.1.2",
+      "framework": "astro",
+      "registry": "default"
     }
   ],
   "tailwind": {
