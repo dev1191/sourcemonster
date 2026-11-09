@@ -510,6 +510,26 @@ export async function createProductChangeLog(input: {
   return created;
 }
 
+export async function updateProductChangeLog(
+  id: string,
+  input: {
+    version?: string | null;
+    content: string;
+    createdAt?: Date | null;
+  }
+): Promise<ProductChangeLog | null> {
+  const [updated] = await db
+    .update(productChangeLog)
+    .set({
+      version: input.version?.trim() || null,
+      content: input.content.trim(),
+      ...(input.createdAt ? { createdAt: input.createdAt } : {}),
+    })
+    .where(eq(productChangeLog.id, id))
+    .returning();
+  return updated || null;
+}
+
 export async function deleteProductChangeLog(id: string): Promise<boolean> {
   const deleted = await db.delete(productChangeLog).where(eq(productChangeLog.id, id)).returning();
   return deleted.length > 0;

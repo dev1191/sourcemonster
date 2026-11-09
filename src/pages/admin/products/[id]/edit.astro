@@ -7,6 +7,7 @@ import {
   deleteProductGalleryImage,
   getAllAdminAddons,
   createProductChangeLog,
+  updateProductChangeLog,
   deleteProductChangeLog,
 } from "../../../../services";
 import { getPublicUrl } from "../../../../lib/storage";
@@ -60,6 +61,22 @@ if (Astro.request.method === "POST") {
           version: changelogVersion,
           content: changelogContent,
           createdAt: !isNaN(clDate.getTime()) ? clDate : new Date(),
+        });
+        return Astro.redirect(`/admin/products/${id}/edit`);
+      }
+    }
+
+    if (action === "update_changelog") {
+      const changelogId = formData.get("changelog_id")?.toString();
+      const changelogVersion = formData.get("changelog_version")?.toString().trim() || null;
+      const changelogDateRaw = formData.get("changelog_date")?.toString().trim();
+      const changelogContent = formData.get("changelog_content")?.toString().trim() || "";
+      if (changelogId && changelogContent) {
+        const clDate = changelogDateRaw ? new Date(changelogDateRaw) : null;
+        await updateProductChangeLog(changelogId, {
+          version: changelogVersion,
+          content: changelogContent,
+          createdAt: clDate && !isNaN(clDate.getTime()) ? clDate : undefined,
         });
         return Astro.redirect(`/admin/products/${id}/edit`);
       }
@@ -624,19 +641,79 @@ const addons = await getAllAdminAddons(id);
                   })}
                 </span>
               </div>
-              <form method="POST" onsubmit="return confirm('Delete this changelog entry?');">
-                <input type="hidden" name="_action" value="delete_changelog" />
-                <input type="hidden" name="changelog_id" value={log.id} />
+              <div class="flex items-center gap-1">
                 <button
-                  type="submit"
-                  class="text-xs text-slate-400 hover:text-rose-500 transition p-1 cursor-pointer"
-                  title="Delete entry"
+                  type="button"
+                  data-edit-changelog-btn={log.id}
+                  class="text-xs text-slate-400 hover:text-primary dark:text-slate-500 dark:hover:text-primary transition p-1 cursor-pointer"
+                  title="Edit entry"
                 >
-                  <i data-lucide="trash-2" class="w-3.5 h-3.5"></i>
+                  <i data-lucide="pencil" class="w-3.5 h-3.5"></i>
                 </button>
+                <form method="POST" onsubmit="return confirm('Delete this changelog entry?');" class="inline">
+                  <input type="hidden" name="_action" value="delete_changelog" />
+                  <input type="hidden" name="changelog_id" value={log.id} />
+                  <button
+                    type="submit"
+                    class="text-xs text-slate-400 hover:text-rose-500 dark:text-slate-500 dark:hover:text-rose-400 transition p-1 cursor-pointer"
+                    title="Delete entry"
+                  >
+                    <i data-lucide="trash-2" class="w-3.5 h-3.5"></i>
+                  </button>
+                </form>
+              </div>
+            </div>
+            
+            <div id={`view-changelog-${log.id}`} class="prose dark:prose-invert prose-xs max-w-none text-slate-700 dark:text-slate-300" set:html={log.content}></div>
+
+            <div id={`edit-changelog-box-${log.id}`} class="hidden mt-3 pt-3 border-t border-slate-200 dark:border-slate-800">
+              <form method="POST" class="space-y-3">
+                <input type="hidden" name="_action" value="update_changelog" />
+                <input type="hidden" name="changelog_id" value={log.id} />
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  <div>
+                    <label class="block text-xs font-semibold text-slate-700 dark:text-slate-400 uppercase tracking-wider mb-1">
+                      Version Label
+                    </label>
+                    <Input
+                      name="changelog_version"
+                      type="text"
+                      value={log.version || ""}
+                      placeholder="e.g. v1.2.0"
+                      class="bg-white dark:bg-slate-900 border-slate-300 dark:border-slate-700 text-slate-900 dark:text-white rounded-lg text-xs"
+                    />
+                  </div>
+                  <div>
+                    <DatePicker
+                      name="changelog_date"
+                      label="Release Date"
+                      value={new Date(log.createdAt).toISOString().split("T")[0]}
+                      defaultDate={new Date(log.createdAt).toISOString().split("T")[0]}
+                    />
+                  </div>
+                </div>
+                <HtmlEditor
+                  id={`edit-changelog-editor-${log.id}`}
+                  name="changelog_content"
+                  label="Changelog Release Notes"
+                  value={log.content}
+                  minHeight="140px"
+                  required
+                />
+                <div class="flex items-center justify-end gap-2 pt-2">
+                  <button
+                    type="button"
+                    data-cancel-edit-btn={log.id}
+                    class="px-3 py-1.5 rounded-lg bg-slate-200 dark:bg-slate-800 hover:bg-slate-300 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 text-xs font-semibold transition cursor-pointer"
+                  >
+                    Cancel
+                  </button>
+                  <Button type="submit" variant="primary" size="sm" icon="check">
+                    Save Changes
+                  </Button>
+                </div>
               </form>
             </div>
-            <div class="prose dark:prose-invert prose-xs max-w-none text-slate-700 dark:text-slate-300" set:html={log.content}></div>
           </div>
         ))}
       </div>
@@ -659,6 +736,34 @@ const addons = await getAllAdminAddons(id);
         box.classList.add("hidden");
       });
     }
+
+    document.querySelectorAll("[data-edit-changelog-btn]").forEach((btn) => {
+      btn.addEventListener("click", () => {
+        const id = btn.getAttribute("data-edit-changelog-btn");
+        const editBox = document.getElementById(`edit-changelog-box-${id}`);
+        const viewEl = document.getElementById(`view-changelog-${id}`);
+        if (editBox) {
+          editBox.classList.toggle("hidden");
+        }
+        if (viewEl) {
+          viewEl.classList.toggle("hidden");
+        }
+      });
+    });
+
+    document.querySelectorAll("[data-cancel-edit-btn]").forEach((btn) => {
+      btn.addEventListener("click", () => {
+        const id = btn.getAttribute("data-cancel-edit-btn");
+        const editBox = document.getElementById(`edit-changelog-box-${id}`);
+        const viewEl = document.getElementById(`view-changelog-${id}`);
+        if (editBox) {
+          editBox.classList.add("hidden");
+        }
+        if (viewEl) {
+          viewEl.classList.remove("hidden");
+        }
+      });
+    });
   </script>
 
   <!-- Add-ons & Companion Modules Summary Card -->

@@ -352,6 +352,26 @@ export async function createAddonChangeLog(input: {
   return created;
 }
 
+export async function updateAddonChangeLog(
+  id: string,
+  input: {
+    version?: string | null;
+    content: string;
+    createdAt?: Date | null;
+  }
+): Promise<ProductAddonChangeLog | null> {
+  const [updated] = await db
+    .update(productAddonChangeLog)
+    .set({
+      version: input.version?.trim() || null,
+      content: input.content.trim(),
+      ...(input.createdAt ? { createdAt: input.createdAt } : {}),
+    })
+    .where(eq(productAddonChangeLog.id, id))
+    .returning();
+  return updated || null;
+}
+
 export async function deleteAddonChangeLog(id: string): Promise<boolean> {
   const deleted = await db.delete(productAddonChangeLog).where(eq(productAddonChangeLog.id, id)).returning();
   return deleted.length > 0;
