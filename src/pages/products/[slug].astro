@@ -95,6 +95,8 @@ const structuredData = {
 
           <!-- Floating Section Navigation Bar -->
           <ProductNavTabs
+            hasGallery={galleryItems.length > 0 || Boolean(thumbnailUrl)}
+            galleryCount={galleryItems.filter((g) => Boolean(g.url)).length + (thumbnailUrl ? 1 : 0)}
             hasFeatures={Boolean(product.features)}
             addonsCount={addons.length}
             changelogsCount={changelogs.length}
