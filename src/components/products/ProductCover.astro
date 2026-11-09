@@ -1,0 +1,158 @@
+---
+import type { Product } from "../../lib/db/schema/products";
+
+interface Props {
+  product: Product;
+  thumbnailUrl: string | null;
+  galleryItems?: Array<{ caption: string | null; url: string | null }>;
+}
+
+const { product, thumbnailUrl, galleryItems = [] } = Astro.props;
+
+const validGallery = galleryItems.filter((item) => Boolean(item.url));
+const allShowcaseImages = [
+  ...(thumbnailUrl ? [{ url: thumbnailUrl, caption: `${product.title} - Main Cover` }] : []),
+  ...validGallery,
+];
+const coverImage = thumbnailUrl || allShowcaseImages[0]?.url || null;
+
+const fancyboxSlides = allShowcaseImages.map((img, idx) => ({
+  src: img.url,
+  caption: img.caption || `${product.title} - Preview ${idx + 1}`,
+  thumb: img.url,
+}));
+---
+
+<div
+  class="rounded-3xl overflow-hidden border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 shadow-2xl group"
+  data-product-cover-container
+  data-slides={JSON.stringify(fancyboxSlides)}
+>
+  <!-- macOS Window Bezel Header -->
+  <div class="flex items-center justify-between px-4 sm:px-6 py-3.5 bg-slate-100/90 dark:bg-slate-950 border-b border-slate-200 dark:border-slate-800">
+    <div class="flex items-center gap-2">
+      <span class="w-3 h-3 rounded-full bg-rose-500/80 block"></span>
+      <span class="w-3 h-3 rounded-full bg-amber-500/80 block"></span>
+      <span class="w-3 h-3 rounded-full bg-emerald-500/80 block"></span>
+      <span class="ml-3 text-xs font-mono text-slate-500 dark:text-slate-400 truncate max-w-[200px] sm:max-w-md">
+        {product.slug}.app
+      </span>
+    </div>
+    <div class="flex items-center gap-3">
+      {product.demoUrl && (
+        <a
+          href={product.demoUrl}
+          target="_blank"
+          rel="noopener noreferrer"
+          class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-500/10 hover:bg-emerald-500/20 text-emerald-600 dark:text-emerald-400 text-xs font-semibold transition"
+        >
+          <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
+          <span>Live Demo</span>
+          <i data-lucide="external-link" class="w-3 h-3"></i>
+        </a>
+      )}
+      {coverImage && (
+        <button
+          type="button"
+          data-cover-fullscreen-btn
+          class="p-1.5 rounded-lg text-slate-500 hover:text-slate-900 dark:hover:text-white hover:bg-slate-200 dark:hover:bg-slate-800 transition cursor-pointer"
+          title="Open preview in full lightbox"
+        >
+          <i data-lucide="maximize-2" class="w-4 h-4"></i>
+        </button>
+      )}
+    </div>
+  </div>
+
+  <!-- Primary Cover Display -->
+  <div
+    data-cover-trigger
+    class={`relative bg-slate-100 dark:bg-slate-950 flex items-center justify-center overflow-hidden min-h-[320px] sm:min-h-[460px] ${coverImage ? "cursor-zoom-in" : ""}`}
+    title={coverImage ? "Click to view full lightbox" : undefined}
+  >
+    {coverImage ? (
+      <>
+        <img
+          src={coverImage}
+          alt={product.title}
+          class="w-full h-auto max-h-[540px] object-contain transition-transform duration-500 group-hover:scale-[1.01]"
+        />
+        <div class="absolute inset-0 bg-slate-950/20 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center pointer-events-none">
+          <span class="px-4 py-2 rounded-full bg-slate-900/85 backdrop-blur-md text-white text-xs font-semibold flex items-center gap-2 shadow-xl border border-white/20">
+            <i data-lucide="zoom-in" class="w-4 h-4 text-primary"></i>
+            <span>Click to view full preview</span>
+          </span>
+        </div>
+      </>
+    ) : (
+      <div class="py-24 text-center text-slate-400 dark:text-slate-600">
+        <i data-lucide="image" class="w-16 h-16 mx-auto mb-2 opacity-50"></i>
+        <p class="font-mono text-xs">No media preview available</p>
+      </div>
+    )}
+  </div>
+</div>
+
+<script>
+  import { Fancybox } from "@fancyapps/ui";
+  import "@fancyapps/ui/dist/fancybox/fancybox.css";
+
+  function initProductCover() {
+    const container = document.querySelector<HTMLElement>("[data-product-cover-container]");
+    if (!container) return;
+
+    const trigger = container.querySelector<HTMLElement>("[data-cover-trigger]");
+    const fullscreenBtn = container.querySelector<HTMLElement>("[data-cover-fullscreen-btn]");
+
+    let slides: Array<{ src: string; caption?: string; thumb?: string }> = [];
+    try {
+      slides = JSON.parse(container.dataset.slides || "[]");
+    } catch {
+      slides = [];
+    }
+
+    const openFancybox = () => {
+      if (!slides || slides.length === 0) return;
+      Fancybox.show(slides, {
+        startIndex: 0,
+        compact: false,
+        idle: false,
+        dragToClose: true,
+        Images: { initialSize: "fit" },
+        Toolbar: {
+          display: {
+            left: ["infobar"],
+            middle: [
+              "zoomIn",
+              "zoomOut",
+              "toggle1to1",
+              "rotateCCW",
+              "rotateCW",
+              "flipX",
+              "flipY",
+            ],
+            right: ["slideshow", "thumbs", "close"],
+          },
+        },
+        Thumbs: { type: "classic" },
+      });
+    };
+
+    if (trigger) {
+      trigger.addEventListener("click", openFancybox);
+    }
+    if (fullscreenBtn) {
+      fullscreenBtn.addEventListener("click", (e) => {
+        e.stopPropagation();
+        openFancybox();
+      });
+    }
+  }
+
+  if (document.readyState === "loading") {
+    document.addEventListener("DOMContentLoaded", initProductCover);
+  } else {
+    initProductCover();
+  }
+  document.addEventListener("astro:page-load", initProductCover);
+</script>

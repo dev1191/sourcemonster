@@ -3,18 +3,26 @@ import type { Product } from "../../lib/db/schema/products";
 
 interface Props {
   product: Product;
-  thumbnailUrl: string | null;
+  thumbnailUrl?: string | null;
   galleryItems: Array<{ caption: string | null; url: string | null }>;
 }
 
 const { product, thumbnailUrl, galleryItems } = Astro.props;
 
 const validGallery = galleryItems.filter((item) => Boolean(item.url));
+
+// If no gallery screenshots exist, do not render an empty section
+if (validGallery.length === 0) {
+  return null;
+}
+
+// All showcase images: include main cover first if available, followed by gallery screenshots
 const allShowcaseImages = [
   ...(thumbnailUrl ? [{ url: thumbnailUrl, caption: `${product.title} - Main Cover` }] : []),
   ...validGallery,
 ];
-const primaryImage = allShowcaseImages[0]?.url || null;
+
+const primaryImage = validGallery[0]?.url || allShowcaseImages[0]?.url || null;
 
 const fancyboxSlides = allShowcaseImages.map((img, idx) => ({
   src: img.url,
@@ -25,101 +33,94 @@ const fancyboxSlides = allShowcaseImages.map((img, idx) => ({
 
 <section
   id="gallery"
-  class="rounded-3xl overflow-hidden border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 shadow-2xl scroll-mt-28"
+  class="bg-white dark:bg-slate-900/70 border border-slate-200 dark:border-slate-800 rounded-3xl p-6 sm:p-10 shadow-xl space-y-6 scroll-mt-28"
   data-gallery-container
   data-slides={JSON.stringify(fancyboxSlides)}
 >
-  <!-- macOS Window Bezel Header -->
-  <div class="flex items-center justify-between px-4 sm:px-6 py-3.5 bg-slate-100/90 dark:bg-slate-950 border-b border-slate-200 dark:border-slate-800">
-    <div class="flex items-center gap-2">
-      <span class="w-3 h-3 rounded-full bg-rose-500/80 block"></span>
-      <span class="w-3 h-3 rounded-full bg-amber-500/80 block"></span>
-      <span class="w-3 h-3 rounded-full bg-emerald-500/80 block"></span>
-      <span class="ml-3 text-xs font-mono text-slate-500 dark:text-slate-400 truncate max-w-[200px] sm:max-w-md">
-        {product.slug}.app
+  <!-- Section Header -->
+  <div class="flex items-center justify-between flex-wrap gap-4 pb-5 border-b border-slate-200 dark:border-slate-800">
+    <div class="flex items-center gap-3">
+      <span class="p-2.5 rounded-2xl bg-primary/10 text-primary">
+        <i data-lucide="images" class="w-6 h-6"></i>
       </span>
+      <div>
+        <h2 class="text-2xl font-black font-heading text-slate-900 dark:text-white tracking-tight">
+          Visual Gallery &amp; Screenshots
+        </h2>
+        <p class="text-xs text-slate-500 font-mono">High-resolution interface walkthrough &amp; screenshots</p>
+      </div>
     </div>
     <div class="flex items-center gap-3">
-      {product.demoUrl && (
-        <a
-          href={product.demoUrl}
-          target="_blank"
-          rel="noopener noreferrer"
-          class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-500/10 hover:bg-emerald-500/20 text-emerald-600 dark:text-emerald-400 text-xs font-semibold transition"
-        >
-          <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
-          <span>Live Demo</span>
-          <i data-lucide="external-link" class="w-3 h-3"></i>
-        </a>
-      )}
+      <span class="px-3 py-1 rounded-full bg-primary/10 border border-primary/20 text-primary text-xs font-mono font-bold">
+        {validGallery.length} {validGallery.length === 1 ? "screenshot" : "screenshots"}
+      </span>
       <button
         type="button"
-        id="fullscreen-image-btn"
-        class="p-1.5 rounded-lg text-slate-500 hover:text-slate-900 dark:hover:text-white hover:bg-slate-200 dark:hover:bg-slate-800 transition cursor-pointer"
-        title="Open full resolution gallery (Fancybox)"
+        id="fullscreen-gallery-section-btn"
+        class="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 text-xs font-semibold transition cursor-pointer shadow-sm"
+        title="Open full resolution Fancybox lightbox"
       >
-        <i data-lucide="maximize-2" class="w-4 h-4"></i>
+        <i data-lucide="maximize-2" class="w-3.5 h-3.5 text-primary"></i>
+        <span>Full Lightbox</span>
       </button>
     </div>
   </div>
 
-  <!-- Primary Showcase Viewer (Clickable with Fancybox) -->
-  <div
-    id="main-showcase-trigger"
-    class="relative bg-slate-100 dark:bg-slate-950 flex items-center justify-center overflow-hidden min-h-[320px] sm:min-h-[460px] cursor-zoom-in group/showcase"
-    title="Click to open Fancybox gallery"
-  >
-    {primaryImage ? (
-      <>
-        <img
-          id="main-showcase-img"
-          src={primaryImage}
-          alt={product.title}
-          class="w-full h-auto max-h-[540px] object-contain transition-all duration-300 group-hover/showcase:scale-[1.01]"
-        />
-        <div class="absolute inset-0 bg-slate-950/20 opacity-0 group-hover/showcase:opacity-100 transition-opacity flex items-center justify-center pointer-events-none">
-          <span class="px-4 py-2 rounded-full bg-slate-900/85 backdrop-blur-md text-white text-xs font-semibold flex items-center gap-2 shadow-xl border border-white/20">
-            <i data-lucide="zoom-in" class="w-4 h-4 text-primary"></i>
-            <span>Click to view full gallery</span>
-          </span>
-        </div>
-      </>
-    ) : (
-      <div class="py-24 text-center text-slate-400 dark:text-slate-600">
-        <i data-lucide="image" class="w-16 h-16 mx-auto mb-2 opacity-50"></i>
-        <p class="font-mono text-xs">No media preview available</p>
-      </div>
-    )}
-  </div>
+  <!-- Interactive Preview Box -->
+  <div class="rounded-2xl overflow-hidden border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950 shadow-inner">
+    <!-- Active Preview Viewer (Clickable with Fancybox) -->
+    <div
+      id="gallery-showcase-trigger"
+      class="relative bg-slate-100 dark:bg-slate-950 flex items-center justify-center overflow-hidden min-h-[300px] sm:min-h-[440px] cursor-zoom-in group/showcase"
+      title="Click to open Fancybox lightbox"
+    >
+      {primaryImage && (
+        <>
+          <img
+            id="gallery-showcase-img"
+            src={primaryImage}
+            alt={validGallery[0]?.caption || product.title}
+            class="w-full h-auto max-h-[500px] object-contain transition-all duration-300 group-hover/showcase:scale-[1.01]"
+          />
+          <div class="absolute inset-0 bg-slate-950/20 opacity-0 group-hover/showcase:opacity-100 transition-opacity flex items-center justify-center pointer-events-none">
+            <span class="px-4 py-2 rounded-full bg-slate-900/85 backdrop-blur-md text-white text-xs font-semibold flex items-center gap-2 shadow-xl border border-white/20">
+              <i data-lucide="zoom-in" class="w-4 h-4 text-primary"></i>
+              <span>Click to view full lightbox</span>
+            </span>
+          </div>
+        </>
+      )}
+    </div>
 
-  <!-- Caption & Counter Bar -->
-  {allShowcaseImages.length > 0 && (
-    <div class="px-4 sm:px-6 py-2.5 bg-slate-100/70 dark:bg-slate-950/70 border-t border-slate-200 dark:border-slate-800/80 flex items-center justify-between text-xs text-slate-600 dark:text-slate-400 font-mono">
-      <span id="showcase-caption-text" class="truncate pr-4">
-        {allShowcaseImages[0]?.caption || `${product.title} - Preview 1`}
+    <!-- Caption & Counter Bar -->
+    <div class="px-4 sm:px-6 py-2.5 bg-slate-100/80 dark:bg-slate-950 border-t border-slate-200 dark:border-slate-800/80 flex items-center justify-between text-xs text-slate-600 dark:text-slate-400 font-mono">
+      <span id="gallery-caption-text" class="truncate pr-4 font-medium">
+        {validGallery[0]?.caption || `${product.title} - Screenshot 1`}
       </span>
-      <span id="showcase-counter" class="shrink-0 text-slate-400 dark:text-slate-500 font-semibold">
-        1 of {allShowcaseImages.length}
+      <span id="gallery-counter-text" class="shrink-0 text-slate-400 dark:text-slate-500 font-semibold">
+        1 of {validGallery.length}
       </span>
     </div>
-  )}
+  </div>
 
-  <!-- Interactive Gallery Strip (if screenshots exist) -->
-  {allShowcaseImages.length > 1 && (
-    <div class="p-4 bg-slate-50 dark:bg-slate-950/80 border-t border-slate-200 dark:border-slate-800">
-      <div class="flex items-center justify-between mb-2.5">
-        <span class="text-xs font-mono font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400 flex items-center gap-1.5">
-          <i data-lucide="camera" class="w-3.5 h-3.5 text-primary"></i>
-          <span>Image Gallery ({allShowcaseImages.length} screenshots)</span>
-        </span>
-        <span class="text-[11px] text-slate-500">Click to preview &bull; Click viewer for full lightbox</span>
-      </div>
-      <div class="flex items-center gap-3 overflow-x-auto pb-1 scrollbar-thin">
-        {allShowcaseImages.map((img, idx) => (
+  <!-- Thumbnails Strip -->
+  <div>
+    <div class="flex items-center justify-between mb-3">
+      <span class="text-xs font-mono font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400 flex items-center gap-1.5">
+        <i data-lucide="layout-grid" class="w-3.5 h-3.5 text-primary"></i>
+        <span>All Screenshots ({validGallery.length})</span>
+      </span>
+      <span class="text-[11px] text-slate-500 font-mono">Click thumbnail to switch preview</span>
+    </div>
+
+    <div class="flex items-center gap-3 overflow-x-auto pb-2 scrollbar-thin">
+      {validGallery.map((img, idx) => {
+        const fancyboxIndex = allShowcaseImages.findIndex((item) => item.url === img.url);
+        return (
           <div class="relative shrink-0 group">
             <button
               type="button"
-              class={`gallery-thumb-btn w-20 sm:w-28 h-14 sm:h-20 rounded-xl overflow-hidden border-2 transition cursor-pointer relative block ${
+              class={`gallery-thumb-btn w-24 sm:w-32 h-16 sm:h-22 rounded-2xl overflow-hidden border-2 transition cursor-pointer relative block ${
                 idx === 0
                   ? "border-primary ring-2 ring-primary/20 shadow-md"
                   : "border-slate-200 dark:border-slate-800 hover:border-slate-400 dark:hover:border-slate-600 opacity-75 hover:opacity-100"
@@ -127,23 +128,29 @@ const fancyboxSlides = allShowcaseImages.map((img, idx) => ({
               data-img-src={img.url}
               data-caption={img.caption || `Screenshot ${idx + 1}`}
               data-index={idx}
+              data-fancybox-index={fancyboxIndex >= 0 ? fancyboxIndex : idx}
               title={img.caption || `Screenshot ${idx + 1}`}
             >
-              <img src={img.url} alt={img.caption || "Thumbnail"} class="w-full h-full object-cover transition group-hover:scale-105" />
+              <img
+                src={img.url}
+                alt={img.caption || `Screenshot ${idx + 1}`}
+                class="w-full h-full object-cover transition group-hover:scale-105"
+                loading="lazy"
+              />
             </button>
             <button
               type="button"
-              class="fancybox-open-trigger absolute bottom-1 right-1 p-1 rounded-md bg-slate-900/80 hover:bg-primary text-white opacity-0 group-hover:opacity-100 transition shadow cursor-pointer text-[10px]"
-              data-index={idx}
+              class="gallery-open-trigger absolute bottom-1.5 right-1.5 p-1 rounded-md bg-slate-900/80 hover:bg-primary text-white opacity-0 group-hover:opacity-100 transition shadow cursor-pointer text-[10px]"
+              data-fancybox-index={fancyboxIndex >= 0 ? fancyboxIndex : idx}
               title="Open full resolution in Fancybox"
             >
               <i data-lucide="maximize" class="w-3 h-3"></i>
             </button>
           </div>
-        ))}
-      </div>
+        );
+      })}
     </div>
-  )}
+  </div>
 </section>
 
 <!-- Client Script for Interactive Gallery Switching & Fancybox Lightbox -->
@@ -155,13 +162,13 @@ const fancyboxSlides = allShowcaseImages.map((img, idx) => ({
     const container = document.querySelector<HTMLElement>("[data-gallery-container]");
     if (!container) return;
 
-    const mainImg = document.getElementById("main-showcase-img") as HTMLImageElement | null;
-    const showcaseTrigger = document.getElementById("main-showcase-trigger");
-    const fullscreenBtn = document.getElementById("fullscreen-image-btn");
-    const thumbBtns = document.querySelectorAll<HTMLElement>(".gallery-thumb-btn");
-    const openTriggers = document.querySelectorAll<HTMLElement>(".fancybox-open-trigger");
-    const captionEl = document.getElementById("showcase-caption-text");
-    const counterEl = document.getElementById("showcase-counter");
+    const mainImg = document.getElementById("gallery-showcase-img") as HTMLImageElement | null;
+    const showcaseTrigger = document.getElementById("gallery-showcase-trigger");
+    const fullscreenBtn = document.getElementById("fullscreen-gallery-section-btn");
+    const thumbBtns = container.querySelectorAll<HTMLElement>(".gallery-thumb-btn");
+    const openTriggers = container.querySelectorAll<HTMLElement>(".gallery-open-trigger");
+    const captionEl = document.getElementById("gallery-caption-text");
+    const counterEl = document.getElementById("gallery-counter-text");
 
     let slides: Array<{ src: string; caption?: string; thumb?: string }> = [];
     try {
@@ -170,7 +177,11 @@ const fancyboxSlides = allShowcaseImages.map((img, idx) => ({
       slides = [];
     }
 
-    let currentIndex = 0;
+    let currentFancyboxIndex = 0;
+    const firstThumb = thumbBtns[0];
+    if (firstThumb) {
+      currentFancyboxIndex = parseInt(firstThumb.getAttribute("data-fancybox-index") || "0", 10);
+    }
 
     const openFancybox = (startIndex: number = 0) => {
       if (!slides || slides.length === 0) return;
@@ -210,8 +221,9 @@ const fancyboxSlides = allShowcaseImages.map((img, idx) => ({
           const newSrc = btn.getAttribute("data-img-src");
           const caption = btn.getAttribute("data-caption");
           const idx = parseInt(btn.getAttribute("data-index") || "0", 10);
+          const fIndex = parseInt(btn.getAttribute("data-fancybox-index") || "0", 10);
 
-          currentIndex = idx;
+          currentFancyboxIndex = fIndex;
 
           if (newSrc && mainImg) {
             mainImg.style.opacity = "0.3";
@@ -219,7 +231,7 @@ const fancyboxSlides = allShowcaseImages.map((img, idx) => ({
               mainImg.src = newSrc;
               mainImg.style.opacity = "1";
               if (captionEl && caption) captionEl.textContent = caption;
-              if (counterEl && slides.length > 0) counterEl.textContent = `${idx + 1} of ${slides.length}`;
+              if (counterEl) counterEl.textContent = `${idx + 1} of ${thumbBtns.length}`;
             }, 120);
 
             thumbBtns.forEach((t) => {
@@ -236,22 +248,22 @@ const fancyboxSlides = allShowcaseImages.map((img, idx) => ({
     // Direct Fancybox triggers
     if (showcaseTrigger) {
       showcaseTrigger.addEventListener("click", () => {
-        openFancybox(currentIndex);
+        openFancybox(currentFancyboxIndex);
       });
     }
 
     if (fullscreenBtn) {
       fullscreenBtn.addEventListener("click", (e) => {
         e.stopPropagation();
-        openFancybox(currentIndex);
+        openFancybox(currentFancyboxIndex);
       });
     }
 
     openTriggers.forEach((trig) => {
       trig.addEventListener("click", (e) => {
         e.stopPropagation();
-        const idx = parseInt(trig.getAttribute("data-index") || "0", 10);
-        openFancybox(idx);
+        const fIndex = parseInt(trig.getAttribute("data-fancybox-index") || "0", 10);
+        openFancybox(fIndex);
       });
     });
   }
@@ -264,4 +276,3 @@ const fancyboxSlides = allShowcaseImages.map((img, idx) => ({
   }
   document.addEventListener("astro:page-load", initProductGallery);
 </script>
-

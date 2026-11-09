@@ -6,6 +6,7 @@ import { getProductBySlug } from "../../services";
 import { Prose } from "../../components/starwind/prose";
 import {
   ProductHero,
+  ProductCover,
   ProductGallery,
   ProductNavTabs,
   ProductAddons,
@@ -86,8 +87,8 @@ const structuredData = {
         
         <!-- Left Column: Media Showcase & Rich Details (8 cols) -->
         <div class="lg:col-span-8 space-y-10">
-          <!-- Interactive Media Showcase -->
-          <ProductGallery
+          <!-- Focused Top Showcase / Product Cover Preview -->
+          <ProductCover
             product={product}
             thumbnailUrl={thumbnailUrl}
             galleryItems={galleryItems}
@@ -95,8 +96,8 @@ const structuredData = {
 
           <!-- Floating Section Navigation Bar -->
           <ProductNavTabs
-            hasGallery={galleryItems.length > 0 || Boolean(thumbnailUrl)}
-            galleryCount={galleryItems.filter((g) => Boolean(g.url)).length + (thumbnailUrl ? 1 : 0)}
+            hasGallery={galleryItems.length > 0}
+            galleryCount={galleryItems.filter((g) => Boolean(g.url)).length}
             hasFeatures={Boolean(product.features)}
             addonsCount={addons.length}
             changelogsCount={changelogs.length}
@@ -156,6 +157,13 @@ const structuredData = {
 
           <!-- Section: Companion Modules & Add-ons -->
           <ProductAddons addons={addons} />
+
+          <!-- Section: Visual Gallery & Screenshots (after Companion Add-ons) -->
+          <ProductGallery
+            product={product}
+            thumbnailUrl={thumbnailUrl}
+            galleryItems={galleryItems}
+          />
 
           <!-- Section: Version History & Changelogs -->
           <ProductChangelogs productVersion={product.version} changelogs={changelogs} />
