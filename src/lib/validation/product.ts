@@ -14,7 +14,15 @@ export const productSchema = z.object({
   documentationUrl: z.string().url("Must be a valid URL").optional().or(z.literal("")),
   version: z.string().optional().or(z.literal("")),
   technologies: z.array(z.string()).default([]),
-  features: z.array(z.string()).default([]),
+  features: z
+    .union([
+      z.string(),
+      z.array(z.string()).transform((arr) =>
+        arr.length > 0 ? `<ul>${arr.map((item) => `<li>${item}</li>`).join("")}</ul>` : ""
+      ),
+    ])
+    .optional()
+    .default(""),
   status: z.enum(["draft", "published"]).default("draft"),
   isFeatured: z.boolean().default(false),
   sortOrder: z.number().int().default(0),

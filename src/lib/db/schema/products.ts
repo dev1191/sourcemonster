@@ -13,7 +13,7 @@ export const products = pgTable("products", {
   documentationUrl: text("documentation_url"),
   version: varchar("version", { length: 50 }),
   technologies: jsonb("technologies").$type<string[]>().notNull().default([]),
-  features: jsonb("features").$type<string[]>().notNull().default([]),
+  features: text("features"),
   status: varchar("status", { length: 20 }).notNull().default("draft"),
   isFeatured: boolean("is_featured").notNull().default(false),
   sortOrder: integer("sort_order").notNull().default(0),

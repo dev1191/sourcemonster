@@ -93,33 +93,7 @@ if (Astro.request.method === "POST") {
       .map((t) => t.trim())
       .filter(Boolean);
 
-    const rawFeatures = formData.get("features")?.toString() || "";
-    let features: string[] = [];
-    if (/<li[^>]*>/i.test(rawFeatures)) {
-      const matches = rawFeatures.matchAll(/<li[^>]*>(.*?)<\/li>/gis);
-      features = Array.from(matches, (m) =>
-        m[1]
-          .replace(/^<p[^>]*>/i, "")
-          .replace(/<\/p>$/i, "")
-          .trim()
-      ).filter(Boolean);
-    } else if (/<p[^>]*>/i.test(rawFeatures)) {
-      const matches = rawFeatures.matchAll(/<p[^>]*>(.*?)<\/p>/gis);
-      features = Array.from(matches, (m) =>
-        m[1]
-          .replace(/<br\s*\/?>/gi, "\n")
-          .split("\n")
-          .map((f) => f.trim())
-      )
-        .flat()
-        .filter(Boolean);
-    } else {
-      features = rawFeatures
-        .replace(/<br\s*\/?>/gi, "\n")
-        .split("\n")
-        .map((f) => f.trim())
-        .filter(Boolean);
-    }
+    const features = formData.get("features")?.toString().trim() || "";
 
     const thumbnailFile = formData.get("thumbnail") as File | null;
     const screenshotFile = formData.get("screenshot") as File | null;
@@ -363,11 +337,13 @@ const addons = await getAllAdminAddons(id);
           name="features"
           label="Key Features & Capabilities (Bulleted List)"
           minHeight="180px"
-          value={product.features && product.features.length > 0
-            ? (product.features.some((f) => f.includes("<li"))
-                ? `<ul>${product.features.join("")}</ul>`
-                : `<ul>${product.features.map((f) => `<li>${f}</li>`).join("")}</ul>`)
-            : ""}
+          value={typeof product.features === "string"
+            ? product.features
+            : (Array.isArray(product.features) && product.features.length > 0
+                ? (product.features.some((f: any) => typeof f === "string" && f.includes("<li"))
+                    ? `<ul>${product.features.join("")}</ul>`
+                    : `<ul>${product.features.map((f: any) => `<li>${f}</li>`).join("")}</ul>`)
+                : "")}
           helperText="Format key capabilities using bulleted lists, numbered lists, or bold highlights."
         />
 
