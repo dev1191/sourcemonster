@@ -319,7 +319,7 @@ const pageTitle = product.seoTitle || `${product.title} | SourceMonster`;
                   <div class="p-1 rounded-full bg-primary/10 text-primary shrink-0 mt-0.5">
                     <i data-lucide="check" class="w-3.5 h-3.5"></i>
                   </div>
-                  <span>{feature}</span>
+                  <span class="flex-1" set:html={feature} />
                 </li>
               ))}
             </ul>
