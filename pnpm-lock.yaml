@@ -17,6 +17,9 @@ importers:
       '@aws-sdk/client-s3':
         specifier: ^3.1163.0
         version: 3.1163.0
+      '@fancyapps/ui':
+        specifier: ^6.1.15
+        version: 6.1.15
       '@starwind-ui/astro':
         specifier: 1.5.0
         version: 1.5.0(astro@6.4.8(@types/node@26.6.6)(jiti@2.7.0)(lightningcss@1.33.0)(rollup@4.67.5)(tsx@4.23.15)(yaml@2.9.1))
@@ -851,6 +854,9 @@ packages:
     engines: {node: '>=18'}
     cpu: [x64]
     os: [win32]
+
+  '@fancyapps/ui@6.1.15':
+    resolution: {integrity: sha512-J1w/ZLhkXzMSHZ7Bg1iX7GFA/YkH/Ka+r2HIX4pchwu6PNalfyzzgxghhP92CWlbH4ssV8qYPJ/KQcdRW5TVVw==}
 
   '@floating-ui/core@1.8.0':
     resolution: {integrity: sha512-0CIZ5itps/8x7BG8dEIhs53BvCUH2PCoogtakwRTut+Arm58sJooJ0AuZhLw2HJYIR5cMLNPBSS728sPho2khQ==}
@@ -3464,6 +3470,8 @@ snapshots:
 
   '@esbuild/win32-x64@0.28.2':
     optional: true
+
+  '@fancyapps/ui@6.1.15': {}
 
   '@floating-ui/core@1.8.0':
     dependencies:
