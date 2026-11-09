@@ -7,6 +7,8 @@ interface Props {
 	title?: string;
 	description?: string;
 	dark?: boolean;
+	image?: string | null;
+	type?: string;
 }
 
 const settings = await getSiteSettings();
@@ -15,9 +17,15 @@ const {
 	title = settings.seo_default_title,
 	description = settings.seo_default_description,
 	dark,
+	image,
+	type = "website",
 } = Astro.props;
 
 const defaultTheme = dark ? "dark" : (Astro.url.pathname.startsWith("/products") ? "dark" : "dark");
+const canonicalUrl = Astro.url.href;
+const ogImage = image
+	? (image.startsWith("http") ? image : new URL(image, Astro.url).href)
+	: new URL("/favicon.png", Astro.url).href;
 ---
 
 <!doctype html>
@@ -31,12 +39,28 @@ const defaultTheme = dark ? "dark" : (Astro.url.pathname.startsWith("/products")
 		<meta name="generator" content={Astro.generator} />
 		<title>{title}</title>
 
-		<!-- SEO & Trackers -->
+		<!-- SEO & Canonical -->
 		<meta name="description" content={description} />
+		<link rel="canonical" href={canonicalUrl} />
 		<meta
 			name="keywords"
 			content="web development, UI/UX design, digital marketing, SEO, freelancers, software solutions, SaaS boilerplate, CodeCanyon"
 		/>
+
+		<!-- Open Graph / Facebook / WhatsApp -->
+		<meta property="og:type" content={type} />
+		<meta property="og:url" content={canonicalUrl} />
+		<meta property="og:title" content={title} />
+		<meta property="og:description" content={description} />
+		<meta property="og:image" content={ogImage} />
+		<meta property="og:site_name" content="SourceMonster" />
+
+		<!-- Twitter -->
+		<meta name="twitter:card" content="summary_large_image" />
+		<meta name="twitter:url" content={canonicalUrl} />
+		<meta name="twitter:title" content={title} />
+		<meta name="twitter:description" content={description} />
+		<meta name="twitter:image" content={ogImage} />
 
 		<!-- Google Analytics (gtag.js) -->
 		<script is:inline
