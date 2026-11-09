@@ -6,6 +6,8 @@ import {
   deleteProduct,
   deleteProductGalleryImage,
   getAllAdminAddons,
+  createProductChangeLog,
+  deleteProductChangeLog,
 } from "../../../../services";
 import { getPublicUrl } from "../../../../lib/storage";
 import { Button, Dropzone, Toast, ConfirmDialog, HtmlEditor } from "../../../../components/ui";
@@ -43,6 +45,27 @@ if (Astro.request.method === "POST") {
       const pmId = formData.get("product_media_id")?.toString();
       if (pmId) {
         await deleteProductGalleryImage(pmId);
+        return Astro.redirect(`/admin/products/${id}/edit`);
+      }
+    }
+
+    if (action === "add_changelog") {
+      const changelogVersion = formData.get("changelog_version")?.toString().trim() || null;
+      const changelogContent = formData.get("changelog_content")?.toString().trim() || "";
+      if (changelogContent) {
+        await createProductChangeLog({
+          productId: id,
+          version: changelogVersion,
+          content: changelogContent,
+        });
+        return Astro.redirect(`/admin/products/${id}/edit`);
+      }
+    }
+
+    if (action === "delete_changelog") {
+      const clId = formData.get("changelog_id")?.toString();
+      if (clId) {
+        await deleteProductChangeLog(clId);
         return Astro.redirect(`/admin/products/${id}/edit`);
       }
     }
@@ -121,6 +144,15 @@ if (Astro.request.method === "POST") {
       screenshotFile
     );
 
+    const newChangelog = formData.get("new_changelog_content")?.toString().trim();
+    if (newChangelog) {
+      await createProductChangeLog({
+        productId: id,
+        version: version || initialProductData.product.version || null,
+        content: newChangelog,
+      });
+    }
+
     successMessage = "Product updated successfully!";
   } catch (err: any) {
     console.error("Update product failed:", err);
@@ -134,7 +166,7 @@ if (!productData) {
   return Astro.redirect("/admin/products");
 }
 
-const { product, thumbnailUrl: currentThumbnailUrl, galleryItems } = productData;
+const { product, thumbnailUrl: currentThumbnailUrl, galleryItems, changelogs = [] } = productData;
 const addons = await getAllAdminAddons(id);
 ---
 
@@ -332,6 +364,23 @@ const addons = await getAllAdminAddons(id);
             : ""}
           helperText="Format key capabilities using bulleted lists, numbered lists, or bold highlights."
         />
+
+        <!-- Add Changelog for this update -->
+        <div class="pt-4 border-t border-slate-800/80">
+          <div class="flex items-center justify-between mb-2">
+            <label class="block text-xs font-semibold text-primary uppercase tracking-wider flex items-center gap-1.5">
+              <i data-lucide="git-commit" class="w-3.5 h-3.5"></i>
+              Add Changelog / Release Notes for this Update (Optional)
+            </label>
+            <span class="text-[11px] text-slate-500 font-mono">Appends to version history</span>
+          </div>
+          <HtmlEditor
+            name="new_changelog_content"
+            minHeight="140px"
+            placeholder="<p><strong>What's new in this release:</strong></p><ul><li>Added new capability...</li><li>Fixed layout issue...</li><li>Performance improvements</li></ul>"
+            helperText="If updating version or publishing changes, write release notes here to automatically record a changelog entry upon saving."
+          />
+        </div>
       </CardContent>
     </Card>
 
@@ -482,6 +531,135 @@ const addons = await getAllAdminAddons(id);
       </div>
     </div>
   </form>
+
+  <!-- Product Changelog & Release History Card -->
+  <Card class="my-8 max-w-4xl bg-slate-900/70 border-slate-800/80 rounded-2xl p-6 shadow-xl">
+    <div class="flex items-center justify-between pb-4 mb-4 border-b border-slate-800">
+      <div class="flex items-center gap-2">
+        <i data-lucide="history" class="w-4 h-4 text-primary"></i>
+        <h2 class="text-sm font-bold text-white uppercase tracking-wider">
+          Changelog &amp; Version History
+        </h2>
+        <span class="text-[10px] font-mono bg-primary/10 text-primary border border-primary/20 px-2 py-0.5 rounded-full">
+          {changelogs.length} {changelogs.length === 1 ? "release" : "releases"}
+        </span>
+      </div>
+      <button
+        type="button"
+        id="toggle-changelog-btn"
+        class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-primary hover:bg-primary/90 text-white text-xs font-semibold transition"
+      >
+        <i data-lucide="plus" class="w-3.5 h-3.5"></i>
+        <span>Add Changelog Entry</span>
+      </button>
+    </div>
+
+    {/* Form to directly add a standalone changelog entry */}
+    <div id="quick-changelog-box" class="hidden mb-6 p-4 rounded-xl bg-slate-950 border border-slate-800">
+      <div class="flex items-center justify-between mb-3">
+        <h3 class="text-xs font-bold text-slate-200 uppercase tracking-wider flex items-center gap-2">
+          <i data-lucide="file-plus-2" class="w-4 h-4 text-primary"></i>
+          Create New Changelog Entry
+        </h3>
+        <span class="text-[11px] text-slate-500 font-mono">Standalone entry</span>
+      </div>
+      <form method="POST" class="space-y-3">
+        <input type="hidden" name="_action" value="add_changelog" />
+        <div class="w-full sm:w-1/2">
+          <label class="block text-xs font-semibold text-slate-400 uppercase tracking-wider mb-1">
+            Version Label
+          </label>
+          <Input
+            name="changelog_version"
+            type="text"
+            value={product.version || ""}
+            placeholder="e.g. v1.2.0"
+            class="bg-slate-900 border-slate-700 text-white rounded-lg text-xs"
+          />
+        </div>
+        <HtmlEditor
+          name="changelog_content"
+          label="Changelog Release Notes"
+          minHeight="140px"
+          placeholder="<ul><li>Added new authentication provider</li><li>Optimized database queries</li></ul>"
+          required
+        />
+        <div class="flex items-center justify-end gap-2 pt-2">
+          <button
+            type="button"
+            id="cancel-changelog-btn"
+            class="px-3 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs font-semibold transition"
+          >
+            Cancel
+          </button>
+          <Button type="submit" variant="primary" size="sm" icon="check">
+            Publish Changelog
+          </Button>
+        </div>
+      </form>
+    </div>
+
+    {changelogs.length === 0 ? (
+      <div class="py-8 text-center text-slate-500 text-xs">
+        <i data-lucide="scroll-text" class="w-8 h-8 mx-auto mb-2 opacity-40"></i>
+        <p>No changelog records published for this product yet.</p>
+        <p class="text-[11px] text-slate-600 mt-1">
+          When you release updates, add release notes to keep users informed about new features and bug fixes.
+        </p>
+      </div>
+    ) : (
+      <div class="space-y-4">
+        {changelogs.map((log) => (
+          <div class="p-4 rounded-xl bg-slate-950/60 border border-slate-800/80 hover:border-slate-700/80 transition">
+            <div class="flex items-center justify-between pb-2 mb-2 border-b border-slate-800/50">
+              <div class="flex items-center gap-2">
+                <span class="px-2 py-0.5 rounded-md bg-primary/20 text-primary border border-primary/30 text-xs font-mono font-bold">
+                  {log.version || product.version || "Release"}
+                </span>
+                <span class="text-xs text-slate-400">
+                  {new Date(log.createdAt).toLocaleDateString("en-US", {
+                    year: "numeric",
+                    month: "short",
+                    day: "numeric",
+                  })}
+                </span>
+              </div>
+              <form method="POST" onsubmit="return confirm('Delete this changelog entry?');">
+                <input type="hidden" name="_action" value="delete_changelog" />
+                <input type="hidden" name="changelog_id" value={log.id} />
+                <button
+                  type="submit"
+                  class="text-xs text-slate-500 hover:text-rose-400 transition p-1"
+                  title="Delete entry"
+                >
+                  <i data-lucide="trash-2" class="w-3.5 h-3.5"></i>
+                </button>
+              </form>
+            </div>
+            <div class="prose prose-invert prose-xs max-w-none text-slate-300" set:html={log.content}></div>
+          </div>
+        ))}
+      </div>
+    )}
+  </Card>
+
+  <script>
+    const toggleBtn = document.getElementById("toggle-changelog-btn");
+    const cancelBtn = document.getElementById("cancel-changelog-btn");
+    const box = document.getElementById("quick-changelog-box");
+
+    if (toggleBtn && box) {
+      toggleBtn.addEventListener("click", () => {
+        box.classList.toggle("hidden");
+      });
+    }
+
+    if (cancelBtn && box) {
+      cancelBtn.addEventListener("click", () => {
+        box.classList.add("hidden");
+      });
+    }
+  </script>
 
   <!-- Add-ons & Companion Modules Summary Card -->
   <Card class="my-8 max-w-4xl bg-slate-900/70 border-slate-800/80 rounded-2xl p-6 shadow-xl">

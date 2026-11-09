@@ -4,7 +4,9 @@ import {
   productAddons,
   media,
   productAddonMedia,
+  productAddonChangeLog,
   type ProductAddon,
+  type ProductAddonChangeLog,
 } from "../lib/db/schema";
 import { eq, desc } from "drizzle-orm";
 import { uploadFile, getPublicUrl } from "../lib/storage";
@@ -34,6 +36,7 @@ export interface AddonDetail extends AddonItem {
     caption: string | null;
     url: string | null;
   }>;
+  changelogs: ProductAddonChangeLog[];
 }
 
 export interface CreateAddonInput {
@@ -144,6 +147,7 @@ export async function getAddonById(id: string): Promise<AddonDetail | null> {
     createdAt: record.addon.createdAt,
     updatedAt: record.addon.updatedAt,
     galleryScreenshots,
+    changelogs: await getAddonChangeLogs(id),
   };
 }
 
@@ -319,5 +323,34 @@ export async function removeAddonThumbnail(id: string): Promise<boolean> {
 
 export async function deleteAddonGalleryImage(addonMediaId: string): Promise<boolean> {
   const deleted = await db.delete(productAddonMedia).where(eq(productAddonMedia.id, addonMediaId)).returning();
+  return deleted.length > 0;
+}
+
+export async function getAddonChangeLogs(addonId: string): Promise<ProductAddonChangeLog[]> {
+  return db
+    .select()
+    .from(productAddonChangeLog)
+    .where(eq(productAddonChangeLog.addonId, addonId))
+    .orderBy(desc(productAddonChangeLog.createdAt));
+}
+
+export async function createAddonChangeLog(input: {
+  addonId: string;
+  version?: string | null;
+  content: string;
+}): Promise<ProductAddonChangeLog> {
+  const [created] = await db
+    .insert(productAddonChangeLog)
+    .values({
+      addonId: input.addonId,
+      version: input.version?.trim() || null,
+      content: input.content.trim(),
+    })
+    .returning();
+  return created;
+}
+
+export async function deleteAddonChangeLog(id: string): Promise<boolean> {
+  const deleted = await db.delete(productAddonChangeLog).where(eq(productAddonChangeLog.id, id)).returning();
   return deleted.length > 0;
 }

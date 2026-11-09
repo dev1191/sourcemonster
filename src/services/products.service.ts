@@ -5,7 +5,9 @@ import {
   productMedia,
   productAddons,
   productAddonMedia,
+  productChangeLog,
   type Product,
+  type ProductChangeLog,
 } from "../lib/db/schema";
 import { eq, desc, inArray } from "drizzle-orm";
 import { uploadFile, getPublicUrl } from "../lib/storage";
@@ -41,6 +43,7 @@ export interface PublicProductDetail {
       url: string | null;
     }>;
   }>;
+  changelogs: ProductChangeLog[];
 }
 
 export interface AdminProductDetail {
@@ -54,6 +57,7 @@ export interface AdminProductDetail {
     disk: string | null;
     url: string | null;
   }>;
+  changelogs: ProductChangeLog[];
 }
 
 export async function getPublishedProducts(): Promise<ProductWithThumbnail[]> {
@@ -170,11 +174,18 @@ export async function getProductBySlug(
     galleryScreenshots: addonGalleryMap[addon.id] || [],
   }));
 
+  const changelogs = await db
+    .select()
+    .from(productChangeLog)
+    .where(eq(productChangeLog.productId, product.id))
+    .orderBy(desc(productChangeLog.createdAt));
+
   return {
     product,
     thumbnailUrl,
     galleryItems,
     addons,
+    changelogs,
   };
 }
 
@@ -236,10 +247,17 @@ export async function getAdminProductById(id: string): Promise<AdminProductDetai
     url: g.objectKey && g.disk ? getPublicUrl(g.objectKey, g.disk) : null,
   }));
 
+  const changelogs = await db
+    .select()
+    .from(productChangeLog)
+    .where(eq(productChangeLog.productId, id))
+    .orderBy(desc(productChangeLog.createdAt));
+
   return {
     product,
     thumbnailUrl,
     galleryItems,
+    changelogs,
   };
 }
 
@@ -463,5 +481,34 @@ export async function deleteProduct(id: string): Promise<boolean> {
 
 export async function deleteProductGalleryImage(productMediaId: string): Promise<boolean> {
   const deleted = await db.delete(productMedia).where(eq(productMedia.id, productMediaId)).returning();
+  return deleted.length > 0;
+}
+
+export async function getProductChangeLogs(productId: string): Promise<ProductChangeLog[]> {
+  return db
+    .select()
+    .from(productChangeLog)
+    .where(eq(productChangeLog.productId, productId))
+    .orderBy(desc(productChangeLog.createdAt));
+}
+
+export async function createProductChangeLog(input: {
+  productId: string;
+  version?: string | null;
+  content: string;
+}): Promise<ProductChangeLog> {
+  const [created] = await db
+    .insert(productChangeLog)
+    .values({
+      productId: input.productId,
+      version: input.version?.trim() || null,
+      content: input.content.trim(),
+    })
+    .returning();
+  return created;
+}
+
+export async function deleteProductChangeLog(id: string): Promise<boolean> {
+  const deleted = await db.delete(productChangeLog).where(eq(productChangeLog.id, id)).returning();
   return deleted.length > 0;
 }

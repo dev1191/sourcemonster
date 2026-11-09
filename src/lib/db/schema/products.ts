@@ -37,20 +37,21 @@ export const productMedia = pgTable("product_media", {
   createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
 });
 
-export const productChangeLog = pgTable("product_change_logs",{
+export const productChangeLog = pgTable("product_change_logs", {
   id: uuid("id").primaryKey().defaultRandom(),
-    productId: uuid("product_id")
+  productId: uuid("product_id")
     .notNull()
     .references(() => products.id, { onDelete: "cascade" }),
-    content:text("content").notNull(),
-    createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
-})
-
+  version: varchar("version", { length: 50 }),
+  content: text("content").notNull(),
+  createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+});
 
 export type Product = typeof products.$inferSelect;
 export type NewProduct = typeof products.$inferInsert;
 export type ProductMedia = typeof productMedia.$inferSelect;
-export type ProdChangeLog = typeof productChangeLog.$inferSelect;
+export type ProductChangeLog = typeof productChangeLog.$inferSelect;
+export type NewProductChangeLog = typeof productChangeLog.$inferInsert;
 export type NewProductMedia = typeof productMedia.$inferInsert;
 
 // ── Product Add-ons / Modules ────────────────────────────────────────────────
@@ -89,10 +90,20 @@ export const productAddonMedia = pgTable("product_addon_media", {
   createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
 });
 
-
+export const productAddonChangeLog = pgTable("product_addon_change_logs", {
+  id: uuid("id").primaryKey().defaultRandom(),
+  addonId: uuid("addon_id")
+    .notNull()
+    .references(() => productAddons.id, { onDelete: "cascade" }),
+  version: varchar("version", { length: 50 }),
+  content: text("content").notNull(),
+  createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+});
 
 export type ProductAddon = typeof productAddons.$inferSelect;
 export type NewProductAddon = typeof productAddons.$inferInsert;
 export type ProductAddonMedia = typeof productAddonMedia.$inferSelect;
+export type ProductAddonChangeLog = typeof productAddonChangeLog.$inferSelect;
+export type NewProductAddonChangeLog = typeof productAddonChangeLog.$inferInsert;
 export type NewProductAddonMedia = typeof productAddonMedia.$inferInsert;
 
