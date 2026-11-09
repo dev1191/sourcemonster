@@ -3,31 +3,45 @@ import { getCollection } from 'astro:content';
 const teamMembers = await getCollection('team');
 ---
 <!-- Team Section -->
-<section id="team" class="py-32 bg-slate-50 dark:bg-slate-900/90 relative overflow-hidden transition-colors">
-    <div class="absolute top-0 right-0 w-[500px] h-[500px] bg-primary/10 rounded-full blur-[120px] -mr-64 -mt-64"></div>
-    <div class="absolute bottom-0 left-0 w-[500px] h-[500px] bg-secondary/10 rounded-full blur-[120px] -ml-64 -mb-64"></div>
+<section id="team" class="py-20 sm:py-32 bg-slate-50 dark:bg-slate-900/90 relative overflow-hidden transition-colors border-t border-slate-200/80 dark:border-slate-800/80">
+    <div class="absolute top-0 right-0 w-96 h-96 bg-primary/10 rounded-full blur-[120px] -mr-40 -mt-40 pointer-events-none"></div>
+    <div class="absolute bottom-0 left-0 w-96 h-96 bg-secondary/10 rounded-full blur-[120px] -ml-40 -mb-40 pointer-events-none"></div>
 
-    <div class="max-w-7xl mx-auto px-6 relative z-10">
-        <div class="text-center mb-24" data-aos="fade-up">
-            <div class="text-primary font-bold tracking-widest uppercase mb-4">The Alpha Task Force</div>
-            <h2 class="text-5xl font-black font-heading tracking-tight text-slate-900 dark:text-white">MEET THE <span class="text-gradient">PREDATORS.</span></h2>
-            <p class="mt-6 text-slate-600 dark:text-slate-400 max-w-2xl mx-auto text-lg leading-relaxed">
-                A collective of specialized experts executing complex digital missions with surgical precision.
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 relative z-10">
+        <div class="text-center mb-16 sm:mb-20" data-aos="fade-up">
+            <div class="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-primary/10 text-primary text-xs font-mono font-bold tracking-widest uppercase mb-4">
+                <span class="w-2 h-2 rounded-full bg-primary"></span>
+                <span>The Alpha Task Force</span>
+            </div>
+            <h2 class="text-3xl xs:text-4xl sm:text-5xl font-black font-heading tracking-tight text-slate-900 dark:text-white">
+                MEET THE <span class="text-gradient">PREDATORS.</span>
+            </h2>
+            <p class="mt-4 text-slate-600 dark:text-slate-400 max-w-xl mx-auto text-sm sm:text-base leading-relaxed">
+                A specialized collective of senior software architects, designers, and DevOps engineers executing complex digital missions.
             </p>
         </div>
 
-        <div class="swiper team-slider pb-20">
+        <div class="swiper team-slider pb-14">
             <div class="swiper-wrapper">
                 {teamMembers.map((member) => (
                     <div class="swiper-slide group relative">
-                        <div class={`bg-white dark:bg-slate-950/60 backdrop-blur-xl rounded-[2rem] p-5 border border-slate-200 dark:border-white/5 transition-all duration-500 hover:bg-slate-50 dark:hover:bg-slate-900 hover:border-${member.data.color}/30 shadow-xl dark:shadow-none`}>
-                            <div class="relative w-full aspect-square overflow-hidden rounded-2xl mb-5">
-                                <img src={`/assets/images/resource/${member.data.img}`} class="w-full h-full object-cover grayscale transition-all duration-700 group-hover:grayscale-0 group-hover:scale-110" alt={member.data.name} />
+                        <div class="bg-white dark:bg-slate-950/80 backdrop-blur-xl rounded-3xl p-5 border border-slate-200 dark:border-slate-800 transition-all duration-300 hover:shadow-xl hover:border-primary/40 shadow-sm flex flex-col justify-between">
+                            <div class="relative w-full aspect-square overflow-hidden rounded-2xl mb-4 bg-slate-100 dark:bg-slate-900">
+                                <img
+                                    src={`/assets/images/resource/${member.data.img}`}
+                                    class="w-full h-full object-cover grayscale transition-all duration-500 group-hover:grayscale-0 group-hover:scale-105"
+                                    alt={member.data.name}
+                                    loading="lazy"
+                                />
                             </div>
                             <div class="text-center">
-                                <h4 class="text-lg font-bold font-heading text-slate-900 dark:text-white mb-1">{member.data.name}</h4>
-                                <p class={`text-${member.data.color} font-bold uppercase tracking-[0.2em] text-[8px] mb-3 opacity-80`}>{member.data.role}</p>
-                                <div class={`h-0.5 w-6 bg-slate-200 dark:bg-white/10 mx-auto group-hover:w-12 group-hover:bg-${member.data.color} transition-all duration-500`}></div>
+                                <h4 class="text-base sm:text-lg font-bold font-heading text-slate-900 dark:text-white mb-1">
+                                    {member.data.name}
+                                </h4>
+                                <p class="text-primary font-bold uppercase tracking-[0.18em] text-[10px] mb-3">
+                                    {member.data.role}
+                                </p>
+                                <div class="h-0.5 w-6 bg-slate-200 dark:bg-slate-800 mx-auto group-hover:w-10 group-hover:bg-primary transition-all duration-300"></div>
                             </div>
                         </div>
                     </div>
@@ -42,16 +56,16 @@ const teamMembers = await getCollection('team');
     document.addEventListener('DOMContentLoaded', () => {
         if (typeof Swiper !== 'undefined') {
             new Swiper(".team-slider", {
-                slidesPerView: 1,
-                spaceBetween: 30,
+                slidesPerView: 1.25,
+                spaceBetween: 16,
                 loop: true,
-                autoplay: { delay: 3000, disableOnInteraction: false },
+                autoplay: { delay: 3500, disableOnInteraction: false },
                 pagination: { el: ".swiper-pagination", clickable: true },
                 breakpoints: {
-                    640: { slidesPerView: 2 },
-                    768: { slidesPerView: 3 },
-                    1024: { slidesPerView: 4 },
-                    1280: { slidesPerView: 5 },
+                    480: { slidesPerView: 2, spaceBetween: 20 },
+                    768: { slidesPerView: 3, spaceBetween: 24 },
+                    1024: { slidesPerView: 4, spaceBetween: 28 },
+                    1280: { slidesPerView: 5, spaceBetween: 30 },
                 },
             });
         }
@@ -60,12 +74,16 @@ const teamMembers = await getCollection('team');
 
 <style>
 	.text-gradient {
-		background: linear-gradient(to right, #FF4D1C, #FF8E6E);
+		background: linear-gradient(135deg, #FF4D1C 0%, #FF8E6E 100%);
 		-webkit-background-clip: text;
 		-webkit-text-fill-color: transparent;
 	}
 	:global(.dark) .swiper-pagination-bullet {
 		background: #ffffff !important;
 		opacity: 0.25 !important;
+	}
+    :global(.dark) .swiper-pagination-bullet-active {
+		background: #FF4D1C !important;
+		opacity: 1 !important;
 	}
 </style>

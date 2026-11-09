@@ -7,7 +7,7 @@ let servicesList: Array<{
     title: string;
     description: string;
     icon: string;
-    color: string;
+    color?: string;
     delay?: number;
   };
 }> = [];
@@ -21,7 +21,7 @@ try {
         title: s.title,
         description: s.description,
         icon: s.icon,
-        color: s.color,
+        color: s.color || 'primary',
         delay: idx * 100,
       },
     }));
@@ -34,34 +34,54 @@ try {
   servicesList = rawServices.map((r) => ({ data: r.data }));
 }
 ---
-<!-- Services Section -->
-<section id="services" class="py-32 relative bg-slate-50 dark:bg-slate-950 transition-colors">
-    <div class="max-w-7xl mx-auto px-6">
-        <div class="flex flex-col lg:flex-row lg:items-end justify-between mb-20">
+<!-- Services / Specializations Section -->
+<section id="services" class="py-20 sm:py-32 relative bg-slate-50 dark:bg-slate-950 transition-colors">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6">
+        <div class="flex flex-col lg:flex-row lg:items-end justify-between mb-16 sm:mb-20">
             <div data-aos="fade-up">
-                <div class="text-primary font-bold tracking-widest uppercase mb-4">
-                    Our Specializations
+                <div class="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-primary/10 text-primary text-xs font-mono font-bold tracking-widest uppercase mb-4">
+                    <span class="w-2 h-2 rounded-full bg-primary"></span>
+                    <span>Engineering Capabilities</span>
                 </div>
-                <h2 class="text-5xl md:text-6xl font-black font-heading leading-tight text-slate-900 dark:text-white">
-                    DOMINATE THE <br /><span class="text-gradient">DIGITAL WILD.</span>
+                <h2 class="text-3xl xs:text-4xl sm:text-5xl md:text-6xl font-black font-heading leading-tight tracking-tight text-slate-900 dark:text-white">
+                    DOMINATE THE <br class="hidden sm:inline" />
+                    <span class="text-gradient">DIGITAL WILD.</span>
                 </h2>
             </div>
-            <p class="mt-8 lg:mt-0 text-slate-500 dark:text-slate-400 max-w-sm text-lg leading-relaxed" data-aos="fade-left">
-                We provide the artillery needed for your business to overcome every
-                digital obstacle. High speed, high quality, no compromise.
+            <p class="mt-6 lg:mt-0 text-slate-600 dark:text-slate-400 max-w-md text-base sm:text-lg leading-relaxed" data-aos="fade-left">
+                We provide the precision engineering needed for your venture to outpace competitors with maximum velocity and zero compromise on reliability.
             </p>
         </div>
 
-        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-            {servicesList.map((item) => (
-                <div class={`group p-10 glass-card dark:bg-slate-900/70 dark:border-slate-800 rounded-[3rem] hover:bg-${item.data.color} transition-all duration-500 cursor-pointer`} data-aos="fade-up" data-aos-delay={item.data.delay}>
-                    <div class={`w-20 h-20 bg-${item.data.color}/10 rounded-2xl flex items-center justify-center mb-8 group-hover:bg-white transition-colors`}>
-                        <i data-lucide={item.data.icon} class={`text-${item.data.color} w-10 h-10 transition-colors`}></i>
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 sm:gap-8">
+            {servicesList.map((item, index) => (
+                <div
+                    class="group p-6 sm:p-8 bg-white dark:bg-slate-900/80 border border-slate-200/90 dark:border-slate-800/90 hover:border-primary/50 dark:hover:border-primary/50 rounded-3xl transition-all duration-300 shadow-lg hover:shadow-2xl hover:-translate-y-1.5 flex flex-col justify-between"
+                    data-aos="fade-up"
+                    data-aos-delay={item.data.delay || index * 80}
+                >
+                    <div>
+                        <!-- Icon Box -->
+                        <div class="w-14 h-14 sm:w-16 sm:h-16 rounded-2xl bg-primary/10 text-primary flex items-center justify-center mb-6 group-hover:bg-primary group-hover:text-white transition-all duration-300 shadow-sm">
+                            <i data-lucide={item.data.icon} class="w-7 h-7 sm:w-8 sm:h-8"></i>
+                        </div>
+
+                        <!-- Title -->
+                        <h3 class="text-xl sm:text-2xl font-black mb-3 font-heading text-slate-900 dark:text-white group-hover:text-primary transition-colors tracking-tight">
+                            {item.data.title}
+                        </h3>
+
+                        <!-- Description -->
+                        <p class="text-slate-600 dark:text-slate-400 text-sm sm:text-base leading-relaxed mb-6">
+                            {item.data.description}
+                        </p>
                     </div>
-                    <h3 class="text-2xl font-bold mb-4 font-heading text-slate-900 dark:text-white group-hover:text-white transition-colors tracking-tight">{item.data.title}</h3>
-                    <p class="text-slate-500 dark:text-slate-400 group-hover:text-white/70 transition-colors leading-relaxed">
-                        {item.data.description}
-                    </p>
+
+                    <!-- Footer Link -->
+                    <div class="pt-4 border-t border-slate-100 dark:border-slate-800/80 flex items-center justify-between text-xs font-bold text-primary group-hover:translate-x-1 transition-transform">
+                        <span>Initialize Service</span>
+                        <i data-lucide="arrow-right" class="w-4 h-4"></i>
+                    </div>
                 </div>
             ))}
         </div>
@@ -70,17 +90,8 @@ try {
 
 <style>
 	.text-gradient {
-		background: linear-gradient(to right, #FF4D1C, #FF8E6E);
+		background: linear-gradient(135deg, #FF4D1C 0%, #FF8E6E 100%);
 		-webkit-background-clip: text;
 		-webkit-text-fill-color: transparent;
 	}
-    .glass-card {
-        background: rgba(255, 255, 255, 0.7);
-        backdrop-filter: blur(10px);
-        border: 1px solid rgba(255, 255, 255, 0.2);
-    }
-    :global(.dark) .glass-card {
-        background: rgba(15, 23, 42, 0.75);
-        border: 1px solid rgba(255, 255, 255, 0.08);
-    }
 </style>

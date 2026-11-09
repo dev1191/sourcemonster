@@ -1,80 +1,160 @@
 ---
 ---
-<section id="contact" class="pt-32 bg-white dark:bg-slate-950 relative overflow-hidden transition-colors">
-    <div class="hero-glow -bottom-60 left-1/2 -translate-x-1/2 opacity-30"></div>
+<!-- Contact Section -->
+<section id="contact" class="py-20 sm:py-32 bg-white dark:bg-slate-950 relative overflow-hidden transition-colors border-t border-slate-200/80 dark:border-slate-800/80">
+    <!-- Ambient Glow -->
+    <div class="hero-glow -bottom-40 left-1/2 -translate-x-1/2 opacity-25 pointer-events-none"></div>
 
-    <div class="max-w-7xl mx-auto px-6 relative z-10">
-        <div class="grid lg:grid-cols-2 gap-20 items-center mb-32">
-            <div data-aos="fade-right">
-                <h2 class="text-6xl font-black font-heading leading-tight mb-10 text-slate-900 dark:text-white">
-                    READY TO <br />
-                    <span class="text-gradient">START THE HUNT?</span>
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 relative z-10">
+        <div class="grid lg:grid-cols-12 gap-12 lg:gap-16 items-start">
+            <!-- Left Info Column (5 cols) -->
+            <div class="lg:col-span-5" data-aos="fade-right">
+                <div class="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-primary/10 text-primary text-xs font-mono font-bold tracking-widest uppercase mb-4">
+                    <span class="w-2 h-2 rounded-full bg-primary"></span>
+                    <span>Ready To Scale?</span>
+                </div>
+
+                <h2 class="text-4xl xs:text-5xl sm:text-6xl font-black font-heading leading-tight tracking-tight mb-6 text-slate-900 dark:text-white">
+                    LET'S BUILD <br class="hidden sm:inline" />
+                    <span class="text-gradient">TOGETHER.</span>
                 </h2>
-                <p class="text-xl text-slate-600 dark:text-slate-400 mb-12 leading-relaxed">
-                    Don't let your competition evolve faster than you. Claim your territory in the digital wild right now.
+
+                <p class="text-base sm:text-lg text-slate-600 dark:text-slate-400 mb-8 leading-relaxed">
+                    Have a SaaS product in mind, need custom engineering, or want to deploy one of our production boilerplates? Send a message and our lead architects will respond within 2 hours.
                 </p>
 
-                <div class="space-y-6">
-                    <div class="flex items-center space-x-6">
-                        <div class="w-12 h-12 glass-card dark:bg-slate-900 dark:border-slate-800 rounded-xl flex items-center justify-center text-primary">
-                            <i data-lucide="mail"></i>
+                <!-- Direct Contact Channels -->
+                <div class="space-y-4 mb-8">
+                    <!-- WhatsApp Direct -->
+                    <a
+                        href="https://wa.me/918607248802?text=Hello%20SourceMonster,%20I%20want%20to%20discuss%20a%20project."
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        class="flex items-center gap-4 p-4 rounded-2xl bg-emerald-500/10 hover:bg-emerald-500/20 border border-emerald-500/20 text-emerald-700 dark:text-emerald-400 transition group shadow-xs"
+                    >
+                        <div class="w-12 h-12 rounded-xl bg-[#25D366] text-white flex items-center justify-center shrink-0 shadow-md">
+                            <i data-lucide="message-circle" class="w-6 h-6"></i>
                         </div>
-                        <span class="text-lg font-bold text-slate-900 dark:text-white">contact@sourcemonster.in</span>
-                    </div>
-                    <div class="flex items-center space-x-6">
-                        <div class="w-12 h-12 glass-card dark:bg-slate-900 dark:border-slate-800 rounded-xl flex items-center justify-center text-primary">
-                            <i data-lucide="phone"></i>
+                        <div>
+                            <div class="text-xs font-mono font-bold uppercase tracking-wider text-emerald-600 dark:text-emerald-400">Direct WhatsApp</div>
+                            <div class="text-base font-bold text-slate-900 dark:text-white group-hover:text-emerald-600 transition">+91 86072 48802</div>
                         </div>
-                        <span class="text-lg font-bold text-slate-900 dark:text-white">+91 86072 48802</span>
-                    </div>
+                    </a>
+
+                    <!-- Email Direct -->
+                    <a
+                        href="mailto:contact@sourcemonster.in"
+                        class="flex items-center gap-4 p-4 rounded-2xl bg-slate-50 dark:bg-slate-900/80 hover:bg-slate-100 dark:hover:bg-slate-800 border border-slate-200 dark:border-slate-800 transition group shadow-xs"
+                    >
+                        <div class="w-12 h-12 rounded-xl bg-primary/10 text-primary flex items-center justify-center shrink-0">
+                            <i data-lucide="mail" class="w-6 h-6"></i>
+                        </div>
+                        <div>
+                            <div class="text-xs font-mono font-bold uppercase tracking-wider text-slate-500">Official Inbox</div>
+                            <div class="text-base font-bold text-slate-900 dark:text-white group-hover:text-primary transition">contact@sourcemonster.in</div>
+                        </div>
+                    </a>
+                </div>
+
+                <!-- Guarantee Badge -->
+                <div class="flex items-center gap-2.5 text-xs font-mono text-slate-500 dark:text-slate-400">
+                    <i data-lucide="clock" class="w-4 h-4 text-primary"></i>
+                    <span>Guaranteed response time: &lt; 2 business hours</span>
                 </div>
             </div>
 
-            <div class="glass-card dark:bg-slate-900/90 dark:border-slate-800 p-8 sm:p-12 rounded-[2.5rem] sm:rounded-[3.5rem] shadow-2xl shadow-slate-200/50 dark:shadow-black/60" data-aos="fade-left">
-                <form id="contact-form" class="space-y-5">
-                    <!-- Anti-spam Honeypot -->
-                    <input type="text" name="honeypot" class="hidden" tabindex="-1" autocomplete="off" />
-                    <input type="hidden" name="sourcePage" id="source-page-input" value="/" />
+            <!-- Right Form Column (7 cols) -->
+            <div class="lg:col-span-7" data-aos="fade-left">
+                <div class="bg-white dark:bg-slate-900/90 border border-slate-200 dark:border-slate-800 p-6 sm:p-10 rounded-3xl sm:rounded-[2.5rem] shadow-2xl">
+                    <form id="contact-form" class="space-y-4 sm:space-y-5">
+                        <!-- Anti-spam Honeypot -->
+                        <input type="text" name="honeypot" class="hidden" tabindex="-1" autocomplete="off" />
+                        <input type="hidden" name="sourcePage" id="source-page-input" value="/" />
 
-                    <div class="grid md:grid-cols-2 gap-4 sm:gap-6">
-                        <div>
-                            <label class="block text-[10px] uppercase tracking-widest font-bold text-slate-500 dark:text-slate-400 mb-2">Your Name *</label>
-                            <input name="name" type="text" required class="w-full bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 p-3.5 sm:p-4 rounded-2xl focus:ring-2 focus:ring-primary outline-none transition-all text-sm text-slate-900 dark:text-white" placeholder="John Wick" />
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-5">
+                            <div>
+                                <label class="block text-xs uppercase tracking-wider font-mono font-bold text-slate-500 dark:text-slate-400 mb-2">
+                                    Your Name *
+                                </label>
+                                <input
+                                    name="name"
+                                    type="text"
+                                    required
+                                    class="w-full bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 p-3.5 sm:p-4 rounded-2xl focus:ring-2 focus:ring-primary focus:border-transparent outline-none transition-all text-base text-slate-900 dark:text-white"
+                                    placeholder="Alex Morgan"
+                                />
+                            </div>
+                            <div>
+                                <label class="block text-xs uppercase tracking-wider font-mono font-bold text-slate-500 dark:text-slate-400 mb-2">
+                                    Email Address *
+                                </label>
+                                <input
+                                    name="email"
+                                    type="email"
+                                    required
+                                    class="w-full bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 p-3.5 sm:p-4 rounded-2xl focus:ring-2 focus:ring-primary focus:border-transparent outline-none transition-all text-base text-slate-900 dark:text-white"
+                                    placeholder="alex@company.com"
+                                />
+                            </div>
                         </div>
-                        <div>
-                            <label class="block text-[10px] uppercase tracking-widest font-bold text-slate-500 dark:text-slate-400 mb-2">Email Address *</label>
-                            <input name="email" type="email" required class="w-full bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 p-3.5 sm:p-4 rounded-2xl focus:ring-2 focus:ring-primary outline-none transition-all text-sm text-slate-900 dark:text-white" placeholder="wick@continental.com" />
-                        </div>
-                    </div>
 
-                    <div class="grid md:grid-cols-2 gap-4 sm:gap-6">
-                        <div>
-                            <label class="block text-[10px] uppercase tracking-widest font-bold text-slate-500 dark:text-slate-400 mb-2">Company / Organization</label>
-                            <input name="company" type="text" class="w-full bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 p-3.5 sm:p-4 rounded-2xl focus:ring-2 focus:ring-primary outline-none transition-all text-sm text-slate-900 dark:text-white" placeholder="Continental Labs" />
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-5">
+                            <div>
+                                <label class="block text-xs uppercase tracking-wider font-mono font-bold text-slate-500 dark:text-slate-400 mb-2">
+                                    Company / Project Name
+                                </label>
+                                <input
+                                    name="company"
+                                    type="text"
+                                    class="w-full bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 p-3.5 sm:p-4 rounded-2xl focus:ring-2 focus:ring-primary focus:border-transparent outline-none transition-all text-base text-slate-900 dark:text-white"
+                                    placeholder="Acme Labs"
+                                />
+                            </div>
+                            <div>
+                                <label class="block text-xs uppercase tracking-wider font-mono font-bold text-slate-500 dark:text-slate-400 mb-2">
+                                    Service / Product Needed *
+                                </label>
+                                <select
+                                    id="service-select"
+                                    name="service"
+                                    required
+                                    class="w-full bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 p-3.5 sm:p-4 rounded-2xl focus:ring-2 focus:ring-primary focus:border-transparent outline-none transition-all text-slate-900 dark:text-white text-base"
+                                >
+                                    <option value="Custom Development">Custom Development</option>
+                                    <option value="Product Customization">Product Customization</option>
+                                    <option value="Web Engineering">Web Engineering</option>
+                                    <option value="SaaS Architecture">SaaS Architecture</option>
+                                    <option value="Mobile App Development">Mobile App Development</option>
+                                    <option value="Enterprise DevOps">Enterprise DevOps</option>
+                                </select>
+                            </div>
                         </div>
-                        <div>
-                            <label class="block text-[10px] uppercase tracking-widest font-bold text-slate-500 dark:text-slate-400 mb-2">Service / Product Needed</label>
-                            <select id="service-select" name="service" required class="w-full bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 p-3.5 sm:p-4 rounded-2xl focus:ring-2 focus:ring-primary outline-none transition-all text-slate-900 dark:text-white text-sm">
-                                <option value="Custom Development">Custom Development</option>
-                                <option value="Product Customization">Product Customization</option>
-                                <option value="Web Engineering">Web Engineering</option>
-                                <option value="Growth Strategy">Growth Strategy</option>
-                                <option value="App Development">App Development</option>
-                                <option value="Visual Identity">Visual Identity</option>
-                            </select>
-                        </div>
-                    </div>
 
-                    <div>
-                        <label class="block text-[10px] uppercase tracking-widest font-bold text-slate-500 dark:text-slate-400 mb-2">Message *</label>
-                        <textarea name="message" id="contact-message" rows="4" required class="w-full bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 p-3.5 sm:p-4 rounded-2xl focus:ring-2 focus:ring-primary outline-none transition-all text-sm text-slate-900 dark:text-white" placeholder="Tell us about the beast we're building..."></textarea>
-                    </div>
-                    <button type="submit" class="w-full bg-primary text-white py-4 sm:py-5 rounded-2xl font-bold text-lg sm:text-xl hover:shadow-2xl hover:shadow-primary/30 active:scale-[0.98] transition-all flex items-center justify-center space-x-3">
-                        <span class="btn-text">INITIALIZE PROJECT</span>
-                        <div class="spinner hidden w-6 h-6 border-4 border-white border-t-transparent rounded-full animate-spin"></div>
-                    </button>
-                    <div id="form-status" class="hidden text-center p-4 rounded-2xl font-bold text-sm"></div>
-                </form>
+                        <div>
+                            <label class="block text-xs uppercase tracking-wider font-mono font-bold text-slate-500 dark:text-slate-400 mb-2">
+                                Project Scope &amp; Details *
+                            </label>
+                            <textarea
+                                name="message"
+                                id="contact-message"
+                                rows="4"
+                                required
+                                class="w-full bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 p-3.5 sm:p-4 rounded-2xl focus:ring-2 focus:ring-primary focus:border-transparent outline-none transition-all text-base text-slate-900 dark:text-white"
+                                placeholder="Describe your project, timeline, and key requirements..."
+                            ></textarea>
+                        </div>
+
+                        <button
+                            type="submit"
+                            class="w-full bg-primary hover:bg-orange-600 active:scale-95 text-white py-4 sm:py-4.5 rounded-2xl font-bold text-base sm:text-lg shadow-xl shadow-primary/25 hover:shadow-2xl hover:shadow-primary/40 transition-all flex items-center justify-center gap-2 cursor-pointer"
+                        >
+                            <span class="btn-text">INITIALIZE PROJECT</span>
+                            <div class="spinner hidden w-5 h-5 border-3 border-white border-t-transparent rounded-full animate-spin"></div>
+                        </button>
+
+                        <div id="form-status" class="hidden text-center p-3.5 rounded-2xl font-bold text-sm"></div>
+                    </form>
+                </div>
             </div>
         </div>
     </div>
@@ -82,7 +162,6 @@
 
 <script>
     import { actions, isInputError } from 'astro:actions';
-
 
     const form = document.getElementById('contact-form') as HTMLFormElement;
     const status = document.getElementById('form-status');
@@ -105,7 +184,6 @@
             }
 
             if (productParam && serviceSelect) {
-                // Add product option if not present
                 const option = document.createElement("option");
                 option.value = `Customization: ${productParam}`;
                 option.text = `Customization: ${productParam}`;
@@ -130,7 +208,7 @@
 
         // Reset status
         status.classList.add('hidden');
-        status.classList.remove('bg-green-100', 'text-green-800', 'bg-red-100', 'text-red-800');
+        status.classList.remove('bg-emerald-500/10', 'text-emerald-700', 'dark:text-emerald-400', 'bg-rose-500/10', 'text-rose-700', 'dark:text-rose-400');
         
         // Loading state
         button.setAttribute('disabled', 'true');
@@ -147,18 +225,16 @@
 
         if (error) {
             if (isInputError(error)) {
-                // Collect all validation messages
                 const messages = Object.values(error.fields).flat().join(', ');
                 status.textContent = "Validation Error: " + messages;
             } else {
                 status.textContent = "Error: " + error.message;
             }
-            status.classList.add('bg-red-100', 'text-red-800');
+            status.classList.add('bg-rose-500/10', 'text-rose-700', 'dark:text-rose-400');
             status.classList.remove('hidden');
         } else {
-
-            status.textContent = "Mission Initialized! We'll reach out soon.";
-            status.classList.add('bg-green-100', 'text-green-800');
+            status.textContent = "Project Initialized! Our team will reach out within 2 hours.";
+            status.classList.add('bg-emerald-500/10', 'text-emerald-700', 'dark:text-emerald-400');
             status.classList.remove('hidden');
             form.reset();
         }
@@ -167,17 +243,16 @@
 
 <style>
 	.text-gradient {
-		background: linear-gradient(to right, #FF4D1C, #FF8E6E);
+		background: linear-gradient(135deg, #FF4D1C 0%, #FF8E6E 100%);
 		-webkit-background-clip: text;
 		-webkit-text-fill-color: transparent;
 	}
-    .glass-card {
-        background: rgba(255, 255, 255, 0.7);
-        backdrop-filter: blur(10px);
-        border: 1px solid rgba(255, 255, 255, 0.2);
-    }
-    :global(.dark) .glass-card {
-        background: rgba(15, 23, 42, 0.85);
-        border: 1px solid rgba(255, 255, 255, 0.08);
-    }
+	.hero-glow {
+		position: absolute;
+		width: 500px;
+		height: 500px;
+		background: radial-gradient(circle, rgba(255, 77, 28, 0.1) 0%, transparent 70%);
+		border-radius: 50%;
+		filter: blur(80px);
+	}
 </style>

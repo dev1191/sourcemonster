@@ -4,26 +4,46 @@ const steps = await getCollection('workflow');
 const sortedSteps = steps.sort((a, b) => parseInt(a.data.step) - parseInt(b.data.step));
 ---
 <!-- Workflow Section -->
-<section id="workflow" class="py-32 bg-slate-50 dark:bg-slate-900/90 relative overflow-hidden transition-colors">
-    <div class="max-w-7xl mx-auto px-6 relative z-10">
-        <div class="text-center mb-24" data-aos="fade-up">
-            <div class="text-primary font-bold tracking-widest uppercase mb-4">The Predator Process</div>
-            <h2 class="text-5xl font-black font-heading tracking-tight text-slate-900 dark:text-white">THE <span class="text-gradient">TACTICAL PATH.</span></h2>
+<section id="workflow" class="py-20 sm:py-32 bg-slate-50 dark:bg-slate-900/90 relative overflow-hidden transition-colors">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 relative z-10">
+        <div class="text-center mb-16 sm:mb-24" data-aos="fade-up">
+            <div class="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-primary/10 text-primary text-xs font-mono font-bold tracking-widest uppercase mb-4">
+                <span class="w-2 h-2 rounded-full bg-primary"></span>
+                <span>The Predator Process</span>
+            </div>
+            <h2 class="text-3xl xs:text-4xl sm:text-5xl font-black font-heading tracking-tight text-slate-900 dark:text-white">
+                THE <span class="text-gradient">TACTICAL PATH.</span>
+            </h2>
+            <p class="mt-4 text-slate-600 dark:text-slate-400 max-w-xl mx-auto text-sm sm:text-base">
+                How our engineering collective moves from initial brief to battle-tested production deployment.
+            </p>
         </div>
-        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
+
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 sm:gap-8">
             {sortedSteps.map((item, index) => (
-                <div class="relative group" data-aos="fade-up" data-aos-delay={item.data.delay}>
-                    <div class={`glass-card dark:bg-slate-950/70 dark:border-slate-800 p-10 rounded-[3rem] h-full transition-all duration-500 hover:shadow-2xl hover:shadow-${item.data.color}/10 border-b-4 border-b-transparent hover:border-b-${item.data.color} hover:-translate-y-2`}>
-                        <div class="flex justify-between items-start mb-8">
-                            <div class={`w-16 h-16 bg-${item.data.color}/10 rounded-2xl flex items-center justify-center text-${item.data.color} transition-transform group-hover:scale-110 group-hover:rotate-6`}><i data-lucide={item.data.icon} class="w-8 h-8"></i></div>
-                            <span class={`text-5xl font-black text-slate-100 dark:text-slate-800 transition-colors group-hover:text-${item.data.color}/10`}>{item.data.step}</span>
+                <div class="relative group" data-aos="fade-up" data-aos-delay={item.data.delay || index * 100}>
+                    <div class="bg-white dark:bg-slate-950/70 border border-slate-200/90 dark:border-slate-800/90 p-6 sm:p-8 rounded-3xl h-full transition-all duration-300 hover:shadow-2xl hover:border-primary/50 hover:-translate-y-1.5 flex flex-col justify-between shadow-sm">
+                        <div>
+                            <div class="flex justify-between items-start mb-6">
+                                <div class="w-14 h-14 rounded-2xl bg-primary/10 text-primary flex items-center justify-center transition-transform group-hover:scale-110 shadow-xs">
+                                    <i data-lucide={item.data.icon} class="w-7 h-7"></i>
+                                </div>
+                                <span class="text-4xl sm:text-5xl font-black text-slate-200 dark:text-slate-800 transition-colors group-hover:text-primary/20 font-heading">
+                                    {item.data.step}
+                                </span>
+                            </div>
+                            <h4 class="text-xl font-black mb-3 font-heading text-slate-900 dark:text-white tracking-tight">
+                                {item.data.title}
+                            </h4>
+                            <p class="text-slate-600 dark:text-slate-400 leading-relaxed text-xs sm:text-sm">
+                                {item.data.description}
+                            </p>
                         </div>
-                        <h4 class="text-2xl font-black mb-4 font-heading text-slate-900 dark:text-white">{item.data.title}</h4>
-                        <p class="text-slate-500 dark:text-slate-400 leading-relaxed text-sm">{item.data.description}</p>
                     </div>
+
                     {index < sortedSteps.length - 1 && (
-                        <div class="hidden lg:block absolute top-1/2 -right-4 -translate-y-1/2 z-20 text-slate-200 dark:text-slate-700">
-                            <i data-lucide="chevron-right" class="w-8 h-8"></i>
+                        <div class="hidden lg:block absolute top-1/2 -right-4 -translate-y-1/2 z-20 text-slate-300 dark:text-slate-700 pointer-events-none">
+                            <i data-lucide="chevron-right" class="w-7 h-7"></i>
                         </div>
                     )}
                 </div>
@@ -34,17 +54,8 @@ const sortedSteps = steps.sort((a, b) => parseInt(a.data.step) - parseInt(b.data
 
 <style>
 	.text-gradient {
-		background: linear-gradient(to right, #FF4D1C, #FF8E6E);
+		background: linear-gradient(135deg, #FF4D1C 0%, #FF8E6E 100%);
 		-webkit-background-clip: text;
 		-webkit-text-fill-color: transparent;
 	}
-    .glass-card {
-        background: rgba(255, 255, 255, 0.7);
-        backdrop-filter: blur(10px);
-        border: 1px solid rgba(255, 255, 255, 0.2);
-    }
-    :global(.dark) .glass-card {
-        background: rgba(15, 23, 42, 0.75);
-        border: 1px solid rgba(255, 255, 255, 0.08);
-    }
 </style>
