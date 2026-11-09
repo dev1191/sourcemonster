@@ -92,12 +92,12 @@ export const sidebarHeader = tv({
 });
 
 export const sidebarInner = tv({
-  base: "bg-slate-900 border-r border-slate-800/80 flex h-full max-h-screen w-full flex-col overflow-hidden",
+  base: "bg-white dark:bg-slate-900 border-r border-slate-200 dark:border-slate-800/80 text-slate-800 dark:text-slate-200 flex h-full max-h-screen w-full flex-col overflow-hidden transition-colors duration-200",
   variants: {
     variant: {
       sidebar: "",
-      floating: "border-sidebar-border rounded-lg border shadow-sm",
-      inset: "border-sidebar-border rounded-lg border shadow-sm",
+      floating: "border-slate-200 dark:border-slate-800 rounded-lg border shadow-sm",
+      inset: "border-slate-200 dark:border-slate-800 rounded-lg border shadow-sm",
     },
   },
   defaultVariants: {
@@ -163,25 +163,26 @@ export const sidebarMenuBadge = tv({
 
 export const sidebarMenuButton = tv({
   base: [
-    "peer/menu-button flex w-full items-center gap-3 overflow-hidden rounded-md p-2.5 text-left",
-    "ring-sidebar-outline outline-hidden transition-[width,height,padding]",
-    "hover:bg-sidebar-accent hover:text-sidebar-accent-foreground",
+    "peer/menu-button flex w-full items-center gap-3 overflow-hidden rounded-md p-2.5 text-left text-sm font-medium",
+    "text-slate-600 dark:text-slate-300",
+    "ring-sidebar-outline outline-hidden transition-all duration-150",
+    "hover:bg-slate-100 dark:hover:bg-slate-800 hover:text-slate-900 dark:hover:text-white",
     "focus-visible:ring-2",
-    "active:bg-sidebar-accent active:text-sidebar-accent-foreground",
+    "active:bg-slate-100 dark:active:bg-slate-800 active:text-slate-900 dark:active:text-white",
     "disabled:pointer-events-none disabled:opacity-50",
     "aria-disabled:pointer-events-none aria-disabled:opacity-50",
     "group-has-data-[sidebar=menu-action]/menu-item:pr-8",
-    "data-[active=true]:bg-sidebar-accent data-[active=true]:text-sidebar-accent-foreground data-[active=true]:font-medium",
-    "data-[state=open]:hover:bg-sidebar-accent data-[state=open]:hover:text-sidebar-accent-foreground",
+    "data-[active=true]:bg-slate-100 dark:data-[active=true]:bg-slate-800 data-[active=true]:text-slate-900 dark:data-[active=true]:text-white data-[active=true]:font-semibold",
+    "data-[state=open]:hover:bg-slate-100 dark:data-[state=open]:hover:bg-slate-800 data-[state=open]:hover:text-slate-900 dark:data-[state=open]:hover:text-white",
     "group-data-[collapsible=icon]:size-10! group-data-[collapsible=icon]:p-2.5!",
-    "[&>span:last-child]:truncate [&>svg]:size-4.5 [&>svg]:shrink-0",
+    "[&>span:last-child]:truncate [&>svg]:size-4.5 [&>svg]:shrink-0 [&>svg]:text-slate-400 group-hover/menu-item:[&>svg]:text-slate-900 dark:group-hover/menu-item:[&>svg]:text-white",
   ],
   variants: {
     variant: {
-      default: "hover:bg-sidebar-accent hover:text-sidebar-accent-foreground",
+      default: "",
       outline: [
-        "bg-background shadow-sidebar-border shadow-xs",
-        "hover:bg-sidebar-accent hover:text-sidebar-accent-foreground hover:shadow-sidebar-accent",
+        "bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-xs",
+        "hover:bg-slate-100 dark:hover:bg-slate-800 hover:text-slate-900 dark:hover:text-white",
       ],
     },
     size: {
@@ -206,23 +207,23 @@ export const sidebarMenuSkeleton = tv({
 
 export const sidebarMenuSub = tv({
   base: [
-    "border-sidebar-border mx-4.5 flex min-w-0 translate-x-px flex-col gap-1 border-l px-2.5 py-0.5",
+    "border-slate-200 dark:border-slate-800 mx-4.5 flex min-w-0 translate-x-px flex-col gap-1 border-l px-2.5 py-0.5",
     "group-data-[collapsible=icon]:hidden",
   ],
 });
 
 export const sidebarMenuSubButton = tv({
   base: [
-    "text-sidebar-foreground ring-sidebar-outline",
+    "text-slate-600 dark:text-slate-400 ring-sidebar-outline",
     "flex h-8 min-w-0 -translate-x-px items-center gap-2 overflow-hidden rounded-md px-2.5",
-    "outline-hidden",
-    "hover:bg-sidebar-accent hover:text-sidebar-accent-foreground",
+    "outline-hidden text-xs font-medium transition-all duration-150",
+    "hover:bg-slate-100 dark:hover:bg-slate-800 hover:text-slate-900 dark:hover:text-white",
     "focus-visible:ring-2",
-    "active:bg-sidebar-accent active:text-sidebar-accent-foreground",
+    "active:bg-slate-100 dark:active:bg-slate-800 active:text-slate-900 dark:active:text-white",
     "disabled:pointer-events-none disabled:opacity-50",
     "aria-disabled:pointer-events-none aria-disabled:opacity-50",
-    "[&>svg]:text-sidebar-accent-foreground [&>span:last-child]:truncate [&>svg]:size-4 [&>svg]:shrink-0",
-    "data-[active=true]:bg-sidebar-accent data-[active=true]:text-sidebar-accent-foreground",
+    "[&>svg]:text-slate-400 group-hover/menu-sub-item:[&>svg]:text-slate-900 dark:group-hover/menu-sub-item:[&>svg]:text-white [&>span:last-child]:truncate [&>svg]:size-4 [&>svg]:shrink-0",
+    "data-[active=true]:bg-primary/10 dark:data-[active=true]:bg-primary/20 data-[active=true]:text-primary dark:data-[active=true]:text-primary data-[active=true]:font-semibold",
   ],
   variants: {
     size: {
@@ -240,7 +241,7 @@ export const sidebarMenuSubItem = tv({
 });
 
 export const sidebarMobileContent = tv({
-  base: "bg-slate-900 text-slate-200 w-[var(--sidebar-width,18rem)] p-0 [&>button]:hidden",
+  base: "bg-white dark:bg-slate-900 text-slate-800 dark:text-slate-200 border-r border-slate-200 dark:border-slate-800 w-[var(--sidebar-width,18rem)] p-0 [&>button]:hidden transition-colors duration-200",
 });
 
 export const sidebarProvider = tv({

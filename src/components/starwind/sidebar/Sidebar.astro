@@ -45,7 +45,7 @@ const mobileStyle = { "--sidebar-width": "18rem" };
         <div data-slot="sidebar-gap" class={sidebarGap({ variant })} />
 
         <div {...rest} class={sidebarContainer({ side, variant })} data-slot="sidebar-container">
-          <div data-sidebar="sidebar" data-slot="sidebar-inner" class={sidebarInner({ variant })}>
+          <div data-sidebar="sidebar" data-slot="sidebar-inner" class={sidebarInner({ variant, class: className })}>
             <slot />
           </div>
         </div>

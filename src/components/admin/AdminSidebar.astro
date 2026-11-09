@@ -72,14 +72,14 @@ const isProductActive = activeNav === "products" || activeNav === "addons" || cu
               <summary
                 class={`flex w-full items-center justify-between gap-3 overflow-hidden rounded-md p-2.5 text-left text-sm font-medium transition-all cursor-pointer list-none select-none [&::-webkit-details-marker]:hidden ring-sidebar-outline outline-hidden focus-visible:ring-2 ${
                   isProductActive
-                    ? "bg-sidebar-accent text-sidebar-accent-foreground font-semibold"
-                    : "text-sidebar-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground"
+                    ? "bg-slate-100 dark:bg-slate-800 text-slate-900 dark:text-white font-semibold"
+                    : "text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 hover:text-slate-900 dark:hover:text-white"
                 }`}
                 data-sidebar="menu-button"
                 data-active={isProductActive}
               >
                 <span class="flex items-center gap-3 min-w-0">
-                  <i data-lucide="package" class="w-4 h-4 shrink-0 text-slate-400 group-hover/prod:text-white"></i>
+                  <i data-lucide="package" class="w-4 h-4 shrink-0 text-slate-400 group-hover/prod:text-slate-900 dark:group-hover/prod:text-white"></i>
                   <span class="truncate group-data-[collapsible=icon]:hidden">Products</span>
                 </span>
                 <i
