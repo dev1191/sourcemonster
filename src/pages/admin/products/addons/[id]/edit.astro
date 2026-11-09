@@ -141,23 +141,23 @@ const currentParentProduct = allProducts.find((p) => p.id === addonData.productI
 ---
 
 <AdminLayout title={`Edit ${addonData.title} | SourceMonster Admin`} activeNav="addons">
-  <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-6 border-b border-slate-800">
+  <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-6 border-b border-slate-200 dark:border-slate-800">
     <div>
-      <div class="flex items-center gap-2 text-xs text-slate-400 mb-1">
-        <a href="/admin/products" class="hover:text-white transition">Products</a>
+      <div class="flex items-center gap-2 text-xs text-slate-500 dark:text-slate-400 mb-1">
+        <a href="/admin/products" class="hover:text-slate-900 dark:hover:text-white transition">Products</a>
         <span>/</span>
-        <a href="/admin/products/addons" class="hover:text-white transition">Add-ons</a>
+        <a href="/admin/products/addons" class="hover:text-slate-900 dark:hover:text-white transition">Add-ons</a>
         <span>/</span>
-        <span class="text-white truncate max-w-xs">{addonData.title}</span>
+        <span class="text-slate-900 dark:text-white truncate max-w-xs">{addonData.title}</span>
       </div>
       <div class="flex items-center gap-3">
-        <h1 class="text-2xl font-black text-white tracking-tight">Edit Add-on</h1>
+        <h1 class="text-2xl font-black text-slate-900 dark:text-white tracking-tight">Edit Add-on</h1>
         {addonData.isActive ? (
-          <span class="px-2 py-0.5 rounded text-[11px] font-semibold bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">
+          <span class="px-2 py-0.5 rounded text-[11px] font-semibold bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20">
             Active
           </span>
         ) : (
-          <span class="px-2 py-0.5 rounded text-[11px] font-semibold bg-slate-800 text-slate-400 border border-slate-700">
+          <span class="px-2 py-0.5 rounded text-[11px] font-semibold bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 border border-slate-200 dark:border-slate-700">
             Inactive
           </span>
         )}
@@ -199,8 +199,8 @@ const currentParentProduct = allProducts.find((p) => p.id === addonData.productI
 
   <form method="POST" enctype="multipart/form-data" class="my-6 space-y-8 max-w-4xl">
     <!-- Parent Product & Basic Info -->
-    <Card class="bg-slate-900/70 border-slate-800/80 rounded-2xl p-6">
-      <CardHeader class="p-0 pb-4 mb-4 border-b border-slate-800">
+    <Card class="bg-white dark:bg-slate-900/70 border border-slate-200 dark:border-slate-800/80 rounded-2xl p-6 shadow-sm dark:shadow-xl">
+      <CardHeader class="p-0 pb-4 mb-4 border-b border-slate-200 dark:border-slate-800">
         <CardTitle class="text-sm font-bold text-primary uppercase tracking-wider flex items-center gap-2">
           <i data-lucide="package" class="w-4 h-4"></i>
           <span>Parent Product &amp; Identity</span>
@@ -208,13 +208,13 @@ const currentParentProduct = allProducts.find((p) => p.id === addonData.productI
       </CardHeader>
       <CardContent class="p-0 space-y-4">
         <div>
-          <label class="block text-xs font-semibold text-slate-300 uppercase tracking-wider mb-1.5">
+          <label class="block text-xs font-semibold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-1.5">
             Parent Product *
           </label>
           <select
             name="productId"
             required
-            class="w-full px-4 py-2.5 bg-slate-950 border border-slate-700/80 rounded-xl text-white text-sm focus:border-primary focus:outline-hidden"
+            class="w-full px-4 py-2.5 bg-white dark:bg-slate-950 border border-slate-300 dark:border-slate-700/80 rounded-xl text-slate-900 dark:text-white text-sm focus:border-primary focus:outline-hidden"
           >
             {allProducts.map((p) => (
               <option value={p.id} selected={p.id === addonData.productId}>
@@ -227,7 +227,7 @@ const currentParentProduct = allProducts.find((p) => p.id === addonData.productI
 
         <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div>
-            <label class="block text-xs font-semibold text-slate-300 uppercase tracking-wider mb-1.5">
+            <label class="block text-xs font-semibold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-1.5">
               Add-on Title *
             </label>
             <Input
@@ -236,11 +236,11 @@ const currentParentProduct = allProducts.find((p) => p.id === addonData.productI
               required
               value={addonData.title}
               placeholder="e.g. Multi-Vendor Marketplace Add-on"
-              class="w-full bg-slate-950 border-slate-700/80 text-white"
+              class="w-full bg-white dark:bg-slate-950 border-slate-300 dark:border-slate-700/80 text-slate-900 dark:text-white rounded-xl"
             />
           </div>
           <div>
-            <label class="block text-xs font-semibold text-slate-300 uppercase tracking-wider mb-1.5">
+            <label class="block text-xs font-semibold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-1.5">
               Slug *
             </label>
             <Input
@@ -249,13 +249,13 @@ const currentParentProduct = allProducts.find((p) => p.id === addonData.productI
               required
               value={addonData.slug}
               placeholder="e.g. multi-vendor-marketplace"
-              class="w-full bg-slate-950 border-slate-700/80 text-white font-mono"
+              class="w-full bg-white dark:bg-slate-950 border-slate-300 dark:border-slate-700/80 text-slate-900 dark:text-white font-mono rounded-xl"
             />
           </div>
         </div>
 
         <div>
-          <label class="block text-xs font-semibold text-slate-300 uppercase tracking-wider mb-1.5">
+          <label class="block text-xs font-semibold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-1.5">
             Description
           </label>
           <Textarea
@@ -263,15 +263,15 @@ const currentParentProduct = allProducts.find((p) => p.id === addonData.productI
             rows={3}
             value={addonData.description || ""}
             placeholder="Brief overview of features, compatibilities, and benefits..."
-            class="w-full bg-slate-950 border-slate-700/80 text-white"
+            class="w-full bg-white dark:bg-slate-950 border-slate-300 dark:border-slate-700/80 text-slate-900 dark:text-white rounded-xl"
           />
         </div>
       </CardContent>
     </Card>
 
     <!-- Pricing & Links -->
-    <Card class="bg-slate-900/70 border-slate-800/80 rounded-2xl p-6">
-      <CardHeader class="p-0 pb-4 mb-4 border-b border-slate-800">
+    <Card class="bg-white dark:bg-slate-900/70 border border-slate-200 dark:border-slate-800/80 rounded-2xl p-6 shadow-sm dark:shadow-xl">
+      <CardHeader class="p-0 pb-4 mb-4 border-b border-slate-200 dark:border-slate-800">
         <CardTitle class="text-sm font-bold text-primary uppercase tracking-wider flex items-center gap-2">
           <i data-lucide="tag" class="w-4 h-4"></i>
           <span>Pricing &amp; External Links</span>
@@ -280,7 +280,7 @@ const currentParentProduct = allProducts.find((p) => p.id === addonData.productI
       <CardContent class="p-0 space-y-4">
         <div class="grid grid-cols-1 md:grid-cols-2 gap-4 items-center">
           <div>
-            <label class="block text-xs font-semibold text-slate-300 uppercase tracking-wider mb-1.5">
+            <label class="block text-xs font-semibold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-1.5">
               Price (USD)
             </label>
             <div class="relative">
@@ -292,7 +292,7 @@ const currentParentProduct = allProducts.find((p) => p.id === addonData.productI
                 min="0"
                 value={addonData.price ? Number(addonData.price).toFixed(2) : ""}
                 placeholder="29.00"
-                class="w-full pl-8 bg-slate-950 border-slate-700/80 text-white font-mono"
+                class="w-full pl-8 bg-white dark:bg-slate-950 border-slate-300 dark:border-slate-700/80 text-slate-900 dark:text-white font-mono rounded-xl"
               />
             </div>
           </div>
@@ -302,11 +302,11 @@ const currentParentProduct = allProducts.find((p) => p.id === addonData.productI
                 type="checkbox"
                 name="isFree"
                 checked={addonData.isFree}
-                class="w-4 h-4 rounded text-primary bg-slate-950 border-slate-700 focus:ring-primary focus:ring-offset-slate-900"
+                class="w-4 h-4 rounded text-primary bg-white dark:bg-slate-950 border-slate-300 dark:border-slate-700 focus:ring-primary"
               />
               <div>
-                <span class="text-sm font-semibold text-white">Free Module</span>
-                <p class="text-[11px] text-slate-400">Mark as a free or bundled companion module.</p>
+                <span class="text-sm font-semibold text-slate-900 dark:text-white">Free Module</span>
+                <p class="text-[11px] text-slate-500 dark:text-slate-400">Mark as a free or bundled companion module.</p>
               </div>
             </label>
           </div>
@@ -314,7 +314,7 @@ const currentParentProduct = allProducts.find((p) => p.id === addonData.productI
 
         <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
           <div>
-            <label class="block text-xs font-semibold text-slate-300 uppercase tracking-wider mb-1.5">
+            <label class="block text-xs font-semibold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-1.5">
               Buy / Marketplace URL
             </label>
             <Input
@@ -322,11 +322,11 @@ const currentParentProduct = allProducts.find((p) => p.id === addonData.productI
               type="url"
               value={addonData.buyUrl || ""}
               placeholder="https://codecanyon.net/item/..."
-              class="w-full bg-slate-950 border-slate-700/80 text-white font-mono text-xs"
+              class="w-full bg-white dark:bg-slate-950 border-slate-300 dark:border-slate-700/80 text-slate-900 dark:text-white font-mono text-xs rounded-xl"
             />
           </div>
           <div>
-            <label class="block text-xs font-semibold text-slate-300 uppercase tracking-wider mb-1.5">
+            <label class="block text-xs font-semibold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-1.5">
               Live Demo URL
             </label>
             <Input
@@ -334,11 +334,11 @@ const currentParentProduct = allProducts.find((p) => p.id === addonData.productI
               type="url"
               value={addonData.demoUrl || ""}
               placeholder="https://demo.sourcemonster.in/..."
-              class="w-full bg-slate-950 border-slate-700/80 text-white font-mono text-xs"
+              class="w-full bg-white dark:bg-slate-950 border-slate-300 dark:border-slate-700/80 text-slate-900 dark:text-white font-mono text-xs rounded-xl"
             />
           </div>
           <div>
-            <label class="block text-xs font-semibold text-slate-300 uppercase tracking-wider mb-1.5">
+            <label class="block text-xs font-semibold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-1.5">
               Documentation URL
             </label>
             <Input
@@ -346,7 +346,7 @@ const currentParentProduct = allProducts.find((p) => p.id === addonData.productI
               type="url"
               value={addonData.documentationUrl || ""}
               placeholder="https://docs.sourcemonster.in/..."
-              class="w-full bg-slate-950 border-slate-700/80 text-white font-mono text-xs"
+              class="w-full bg-white dark:bg-slate-950 border-slate-300 dark:border-slate-700/80 text-slate-900 dark:text-white font-mono text-xs rounded-xl"
             />
           </div>
         </div>
@@ -354,8 +354,8 @@ const currentParentProduct = allProducts.find((p) => p.id === addonData.productI
     </Card>
 
     <!-- Visuals: Cover Thumbnail & Gallery Screenshots -->
-    <Card class="bg-slate-900/70 border-slate-800/80 rounded-2xl p-6">
-      <CardHeader class="p-0 pb-4 mb-4 border-b border-slate-800">
+    <Card class="bg-white dark:bg-slate-900/70 border border-slate-200 dark:border-slate-800/80 rounded-2xl p-6 shadow-sm dark:shadow-xl">
+      <CardHeader class="p-0 pb-4 mb-4 border-b border-slate-200 dark:border-slate-800">
         <CardTitle class="text-sm font-bold text-primary uppercase tracking-wider flex items-center gap-2">
           <i data-lucide="image" class="w-4 h-4"></i>
           <span>Cover Thumbnail &amp; Screenshots</span>
@@ -364,18 +364,18 @@ const currentParentProduct = allProducts.find((p) => p.id === addonData.productI
       <CardContent class="p-0 space-y-6">
         <!-- Current Thumbnail Preview -->
         <div>
-          <label class="block text-xs font-semibold text-slate-300 uppercase tracking-wider mb-1.5">
+          <label class="block text-xs font-semibold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-1.5">
             Module Cover Thumbnail
           </label>
           {currentThumbnailUrl ? (
-            <div class="mb-3 flex items-center gap-4 p-3 bg-slate-950/80 border border-slate-800 rounded-xl">
+            <div class="mb-3 flex items-center gap-4 p-3 bg-slate-50 dark:bg-slate-950/80 border border-slate-200 dark:border-slate-800 rounded-xl">
               <img
                 src={currentThumbnailUrl}
                 alt={addonData.title}
-                class="w-20 h-14 rounded-lg object-cover bg-slate-900 border border-slate-700 shrink-0"
+                class="w-20 h-14 rounded-lg object-cover bg-slate-100 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 shrink-0"
               />
               <div class="flex-1 overflow-hidden">
-                <span class="text-xs text-slate-300 font-medium truncate block">Current Thumbnail Active</span>
+                <span class="text-xs text-slate-800 dark:text-slate-300 font-medium truncate block">Current Thumbnail Active</span>
                 <span class="text-[11px] text-slate-500">Upload a new file below to replace it.</span>
               </div>
               <button
@@ -383,7 +383,7 @@ const currentParentProduct = allProducts.find((p) => p.id === addonData.productI
                 formaction={`/admin/products/addons/${id}/edit`}
                 name="_action"
                 value="delete_thumbnail"
-                class="px-2.5 py-1 text-xs text-rose-400 hover:text-rose-300 hover:bg-rose-500/10 rounded-lg border border-rose-500/20 transition"
+                class="px-2.5 py-1 text-xs text-rose-500 hover:text-rose-600 dark:text-rose-400 dark:hover:text-rose-300 hover:bg-rose-500/10 rounded-lg border border-rose-500/20 transition cursor-pointer"
               >
                 Remove
               </button>
@@ -399,14 +399,14 @@ const currentParentProduct = allProducts.find((p) => p.id === addonData.productI
 
         <!-- Current Gallery Screenshots -->
         <div>
-          <label class="block text-xs font-semibold text-slate-300 uppercase tracking-wider mb-2">
+          <label class="block text-xs font-semibold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-2">
             Gallery Screenshots ({galleryList.length})
           </label>
 
           {galleryList.length > 0 && (
             <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3 mb-4">
               {galleryList.map((g) => (
-                <div class="relative group rounded-xl overflow-hidden border border-slate-800 bg-slate-950 aspect-video">
+                <div class="relative group rounded-xl overflow-hidden border border-slate-200 dark:border-slate-800 bg-slate-100 dark:bg-slate-950 aspect-video">
                   <img src={g.url} alt="Screenshot" class="w-full h-full object-cover" />
                   <div class="absolute inset-0 bg-slate-950/70 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center p-2">
                     <button
@@ -438,8 +438,8 @@ const currentParentProduct = allProducts.find((p) => p.id === addonData.productI
     </Card>
 
     <!-- Settings & Sorting -->
-    <Card class="bg-slate-900/70 border-slate-800/80 rounded-2xl p-6">
-      <CardHeader class="p-0 pb-4 mb-4 border-b border-slate-800">
+    <Card class="bg-white dark:bg-slate-900/70 border border-slate-200 dark:border-slate-800/80 rounded-2xl p-6 shadow-sm dark:shadow-xl">
+      <CardHeader class="p-0 pb-4 mb-4 border-b border-slate-200 dark:border-slate-800">
         <CardTitle class="text-sm font-bold text-primary uppercase tracking-wider flex items-center gap-2">
           <i data-lucide="sliders" class="w-4 h-4"></i>
           <span>Settings &amp; Sorting</span>
@@ -448,14 +448,14 @@ const currentParentProduct = allProducts.find((p) => p.id === addonData.productI
       <CardContent class="p-0">
         <div class="grid grid-cols-1 md:grid-cols-2 gap-4 items-center">
           <div>
-            <label class="block text-xs font-semibold text-slate-300 uppercase tracking-wider mb-1.5">
+            <label class="block text-xs font-semibold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-1.5">
               Display Sort Order
             </label>
             <Input
               name="sortOrder"
               type="number"
               value={addonData.sortOrder}
-              class="w-full bg-slate-950 border-slate-700/80 text-white font-mono"
+              class="w-full bg-white dark:bg-slate-950 border-slate-300 dark:border-slate-700/80 text-slate-900 dark:text-white font-mono rounded-xl"
             />
             <p class="text-[11px] text-slate-500 mt-1">Lower numbers appear first.</p>
           </div>
@@ -465,18 +465,18 @@ const currentParentProduct = allProducts.find((p) => p.id === addonData.productI
                 type="checkbox"
                 name="isActive"
                 checked={addonData.isActive}
-                class="w-4 h-4 rounded text-primary bg-slate-950 border-slate-700 focus:ring-primary focus:ring-offset-slate-900"
+                class="w-4 h-4 rounded text-primary bg-white dark:bg-slate-950 border-slate-300 dark:border-slate-700 focus:ring-primary"
               />
               <div>
-                <span class="text-sm font-semibold text-white">Active &amp; Published</span>
-                <p class="text-[11px] text-slate-400">Make this add-on visible on the public website.</p>
+                <span class="text-sm font-semibold text-slate-900 dark:text-white">Active &amp; Published</span>
+                <p class="text-[11px] text-slate-500 dark:text-slate-400">Make this add-on visible on the public website.</p>
               </div>
             </label>
           </div>
         </div>
 
         <!-- Add Changelog for this update -->
-        <div class="pt-4 border-t border-slate-800/80 mt-4">
+        <div class="pt-4 border-t border-slate-200 dark:border-slate-800/80 mt-4">
           <div class="flex items-center justify-between mb-2">
             <label class="block text-xs font-semibold text-primary uppercase tracking-wider flex items-center gap-1.5">
               <i data-lucide="git-commit" class="w-3.5 h-3.5"></i>
@@ -485,14 +485,14 @@ const currentParentProduct = allProducts.find((p) => p.id === addonData.productI
             <span class="text-[11px] text-slate-500 font-mono">Appends to add-on history</span>
           </div>
           <div class="mb-3">
-            <label class="block text-[11px] font-semibold text-slate-400 uppercase tracking-wider mb-1">
+            <label class="block text-[11px] font-semibold text-slate-700 dark:text-slate-400 uppercase tracking-wider mb-1">
               Version Label (Optional)
             </label>
             <Input
               name="changelog_version"
               type="text"
               placeholder="e.g. v1.1.0"
-              class="max-w-xs bg-slate-950 border-slate-700/80 text-white rounded-lg text-xs"
+              class="max-w-xs bg-white dark:bg-slate-950 border-slate-300 dark:border-slate-700/80 text-slate-900 dark:text-white rounded-lg text-xs"
             />
           </div>
           <HtmlEditor
@@ -506,7 +506,7 @@ const currentParentProduct = allProducts.find((p) => p.id === addonData.productI
     </Card>
 
     <!-- Save button footer -->
-    <div class="flex items-center justify-end gap-3 pt-4 border-t border-slate-800">
+    <div class="flex items-center justify-end gap-3 pt-4 border-t border-slate-200 dark:border-slate-800">
       <Button href="/admin/products/addons" variant="secondary" size="md">
         Cancel
       </Button>
@@ -517,11 +517,11 @@ const currentParentProduct = allProducts.find((p) => p.id === addonData.productI
   </form>
 
   <!-- Add-on Changelog & Version History Card -->
-  <Card class="my-8 bg-slate-900/70 border-slate-800/80 rounded-2xl p-6 shadow-xl">
-    <div class="flex items-center justify-between pb-4 mb-4 border-b border-slate-800">
+  <Card class="my-8 bg-white dark:bg-slate-900/70 border border-slate-200 dark:border-slate-800/80 rounded-2xl p-6 shadow-sm dark:shadow-xl">
+    <div class="flex items-center justify-between pb-4 mb-4 border-b border-slate-200 dark:border-slate-800">
       <div class="flex items-center gap-2">
         <i data-lucide="history" class="w-4 h-4 text-primary"></i>
-        <h2 class="text-sm font-bold text-white uppercase tracking-wider">
+        <h2 class="text-sm font-bold text-slate-900 dark:text-white uppercase tracking-wider">
           Add-on Changelog &amp; Version History
         </h2>
         <span class="text-[10px] font-mono bg-primary/10 text-primary border border-primary/20 px-2 py-0.5 rounded-full">
@@ -531,7 +531,7 @@ const currentParentProduct = allProducts.find((p) => p.id === addonData.productI
       <button
         type="button"
         id="toggle-addon-changelog-btn"
-        class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-primary hover:bg-primary/90 text-white text-xs font-semibold transition"
+        class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-primary hover:bg-primary/90 text-white text-xs font-semibold transition cursor-pointer"
       >
         <i data-lucide="plus" class="w-3.5 h-3.5"></i>
         <span>Add Changelog Entry</span>
@@ -539,9 +539,9 @@ const currentParentProduct = allProducts.find((p) => p.id === addonData.productI
     </div>
 
     {/* Form to directly add a standalone changelog entry */}
-    <div id="addon-quick-changelog-box" class="hidden mb-6 p-4 rounded-xl bg-slate-950 border border-slate-800">
+    <div id="addon-quick-changelog-box" class="hidden mb-6 p-4 rounded-xl bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800">
       <div class="flex items-center justify-between mb-3">
-        <h3 class="text-xs font-bold text-slate-200 uppercase tracking-wider flex items-center gap-2">
+        <h3 class="text-xs font-bold text-slate-800 dark:text-slate-200 uppercase tracking-wider flex items-center gap-2">
           <i data-lucide="file-plus-2" class="w-4 h-4 text-primary"></i>
           Create New Add-on Changelog Entry
         </h3>
@@ -550,14 +550,14 @@ const currentParentProduct = allProducts.find((p) => p.id === addonData.productI
       <form method="POST" class="space-y-3">
         <input type="hidden" name="_action" value="add_changelog" />
         <div class="w-full sm:w-1/2">
-          <label class="block text-xs font-semibold text-slate-400 uppercase tracking-wider mb-1">
+          <label class="block text-xs font-semibold text-slate-700 dark:text-slate-400 uppercase tracking-wider mb-1">
             Version Label
           </label>
           <Input
             name="changelog_version"
             type="text"
             placeholder="e.g. v1.1.0"
-            class="bg-slate-900 border-slate-700 text-white rounded-lg text-xs"
+            class="bg-white dark:bg-slate-900 border-slate-300 dark:border-slate-700 text-slate-900 dark:text-white rounded-lg text-xs"
           />
         </div>
         <HtmlEditor
@@ -571,7 +571,7 @@ const currentParentProduct = allProducts.find((p) => p.id === addonData.productI
           <button
             type="button"
             id="cancel-addon-changelog-btn"
-            class="px-3 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs font-semibold transition"
+            class="px-3 py-1.5 rounded-lg bg-slate-200 dark:bg-slate-800 hover:bg-slate-300 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 text-xs font-semibold transition cursor-pointer"
           >
             Cancel
           </button>
@@ -586,20 +586,20 @@ const currentParentProduct = allProducts.find((p) => p.id === addonData.productI
       <div class="py-8 text-center text-slate-500 text-xs">
         <i data-lucide="scroll-text" class="w-8 h-8 mx-auto mb-2 opacity-40"></i>
         <p>No changelog records published for this add-on yet.</p>
-        <p class="text-[11px] text-slate-600 mt-1">
+        <p class="text-[11px] text-slate-500 dark:text-slate-600 mt-1">
           When you release updates for this module, publish release notes here.
         </p>
       </div>
     ) : (
       <div class="space-y-4">
         {addonData.changelogs.map((log) => (
-          <div class="p-4 rounded-xl bg-slate-950/60 border border-slate-800/80 hover:border-slate-700/80 transition">
-            <div class="flex items-center justify-between pb-2 mb-2 border-b border-slate-800/50">
+          <div class="p-4 rounded-xl bg-slate-50/80 dark:bg-slate-950/60 border border-slate-200 dark:border-slate-800/80 hover:border-slate-300 dark:hover:border-slate-700/80 transition">
+            <div class="flex items-center justify-between pb-2 mb-2 border-b border-slate-200 dark:border-slate-800/50">
               <div class="flex items-center gap-2">
                 <span class="px-2 py-0.5 rounded-md bg-primary/20 text-primary border border-primary/30 text-xs font-mono font-bold">
                   {log.version || "Release"}
                 </span>
-                <span class="text-xs text-slate-400">
+                <span class="text-xs text-slate-500 dark:text-slate-400">
                   {new Date(log.createdAt).toLocaleDateString("en-US", {
                     year: "numeric",
                     month: "short",
@@ -612,14 +612,14 @@ const currentParentProduct = allProducts.find((p) => p.id === addonData.productI
                 <input type="hidden" name="changelog_id" value={log.id} />
                 <button
                   type="submit"
-                  class="text-xs text-slate-500 hover:text-rose-400 transition p-1"
+                  class="text-xs text-slate-400 hover:text-rose-500 dark:text-slate-500 dark:hover:text-rose-400 transition p-1 cursor-pointer"
                   title="Delete entry"
                 >
                   <i data-lucide="trash-2" class="w-3.5 h-3.5"></i>
                 </button>
               </form>
             </div>
-            <div class="prose prose-invert prose-xs max-w-none text-slate-300" set:html={log.content}></div>
+            <div class="prose dark:prose-invert prose-xs max-w-none text-slate-700 dark:text-slate-300" set:html={log.content}></div>
           </div>
         ))}
       </div>

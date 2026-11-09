@@ -171,14 +171,14 @@ const addons = await getAllAdminAddons(id);
 ---
 
 <AdminLayout title={`Edit ${product.title} | SourceMonster Admin`} activeNav="products">
-  <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-6 border-b border-slate-800">
+  <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-6 border-b border-slate-200 dark:border-slate-800">
     <div>
-      <div class="flex items-center gap-2 text-xs text-slate-400 mb-1">
-        <a href="/admin/products" class="hover:text-white transition">Products</a>
+      <div class="flex items-center gap-2 text-xs text-slate-500 dark:text-slate-400 mb-1">
+        <a href="/admin/products" class="hover:text-slate-900 dark:hover:text-white transition">Products</a>
         <span>/</span>
-        <span class="text-white">Edit</span>
+        <span class="text-slate-800 dark:text-white">Edit</span>
       </div>
-      <h1 class="text-2xl font-black text-white tracking-tight flex items-center gap-2">
+      <h1 class="text-2xl font-black text-slate-900 dark:text-white tracking-tight flex items-center gap-2">
         <span>Edit Product:</span>
         <span class="text-primary truncate">{product.title}</span>
       </h1>
@@ -207,14 +207,14 @@ const addons = await getAllAdminAddons(id);
     <input type="hidden" name="_action" value="update" />
 
     <!-- Basic Info Card -->
-    <Card class="bg-slate-900/70 border-slate-800/80 rounded-2xl shadow-xl">
-      <CardHeader>
+    <Card class="bg-white dark:bg-slate-900/70 border border-slate-200 dark:border-slate-800/80 rounded-2xl shadow-sm dark:shadow-xl">
+      <CardHeader class="border-b border-slate-200 dark:border-slate-800/60 pb-3">
         <CardTitle class="text-sm font-bold text-primary uppercase tracking-wider">Basic Info</CardTitle>
       </CardHeader>
-      <CardContent class="space-y-4 pt-2">
+      <CardContent class="space-y-4 pt-4">
         <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <div>
-            <label class="block text-xs font-semibold text-slate-300 uppercase tracking-wider mb-1.5">
+            <label class="block text-xs font-semibold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-1.5">
               Product Title *
             </label>
             <Input
@@ -222,12 +222,12 @@ const addons = await getAllAdminAddons(id);
               type="text"
               required
               value={product.title}
-              class="bg-slate-950/80 border-slate-700/80 text-white placeholder:text-slate-500 rounded-xl"
+              class="bg-white dark:bg-slate-950/80 border-slate-300 dark:border-slate-700/80 text-slate-900 dark:text-white placeholder:text-slate-400 dark:placeholder:text-slate-500 rounded-xl"
             />
           </div>
 
           <div>
-            <label class="block text-xs font-semibold text-slate-300 uppercase tracking-wider mb-1.5">
+            <label class="block text-xs font-semibold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-1.5">
               URL Slug *
             </label>
             <Input
@@ -235,13 +235,13 @@ const addons = await getAllAdminAddons(id);
               type="text"
               required
               value={product.slug}
-              class="bg-slate-950/80 border-slate-700/80 text-white font-mono placeholder:text-slate-500 rounded-xl"
+              class="bg-white dark:bg-slate-950/80 border-slate-300 dark:border-slate-700/80 text-slate-900 dark:text-white font-mono placeholder:text-slate-400 dark:placeholder:text-slate-500 rounded-xl"
             />
           </div>
         </div>
 
         <div>
-          <label class="block text-xs font-semibold text-slate-300 uppercase tracking-wider mb-1.5">
+          <label class="block text-xs font-semibold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-1.5">
             Short Description *
           </label>
           <Textarea
@@ -249,7 +249,7 @@ const addons = await getAllAdminAddons(id);
             rows={2}
             required
             value={product.shortDescription}
-            class="bg-slate-950/80 border-slate-700/80 text-white placeholder:text-slate-500 rounded-xl"
+            class="bg-white dark:bg-slate-950/80 border-slate-300 dark:border-slate-700/80 text-slate-900 dark:text-white placeholder:text-slate-400 dark:placeholder:text-slate-500 rounded-xl"
           />
         </div>
 
@@ -264,9 +264,9 @@ const addons = await getAllAdminAddons(id);
 
         <div class="pt-2">
           {currentThumbnailUrl && (
-            <div class="mb-3 flex items-center gap-3 p-3 bg-slate-950/60 rounded-xl border border-slate-800 w-fit">
+            <div class="mb-3 flex items-center gap-3 p-3 bg-slate-50 dark:bg-slate-950/60 rounded-xl border border-slate-200 dark:border-slate-800 w-fit">
               <img src={currentThumbnailUrl} alt="Thumbnail preview" class="w-16 h-16 rounded-lg object-cover" />
-              <span class="text-xs text-slate-400">Current thumbnail</span>
+              <span class="text-xs text-slate-500 dark:text-slate-400">Current thumbnail</span>
             </div>
           )}
           <Dropzone
@@ -281,14 +281,14 @@ const addons = await getAllAdminAddons(id);
     </Card>
 
     <!-- URLs & Technical Specifications Card -->
-    <Card class="bg-slate-900/70 border-slate-800/80 rounded-2xl shadow-xl">
-      <CardHeader>
+    <Card class="bg-white dark:bg-slate-900/70 border border-slate-200 dark:border-slate-800/80 rounded-2xl shadow-sm dark:shadow-xl">
+      <CardHeader class="border-b border-slate-200 dark:border-slate-800/60 pb-3">
         <CardTitle class="text-sm font-bold text-primary uppercase tracking-wider">Links & Meta</CardTitle>
       </CardHeader>
-      <CardContent class="space-y-4 pt-2">
+      <CardContent class="space-y-4 pt-4">
         <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
           <div>
-            <label class="block text-xs font-semibold text-slate-300 uppercase tracking-wider mb-1.5">
+            <label class="block text-xs font-semibold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-1.5">
               CodeCanyon URL
             </label>
             <Input
@@ -296,12 +296,12 @@ const addons = await getAllAdminAddons(id);
               type="url"
               value={product.codecanyonUrl || ""}
               placeholder="https://codecanyon.net/..."
-              class="bg-slate-950/80 border-slate-700/80 text-white placeholder:text-slate-500 rounded-xl"
+              class="bg-white dark:bg-slate-950/80 border-slate-300 dark:border-slate-700/80 text-slate-900 dark:text-white placeholder:text-slate-400 dark:placeholder:text-slate-500 rounded-xl"
             />
           </div>
 
           <div>
-            <label class="block text-xs font-semibold text-slate-300 uppercase tracking-wider mb-1.5">
+            <label class="block text-xs font-semibold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-1.5">
               Live Demo URL
             </label>
             <Input
@@ -309,12 +309,12 @@ const addons = await getAllAdminAddons(id);
               type="url"
               value={product.demoUrl || ""}
               placeholder="https://demo.sourcemonster.in/..."
-              class="bg-slate-950/80 border-slate-700/80 text-white placeholder:text-slate-500 rounded-xl"
+              class="bg-white dark:bg-slate-950/80 border-slate-300 dark:border-slate-700/80 text-slate-900 dark:text-white placeholder:text-slate-400 dark:placeholder:text-slate-500 rounded-xl"
             />
           </div>
 
           <div>
-            <label class="block text-xs font-semibold text-slate-300 uppercase tracking-wider mb-1.5">
+            <label class="block text-xs font-semibold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-1.5">
               Documentation URL
             </label>
             <Input
@@ -322,33 +322,33 @@ const addons = await getAllAdminAddons(id);
               type="url"
               value={product.documentationUrl || ""}
               placeholder="https://docs.sourcemonster.in/..."
-              class="bg-slate-950/80 border-slate-700/80 text-white placeholder:text-slate-500 rounded-xl"
+              class="bg-white dark:bg-slate-950/80 border-slate-300 dark:border-slate-700/80 text-slate-900 dark:text-white placeholder:text-slate-400 dark:placeholder:text-slate-500 rounded-xl"
             />
           </div>
         </div>
 
         <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <div>
-            <label class="block text-xs font-semibold text-slate-300 uppercase tracking-wider mb-1.5">
+            <label class="block text-xs font-semibold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-1.5">
               Technologies (comma separated)
             </label>
             <Input
               name="technologies"
               type="text"
               value={product.technologies.join(", ")}
-              class="bg-slate-950/80 border-slate-700/80 text-white placeholder:text-slate-500 rounded-xl"
+              class="bg-white dark:bg-slate-950/80 border-slate-300 dark:border-slate-700/80 text-slate-900 dark:text-white placeholder:text-slate-400 dark:placeholder:text-slate-500 rounded-xl"
             />
           </div>
 
           <div>
-            <label class="block text-xs font-semibold text-slate-300 uppercase tracking-wider mb-1.5">
+            <label class="block text-xs font-semibold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-1.5">
               Version
             </label>
             <Input
               name="version"
               type="text"
               value={product.version || ""}
-              class="bg-slate-950/80 border-slate-700/80 text-white placeholder:text-slate-500 rounded-xl"
+              class="bg-white dark:bg-slate-950/80 border-slate-300 dark:border-slate-700/80 text-slate-900 dark:text-white placeholder:text-slate-400 dark:placeholder:text-slate-500 rounded-xl"
             />
           </div>
         </div>
@@ -366,7 +366,7 @@ const addons = await getAllAdminAddons(id);
         />
 
         <!-- Add Changelog for this update -->
-        <div class="pt-4 border-t border-slate-800/80">
+        <div class="pt-4 border-t border-slate-200 dark:border-slate-800/80">
           <div class="flex items-center justify-between mb-2">
             <label class="block text-xs font-semibold text-primary uppercase tracking-wider flex items-center gap-1.5">
               <i data-lucide="git-commit" class="w-3.5 h-3.5"></i>
@@ -385,22 +385,22 @@ const addons = await getAllAdminAddons(id);
     </Card>
 
     <!-- Gallery Screenshots Card -->
-    <Card class="bg-slate-900/70 border-slate-800/80 rounded-2xl shadow-xl">
-      <CardHeader>
+    <Card class="bg-white dark:bg-slate-900/70 border border-slate-200 dark:border-slate-800/80 rounded-2xl shadow-sm dark:shadow-xl">
+      <CardHeader class="border-b border-slate-200 dark:border-slate-800/60 pb-3">
         <CardTitle class="text-sm font-bold text-primary uppercase tracking-wider">Screenshots & Gallery</CardTitle>
       </CardHeader>
-      <CardContent class="space-y-4 pt-2">
+      <CardContent class="space-y-4 pt-4">
         {galleryItems.length > 0 && (
           <div class="grid grid-cols-2 sm:grid-cols-4 gap-4 mb-4">
             {galleryItems.map((item) => (
-              <div class="relative group rounded-xl overflow-hidden border border-slate-800 bg-slate-950">
+              <div class="relative group rounded-xl overflow-hidden border border-slate-200 dark:border-slate-800 bg-slate-100 dark:bg-slate-950">
                 <img src={getPublicUrl(item.objectKey, item.disk)} alt={item.caption || "Screenshot"} class="w-full h-28 object-cover" />
                 <form method="POST" class="absolute top-1.5 right-1.5">
                   <input type="hidden" name="_action" value="delete_gallery_image" />
                   <input type="hidden" name="product_media_id" value={item.productMediaId} />
                   <button
                     type="submit"
-                    class="p-1.5 bg-rose-500/80 hover:bg-rose-600 text-white rounded-lg opacity-0 group-hover:opacity-100 transition shadow"
+                    class="p-1.5 bg-rose-500/80 hover:bg-rose-600 text-white rounded-lg opacity-0 group-hover:opacity-100 transition shadow cursor-pointer"
                     title="Remove Screenshot"
                   >
                     <i data-lucide="trash-2" class="w-3.5 h-3.5"></i>
@@ -423,19 +423,19 @@ const addons = await getAllAdminAddons(id);
     </Card>
 
     <!-- Publishing & SEO Card -->
-    <Card class="bg-slate-900/70 border-slate-800/80 rounded-2xl shadow-xl">
-      <CardHeader>
+    <Card class="bg-white dark:bg-slate-900/70 border border-slate-200 dark:border-slate-800/80 rounded-2xl shadow-sm dark:shadow-xl">
+      <CardHeader class="border-b border-slate-200 dark:border-slate-800/60 pb-3">
         <CardTitle class="text-sm font-bold text-primary uppercase tracking-wider">Publishing & SEO</CardTitle>
       </CardHeader>
-      <CardContent class="space-y-4 pt-2">
+      <CardContent class="space-y-4 pt-4">
         <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
           <div>
-            <label class="block text-xs font-semibold text-slate-300 uppercase tracking-wider mb-1.5">
+            <label class="block text-xs font-semibold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-1.5">
               Status
             </label>
             <NativeSelect
               name="status"
-              class="bg-slate-950/80 border-slate-700/80 text-white rounded-xl"
+              class="bg-white dark:bg-slate-950/80 border-slate-300 dark:border-slate-700/80 text-slate-900 dark:text-white rounded-xl"
             >
               <NativeSelectOption value="draft" selected={product.status === "draft"}>Draft</NativeSelectOption>
               <NativeSelectOption value="published" selected={product.status === "published"}>Published</NativeSelectOption>
@@ -443,14 +443,14 @@ const addons = await getAllAdminAddons(id);
           </div>
 
           <div>
-            <label class="block text-xs font-semibold text-slate-300 uppercase tracking-wider mb-1.5">
+            <label class="block text-xs font-semibold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-1.5">
               Sort Order
             </label>
             <Input
               name="sortOrder"
               type="number"
               value={product.sortOrder}
-              class="bg-slate-950/80 border-slate-700/80 text-white placeholder:text-slate-500 rounded-xl"
+              class="bg-white dark:bg-slate-950/80 border-slate-300 dark:border-slate-700/80 text-slate-900 dark:text-white placeholder:text-slate-400 dark:placeholder:text-slate-500 rounded-xl"
             />
           </div>
 
@@ -460,35 +460,35 @@ const addons = await getAllAdminAddons(id);
                 name="isFeatured"
                 type="checkbox"
                 checked={product.isFeatured}
-                class="w-4 h-4 rounded text-primary focus:ring-primary bg-slate-950 border-slate-700"
+                class="w-4 h-4 rounded text-primary focus:ring-primary bg-white dark:bg-slate-950 border-slate-300 dark:border-slate-700"
               />
-              <span class="text-xs font-semibold text-slate-300 uppercase tracking-wider">Highlight as Featured</span>
+              <span class="text-xs font-semibold text-slate-700 dark:text-slate-300 uppercase tracking-wider">Highlight as Featured</span>
             </label>
           </div>
         </div>
 
         <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <div>
-            <label class="block text-xs font-semibold text-slate-300 uppercase tracking-wider mb-1.5">
+            <label class="block text-xs font-semibold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-1.5">
               SEO Title
             </label>
             <Input
               name="seoTitle"
               type="text"
               value={product.seoTitle || ""}
-              class="bg-slate-950/80 border-slate-700/80 text-white placeholder:text-slate-500 rounded-xl"
+              class="bg-white dark:bg-slate-950/80 border-slate-300 dark:border-slate-700/80 text-slate-900 dark:text-white placeholder:text-slate-400 dark:placeholder:text-slate-500 rounded-xl"
             />
           </div>
 
           <div>
-            <label class="block text-xs font-semibold text-slate-300 uppercase tracking-wider mb-1.5">
+            <label class="block text-xs font-semibold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-1.5">
               SEO Meta Description
             </label>
             <Input
               name="seoDescription"
               type="text"
               value={product.seoDescription || ""}
-              class="bg-slate-950/80 border-slate-700/80 text-white placeholder:text-slate-500 rounded-xl"
+              class="bg-white dark:bg-slate-950/80 border-slate-300 dark:border-slate-700/80 text-slate-900 dark:text-white placeholder:text-slate-400 dark:placeholder:text-slate-500 rounded-xl"
             />
           </div>
         </div>
@@ -533,11 +533,11 @@ const addons = await getAllAdminAddons(id);
   </form>
 
   <!-- Product Changelog & Release History Card -->
-  <Card class="my-8 max-w-4xl bg-slate-900/70 border-slate-800/80 rounded-2xl p-6 shadow-xl">
-    <div class="flex items-center justify-between pb-4 mb-4 border-b border-slate-800">
+  <Card class="my-8 max-w-4xl bg-white dark:bg-slate-900/70 border border-slate-200 dark:border-slate-800/80 rounded-2xl p-6 shadow-sm dark:shadow-xl">
+    <div class="flex items-center justify-between pb-4 mb-4 border-b border-slate-200 dark:border-slate-800">
       <div class="flex items-center gap-2">
         <i data-lucide="history" class="w-4 h-4 text-primary"></i>
-        <h2 class="text-sm font-bold text-white uppercase tracking-wider">
+        <h2 class="text-sm font-bold text-slate-900 dark:text-white uppercase tracking-wider">
           Changelog &amp; Version History
         </h2>
         <span class="text-[10px] font-mono bg-primary/10 text-primary border border-primary/20 px-2 py-0.5 rounded-full">
@@ -547,7 +547,7 @@ const addons = await getAllAdminAddons(id);
       <button
         type="button"
         id="toggle-changelog-btn"
-        class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-primary hover:bg-primary/90 text-white text-xs font-semibold transition"
+        class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-primary hover:bg-primary/90 text-white text-xs font-semibold transition cursor-pointer"
       >
         <i data-lucide="plus" class="w-3.5 h-3.5"></i>
         <span>Add Changelog Entry</span>
@@ -555,9 +555,9 @@ const addons = await getAllAdminAddons(id);
     </div>
 
     {/* Form to directly add a standalone changelog entry */}
-    <div id="quick-changelog-box" class="hidden mb-6 p-4 rounded-xl bg-slate-950 border border-slate-800">
+    <div id="quick-changelog-box" class="hidden mb-6 p-4 rounded-xl bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800">
       <div class="flex items-center justify-between mb-3">
-        <h3 class="text-xs font-bold text-slate-200 uppercase tracking-wider flex items-center gap-2">
+        <h3 class="text-xs font-bold text-slate-900 dark:text-slate-200 uppercase tracking-wider flex items-center gap-2">
           <i data-lucide="file-plus-2" class="w-4 h-4 text-primary"></i>
           Create New Changelog Entry
         </h3>
@@ -566,7 +566,7 @@ const addons = await getAllAdminAddons(id);
       <form method="POST" class="space-y-3">
         <input type="hidden" name="_action" value="add_changelog" />
         <div class="w-full sm:w-1/2">
-          <label class="block text-xs font-semibold text-slate-400 uppercase tracking-wider mb-1">
+          <label class="block text-xs font-semibold text-slate-700 dark:text-slate-400 uppercase tracking-wider mb-1">
             Version Label
           </label>
           <Input
@@ -574,7 +574,7 @@ const addons = await getAllAdminAddons(id);
             type="text"
             value={product.version || ""}
             placeholder="e.g. v1.2.0"
-            class="bg-slate-900 border-slate-700 text-white rounded-lg text-xs"
+            class="bg-white dark:bg-slate-900 border-slate-300 dark:border-slate-700 text-slate-900 dark:text-white rounded-lg text-xs"
           />
         </div>
         <HtmlEditor
@@ -588,7 +588,7 @@ const addons = await getAllAdminAddons(id);
           <button
             type="button"
             id="cancel-changelog-btn"
-            class="px-3 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs font-semibold transition"
+            class="px-3 py-1.5 rounded-lg bg-slate-200 dark:bg-slate-800 hover:bg-slate-300 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 text-xs font-semibold transition cursor-pointer"
           >
             Cancel
           </button>
@@ -603,20 +603,20 @@ const addons = await getAllAdminAddons(id);
       <div class="py-8 text-center text-slate-500 text-xs">
         <i data-lucide="scroll-text" class="w-8 h-8 mx-auto mb-2 opacity-40"></i>
         <p>No changelog records published for this product yet.</p>
-        <p class="text-[11px] text-slate-600 mt-1">
+        <p class="text-[11px] text-slate-500 dark:text-slate-400 mt-1">
           When you release updates, add release notes to keep users informed about new features and bug fixes.
         </p>
       </div>
     ) : (
       <div class="space-y-4">
         {changelogs.map((log) => (
-          <div class="p-4 rounded-xl bg-slate-950/60 border border-slate-800/80 hover:border-slate-700/80 transition">
-            <div class="flex items-center justify-between pb-2 mb-2 border-b border-slate-800/50">
+          <div class="p-4 rounded-xl bg-slate-50/70 dark:bg-slate-950/60 border border-slate-200 dark:border-slate-800/80 hover:border-slate-300 dark:hover:border-slate-700/80 transition">
+            <div class="flex items-center justify-between pb-2 mb-2 border-b border-slate-200 dark:border-slate-800/50">
               <div class="flex items-center gap-2">
                 <span class="px-2 py-0.5 rounded-md bg-primary/20 text-primary border border-primary/30 text-xs font-mono font-bold">
                   {log.version || product.version || "Release"}
                 </span>
-                <span class="text-xs text-slate-400">
+                <span class="text-xs text-slate-500 dark:text-slate-400">
                   {new Date(log.createdAt).toLocaleDateString("en-US", {
                     year: "numeric",
                     month: "short",
@@ -629,14 +629,14 @@ const addons = await getAllAdminAddons(id);
                 <input type="hidden" name="changelog_id" value={log.id} />
                 <button
                   type="submit"
-                  class="text-xs text-slate-500 hover:text-rose-400 transition p-1"
+                  class="text-xs text-slate-400 hover:text-rose-500 transition p-1 cursor-pointer"
                   title="Delete entry"
                 >
                   <i data-lucide="trash-2" class="w-3.5 h-3.5"></i>
                 </button>
               </form>
             </div>
-            <div class="prose prose-invert prose-xs max-w-none text-slate-300" set:html={log.content}></div>
+            <div class="prose dark:prose-invert prose-xs max-w-none text-slate-700 dark:text-slate-300" set:html={log.content}></div>
           </div>
         ))}
       </div>
@@ -662,11 +662,11 @@ const addons = await getAllAdminAddons(id);
   </script>
 
   <!-- Add-ons & Companion Modules Summary Card -->
-  <Card class="my-8 max-w-4xl bg-slate-900/70 border-slate-800/80 rounded-2xl p-6 shadow-xl">
-    <div class="flex items-center justify-between pb-4 mb-4 border-b border-slate-800">
+  <Card class="my-8 max-w-4xl bg-white dark:bg-slate-900/70 border border-slate-200 dark:border-slate-800/80 rounded-2xl p-6 shadow-sm dark:shadow-xl">
+    <div class="flex items-center justify-between pb-4 mb-4 border-b border-slate-200 dark:border-slate-800">
       <div class="flex items-center gap-2">
         <i data-lucide="puzzle" class="w-4 h-4 text-primary"></i>
-        <h2 class="text-sm font-bold text-white uppercase tracking-wider">
+        <h2 class="text-sm font-bold text-slate-900 dark:text-white uppercase tracking-wider">
           Product Add-ons &amp; Companion Modules
         </h2>
         <span class="text-[10px] font-mono bg-primary/10 text-primary border border-primary/20 px-2 py-0.5 rounded-full">
@@ -693,7 +693,7 @@ const addons = await getAllAdminAddons(id);
         </div>
       </div>
     ) : (
-      <div class="divide-y divide-slate-800/60">
+      <div class="divide-y divide-slate-200 dark:divide-slate-800/60">
         {addons.map((addon) => (
           <div class="py-3 flex items-center justify-between gap-4 first:pt-0 last:pb-0">
             <div class="flex items-center gap-3">
@@ -701,21 +701,21 @@ const addons = await getAllAdminAddons(id);
                 <img
                   src={addon.thumbnailUrl}
                   alt={addon.title}
-                  class="w-10 h-10 rounded-lg object-cover bg-slate-800 border border-slate-700/60 shrink-0"
+                  class="w-10 h-10 rounded-lg object-cover bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700/60 shrink-0"
                 />
               ) : (
-                <div class="w-10 h-10 rounded-lg bg-slate-800 border border-slate-700/60 flex items-center justify-center text-slate-500 shrink-0">
+                <div class="w-10 h-10 rounded-lg bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700/60 flex items-center justify-center text-slate-400 dark:text-slate-500 shrink-0">
                   <i data-lucide="puzzle" class="w-4 h-4"></i>
                 </div>
               )}
               <div>
                 <a
                   href={`/admin/products/addons/${addon.id}/edit`}
-                  class="font-bold text-white text-sm hover:text-primary transition truncate block max-w-sm"
+                  class="font-bold text-slate-900 dark:text-white text-sm hover:text-primary transition truncate block max-w-sm"
                 >
                   {addon.title}
                 </a>
-                <div class="text-[11px] text-slate-400 font-mono">
+                <div class="text-[11px] text-slate-500 dark:text-slate-400 font-mono">
                   {addon.isFree ? "Free" : addon.price ? `$${Number(addon.price).toFixed(2)}` : "—"}
                 </div>
               </div>

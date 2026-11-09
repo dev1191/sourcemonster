@@ -102,14 +102,14 @@ if (Astro.request.method === "POST") {
 ---
 
 <AdminLayout title="New Product | SourceMonster Admin" activeNav="products">
-  <div class="flex items-center justify-between pb-6 border-b border-slate-800">
+  <div class="flex items-center justify-between pb-6 border-b border-slate-200 dark:border-slate-800">
     <div>
-      <div class="flex items-center gap-2 text-xs text-slate-400 mb-1">
-        <a href="/admin/products" class="hover:text-white transition">Products</a>
+      <div class="flex items-center gap-2 text-xs text-slate-500 dark:text-slate-400 mb-1">
+        <a href="/admin/products" class="hover:text-slate-900 dark:hover:text-white transition">Products</a>
         <span>/</span>
-        <span class="text-white">Create</span>
+        <span class="text-slate-800 dark:text-white">Create</span>
       </div>
-      <h1 class="text-2xl font-black text-white tracking-tight">Create New Product</h1>
+      <h1 class="text-2xl font-black text-slate-900 dark:text-white tracking-tight">Create New Product</h1>
     </div>
     <Button href="/admin/products" variant="secondary" size="sm">Cancel</Button>
   </div>
@@ -122,7 +122,7 @@ if (Astro.request.method === "POST") {
       <div class="space-y-4">
         <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <div>
-            <label class="block text-xs font-semibold text-slate-300 uppercase tracking-wider mb-1.5">
+            <label class="block text-xs font-semibold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-1.5">
               Product Title *
             </label>
             <Input
@@ -131,12 +131,12 @@ if (Astro.request.method === "POST") {
               type="text"
               required
               placeholder="e.g. MonsterSaaS Boilerplate"
-              class="bg-slate-950/80 border-slate-700/80 text-white placeholder:text-slate-500 rounded-xl"
+              class="bg-white dark:bg-slate-950/80 border-slate-300 dark:border-slate-700/80 text-slate-900 dark:text-white placeholder:text-slate-400 dark:placeholder:text-slate-500 rounded-xl"
             />
           </div>
 
           <div>
-            <label class="block text-xs font-semibold text-slate-300 uppercase tracking-wider mb-1.5">
+            <label class="block text-xs font-semibold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-1.5">
               URL Slug *
             </label>
             <Input
@@ -145,13 +145,13 @@ if (Astro.request.method === "POST") {
               type="text"
               required
               placeholder="e.g. monstersaas-boilerplate"
-              class="bg-slate-950/80 border-slate-700/80 text-white font-mono placeholder:text-slate-500 rounded-xl"
+              class="bg-white dark:bg-slate-950/80 border-slate-300 dark:border-slate-700/80 text-slate-900 dark:text-white font-mono placeholder:text-slate-400 dark:placeholder:text-slate-500 rounded-xl"
             />
           </div>
         </div>
 
         <div>
-          <label class="block text-xs font-semibold text-slate-300 uppercase tracking-wider mb-1.5">
+          <label class="block text-xs font-semibold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-1.5">
             Short Description (Card Summary) *
           </label>
           <Textarea
@@ -159,7 +159,7 @@ if (Astro.request.method === "POST") {
             rows={2}
             required
             placeholder="Brief 1-2 sentence pitch for catalog cards..."
-            class="bg-slate-950/80 border-slate-700/80 text-white placeholder:text-slate-500 rounded-xl"
+            class="bg-white dark:bg-slate-950/80 border-slate-300 dark:border-slate-700/80 text-slate-900 dark:text-white placeholder:text-slate-400 dark:placeholder:text-slate-500 rounded-xl"
           />
         </div>
 
@@ -186,64 +186,64 @@ if (Astro.request.method === "POST") {
       <div class="space-y-4">
         <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
           <div>
-            <label class="block text-xs font-semibold text-slate-300 uppercase tracking-wider mb-1.5">
+            <label class="block text-xs font-semibold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-1.5">
               CodeCanyon URL
             </label>
             <Input
               name="codecanyonUrl"
               type="url"
               placeholder="https://codecanyon.net/item/..."
-              class="bg-slate-950/80 border-slate-700/80 text-white placeholder:text-slate-500 rounded-xl"
+              class="bg-white dark:bg-slate-950/80 border-slate-300 dark:border-slate-700/80 text-slate-900 dark:text-white placeholder:text-slate-400 dark:placeholder:text-slate-500 rounded-xl"
             />
           </div>
 
           <div>
-            <label class="block text-xs font-semibold text-slate-300 uppercase tracking-wider mb-1.5">
+            <label class="block text-xs font-semibold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-1.5">
               Live Demo URL
             </label>
             <Input
               name="demoUrl"
               type="url"
               placeholder="https://demo.sourcemonster.in/..."
-              class="bg-slate-950/80 border-slate-700/80 text-white placeholder:text-slate-500 rounded-xl"
+              class="bg-white dark:bg-slate-950/80 border-slate-300 dark:border-slate-700/80 text-slate-900 dark:text-white placeholder:text-slate-400 dark:placeholder:text-slate-500 rounded-xl"
             />
           </div>
 
           <div>
-            <label class="block text-xs font-semibold text-slate-300 uppercase tracking-wider mb-1.5">
+            <label class="block text-xs font-semibold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-1.5">
               Documentation URL
             </label>
             <Input
               name="documentationUrl"
               type="url"
               placeholder="https://docs.sourcemonster.in/..."
-              class="bg-slate-950/80 border-slate-700/80 text-white placeholder:text-slate-500 rounded-xl"
+              class="bg-white dark:bg-slate-950/80 border-slate-300 dark:border-slate-700/80 text-slate-900 dark:text-white placeholder:text-slate-400 dark:placeholder:text-slate-500 rounded-xl"
             />
           </div>
         </div>
 
         <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <div>
-            <label class="block text-xs font-semibold text-slate-300 uppercase tracking-wider mb-1.5">
+            <label class="block text-xs font-semibold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-1.5">
               Technologies (comma separated)
             </label>
             <Input
               name="technologies"
               type="text"
               placeholder="TypeScript, Astro, PostgreSQL, Tailwind"
-              class="bg-slate-950/80 border-slate-700/80 text-white placeholder:text-slate-500 rounded-xl"
+              class="bg-white dark:bg-slate-950/80 border-slate-300 dark:border-slate-700/80 text-slate-900 dark:text-white placeholder:text-slate-400 dark:placeholder:text-slate-500 rounded-xl"
             />
           </div>
 
           <div>
-            <label class="block text-xs font-semibold text-slate-300 uppercase tracking-wider mb-1.5">
+            <label class="block text-xs font-semibold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-1.5">
               Version
             </label>
             <Input
               name="version"
               type="text"
               placeholder="v1.0.0"
-              class="bg-slate-950/80 border-slate-700/80 text-white placeholder:text-slate-500 rounded-xl"
+              class="bg-white dark:bg-slate-950/80 border-slate-300 dark:border-slate-700/80 text-slate-900 dark:text-white placeholder:text-slate-400 dark:placeholder:text-slate-500 rounded-xl"
             />
           </div>
         </div>
@@ -257,7 +257,7 @@ if (Astro.request.method === "POST") {
         />
 
         <!-- Initial Changelog / Release Notes -->
-        <div class="pt-4 border-t border-slate-800/80">
+        <div class="pt-4 border-t border-slate-200 dark:border-slate-800/80">
           <div class="flex items-center justify-between mb-2">
             <label class="block text-xs font-semibold text-primary uppercase tracking-wider flex items-center gap-1.5">
               <i data-lucide="git-commit" class="w-3.5 h-3.5"></i>
@@ -280,12 +280,12 @@ if (Astro.request.method === "POST") {
       <div class="space-y-4">
         <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
           <div>
-            <label class="block text-xs font-semibold text-slate-300 uppercase tracking-wider mb-1.5">
+            <label class="block text-xs font-semibold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-1.5">
               Status
             </label>
             <NativeSelect
               name="status"
-              class="bg-slate-950/80 border-slate-700/80 text-white rounded-xl"
+              class="bg-white dark:bg-slate-950/80 border-slate-300 dark:border-slate-700/80 text-slate-900 dark:text-white rounded-xl"
             >
               <NativeSelectOption value="draft">Draft</NativeSelectOption>
               <NativeSelectOption value="published">Published</NativeSelectOption>
@@ -293,14 +293,14 @@ if (Astro.request.method === "POST") {
           </div>
 
           <div>
-            <label class="block text-xs font-semibold text-slate-300 uppercase tracking-wider mb-1.5">
+            <label class="block text-xs font-semibold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-1.5">
               Sort Order
             </label>
             <Input
               name="sortOrder"
               type="number"
               value="0"
-              class="bg-slate-950/80 border-slate-700/80 text-white placeholder:text-slate-500 rounded-xl"
+              class="bg-white dark:bg-slate-950/80 border-slate-300 dark:border-slate-700/80 text-slate-900 dark:text-white placeholder:text-slate-400 dark:placeholder:text-slate-500 rounded-xl"
             />
           </div>
 
@@ -309,35 +309,35 @@ if (Astro.request.method === "POST") {
               <input
                 name="isFeatured"
                 type="checkbox"
-                class="w-4 h-4 rounded text-primary focus:ring-primary bg-slate-950 border-slate-700"
+                class="w-4 h-4 rounded text-primary focus:ring-primary bg-white dark:bg-slate-950 border-slate-300 dark:border-slate-700"
               />
-              <span class="text-xs font-semibold text-slate-300 uppercase tracking-wider">Highlight as Featured</span>
+              <span class="text-xs font-semibold text-slate-700 dark:text-slate-300 uppercase tracking-wider">Highlight as Featured</span>
             </label>
           </div>
         </div>
 
         <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <div>
-            <label class="block text-xs font-semibold text-slate-300 uppercase tracking-wider mb-1.5">
+            <label class="block text-xs font-semibold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-1.5">
               SEO Title
             </label>
             <Input
               name="seoTitle"
               type="text"
               placeholder="Custom SEO Title..."
-              class="bg-slate-950/80 border-slate-700/80 text-white placeholder:text-slate-500 rounded-xl"
+              class="bg-white dark:bg-slate-950/80 border-slate-300 dark:border-slate-700/80 text-slate-900 dark:text-white placeholder:text-slate-400 dark:placeholder:text-slate-500 rounded-xl"
             />
           </div>
 
           <div>
-            <label class="block text-xs font-semibold text-slate-300 uppercase tracking-wider mb-1.5">
+            <label class="block text-xs font-semibold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-1.5">
               SEO Meta Description
             </label>
             <Input
               name="seoDescription"
               type="text"
               placeholder="Custom meta description for search snippets..."
-              class="bg-slate-950/80 border-slate-700/80 text-white placeholder:text-slate-500 rounded-xl"
+              class="bg-white dark:bg-slate-950/80 border-slate-300 dark:border-slate-700/80 text-slate-900 dark:text-white placeholder:text-slate-400 dark:placeholder:text-slate-500 rounded-xl"
             />
           </div>
         </div>

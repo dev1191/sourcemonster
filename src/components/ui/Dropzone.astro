@@ -56,7 +56,7 @@ const previewContainerId = `${inputId}-preview`;
     <div class="flex items-center justify-between">
       <label
         for={inputId}
-        class="block text-xs font-semibold uppercase tracking-wider text-slate-300"
+        class="block text-xs font-semibold uppercase tracking-wider text-slate-700 dark:text-slate-300"
       >
         {label}
         {required && <span class="text-rose-400 ml-1 font-bold">*</span>}
@@ -79,7 +79,7 @@ const previewContainerId = `${inputId}-preview`;
       aria-invalid={Boolean(error) || undefined}
       class:list={[
         "relative flex flex-col items-center justify-center p-6 border-2 border-dashed rounded-xl cursor-pointer transition-all duration-200",
-        "bg-slate-950/40 hover:bg-slate-900/60 border-slate-700/80 hover:border-primary/60",
+        "bg-slate-50/70 dark:bg-slate-950/40 hover:bg-slate-100 dark:hover:bg-slate-900/60 border-slate-300 dark:border-slate-700/80 hover:border-primary/60",
         "data-[drag-active=true]:border-primary data-[drag-active=true]:bg-primary/10 data-[drag-active=true]:scale-[0.99]",
         "focus-within:ring-2 focus-within:ring-primary/40 focus-within:border-primary",
         error ? "border-rose-500/80 bg-rose-500/5 hover:border-rose-500" : "",
@@ -91,28 +91,28 @@ const previewContainerId = `${inputId}-preview`;
       <slot>
         <!-- Upload State -->
         <DropzoneUploadIndicator isUploading={isUploading} class="flex flex-col items-center justify-center text-center py-2">
-          <div class="w-12 h-12 rounded-xl bg-slate-900 border border-slate-800 flex items-center justify-center text-primary mb-3 group-hover:scale-110 group-hover:text-orange-400 transition-all shadow-lg shadow-black/40">
+          <div class="w-12 h-12 rounded-xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 flex items-center justify-center text-primary mb-3 group-hover:scale-110 group-hover:text-orange-500 transition-all shadow-sm dark:shadow-lg dark:shadow-black/40">
             <i data-lucide={icon} class="w-6 h-6"></i>
           </div>
 
-          <p class="text-sm font-medium text-slate-200">
+          <p class="text-sm font-medium text-slate-700 dark:text-slate-200">
             <span class="text-primary hover:underline font-semibold">Click to upload</span> or drag and drop
           </p>
 
           {helperText && (
-            <p class="mt-1 text-xs text-slate-400 max-w-xs">{helperText}</p>
+            <p class="mt-1 text-xs text-slate-500 dark:text-slate-400 max-w-xs">{helperText}</p>
           )}
         </DropzoneUploadIndicator>
 
         <!-- Loading / In-Progress State -->
         <DropzoneLoadingIndicator isUploading={isUploading} class="flex flex-col items-center justify-center text-center py-4">
           <div class="w-10 h-10 rounded-full border-2 border-primary border-t-transparent animate-spin mb-3"></div>
-          <p class="text-sm font-medium text-slate-200">Processing file(s)...</p>
-          <p class="text-xs text-slate-400 mt-0.5">Please wait while the upload finishes</p>
+          <p class="text-sm font-medium text-slate-700 dark:text-slate-200">Processing file(s)...</p>
+          <p class="text-xs text-slate-500 dark:text-slate-400 mt-0.5">Please wait while the upload finishes</p>
         </DropzoneLoadingIndicator>
 
         <!-- Selected Files List -->
-        <DropzoneFilesList class="mt-3 text-xs text-slate-300 [&_div]:bg-slate-900/80 [&_div]:border [&_div]:border-slate-800 [&_div]:px-3 [&_div]:py-1.5 [&_div]:rounded-lg [&_div]:shadow-sm" />
+        <DropzoneFilesList class="mt-3 text-xs text-slate-600 dark:text-slate-300 [&_div]:bg-white dark:[&_div]:bg-slate-900/80 [&_div]:border [&_div]:border-slate-200 dark:[&_div]:border-slate-800 [&_div]:px-3 [&_div]:py-1.5 [&_div]:rounded-lg [&_div]:shadow-sm" />
       </slot>
     </StarwindDropzone>
 

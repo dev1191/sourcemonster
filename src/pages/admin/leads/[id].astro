@@ -77,14 +77,14 @@ const statusBadgeVariant =
 ---
 
 <AdminLayout title={`Lead: ${lead.name} | SourceMonster Admin`} activeNav="leads">
-  <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-6 border-b border-slate-800">
+  <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-6 border-b border-slate-200 dark:border-slate-800">
     <div>
-      <div class="flex items-center gap-2 text-xs text-slate-400 mb-1">
-        <a href="/admin/leads" class="hover:text-white transition">Leads</a>
+      <div class="flex items-center gap-2 text-xs text-slate-500 dark:text-slate-400 mb-1">
+        <a href="/admin/leads" class="hover:text-slate-900 dark:hover:text-white transition">Leads</a>
         <span>/</span>
-        <span class="text-white">Inspect Lead</span>
+        <span class="text-slate-900 dark:text-white">Inspect Lead</span>
       </div>
-      <h1 class="text-2xl font-black text-white tracking-tight flex items-center gap-3">
+      <h1 class="text-2xl font-black text-slate-900 dark:text-white tracking-tight flex items-center gap-3">
         <span>{lead.name}</span>
         <Badge variant={statusBadgeVariant} size="sm">
           {lead.status}
@@ -111,25 +111,25 @@ const statusBadgeVariant =
     <!-- Main Column: Message & Details -->
     <div class="lg:col-span-2 space-y-6">
       <!-- Full Inquiry Message Card -->
-      <Card class="bg-slate-900/70 border-slate-800/80 rounded-2xl shadow-xl">
+      <Card class="bg-white dark:bg-slate-900/70 border border-slate-200 dark:border-slate-800/80 rounded-2xl shadow-sm dark:shadow-xl">
         <CardHeader>
-          <CardTitle class="text-xs font-bold text-slate-400 uppercase tracking-wider flex items-center gap-2">
+          <CardTitle class="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider flex items-center gap-2">
             <i data-lucide="message-square" class="w-4 h-4 text-primary"></i>
             Inquiry Message
           </CardTitle>
         </CardHeader>
         <CardContent class="pt-2">
-          <div class="p-5 bg-slate-950/80 border border-slate-800 rounded-xl text-slate-200 text-sm leading-relaxed whitespace-pre-line font-sans">
+          <div class="p-5 bg-slate-50 dark:bg-slate-950/80 border border-slate-200 dark:border-slate-800 rounded-xl text-slate-800 dark:text-slate-200 text-sm leading-relaxed whitespace-pre-line font-sans">
             {lead.message}
           </div>
         </CardContent>
       </Card>
 
       <!-- Prospect Context & Metadata Card -->
-      <Card class="bg-slate-900/70 border-slate-800/80 rounded-2xl shadow-xl">
+      <Card class="bg-white dark:bg-slate-900/70 border border-slate-200 dark:border-slate-800/80 rounded-2xl shadow-sm dark:shadow-xl">
         <CardHeader>
-          <CardTitle class="text-xs font-bold text-slate-400 uppercase tracking-wider flex items-center gap-2">
-            <i data-lucide="user-check" class="w-4 h-4 text-blue-400"></i>
+          <CardTitle class="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider flex items-center gap-2">
+            <i data-lucide="user-check" class="w-4 h-4 text-blue-500 dark:text-blue-400"></i>
             Contact & Source Metadata
           </CardTitle>
         </CardHeader>
@@ -138,7 +138,7 @@ const statusBadgeVariant =
           <dl class="grid grid-cols-1 sm:grid-cols-2 gap-4 text-xs">
             <div>
               <dt class="text-slate-500 uppercase tracking-wider font-semibold">Email Address</dt>
-              <dd class="mt-1 font-mono text-white text-sm">
+              <dd class="mt-1 font-mono text-slate-900 dark:text-white text-sm">
                 <a href={`mailto:${lead.email}`} class="hover:text-primary transition underline">
                   {lead.email}
                 </a>
@@ -147,42 +147,42 @@ const statusBadgeVariant =
 
             <div>
               <dt class="text-slate-500 uppercase tracking-wider font-semibold">Company / Organization</dt>
-              <dd class="mt-1 text-white font-medium">{lead.company || "Not provided"}</dd>
+              <dd class="mt-1 text-slate-900 dark:text-white font-medium">{lead.company || "Not provided"}</dd>
             </div>
 
             <div>
               <dt class="text-slate-500 uppercase tracking-wider font-semibold">Service / Interest</dt>
-              <dd class="mt-1 text-white font-medium">{lead.serviceId || lead.subject || "General"}</dd>
+              <dd class="mt-1 text-slate-900 dark:text-white font-medium">{lead.serviceId || lead.subject || "General"}</dd>
             </div>
 
             <div>
               <dt class="text-slate-500 uppercase tracking-wider font-semibold">Budget Range</dt>
-              <dd class="mt-1 text-white font-medium">{lead.budget || "Not provided"}</dd>
+              <dd class="mt-1 text-slate-900 dark:text-white font-medium">{lead.budget || "Not provided"}</dd>
             </div>
 
             <div>
               <dt class="text-slate-500 uppercase tracking-wider font-semibold">Source Page Attribution</dt>
-              <dd class="mt-1 font-mono text-slate-400 truncate">{lead.sourcePage || "/"}</dd>
+              <dd class="mt-1 font-mono text-slate-500 dark:text-slate-400 truncate">{lead.sourcePage || "/"}</dd>
             </div>
 
             <div>
               <dt class="text-slate-500 uppercase tracking-wider font-semibold">Timestamp Received</dt>
-              <dd class="mt-1 font-mono text-slate-400">
+              <dd class="mt-1 font-mono text-slate-500 dark:text-slate-400">
                 {new Date(lead.createdAt).toLocaleString()}
               </dd>
             </div>
           </dl>
 
           {relatedProduct && (
-            <div class="mt-6 pt-6 border-t border-slate-800 flex items-center justify-between p-3.5 bg-slate-950/60 rounded-xl border border-slate-800/80">
+            <div class="mt-6 pt-6 border-t border-slate-200 dark:border-slate-800 flex items-center justify-between p-3.5 bg-slate-50 dark:bg-slate-950/60 rounded-xl border border-slate-200 dark:border-slate-800/80">
               <div>
-                <div class="text-[10px] text-slate-400 uppercase tracking-wider font-bold">Associated Product</div>
-                <div class="text-sm font-bold text-white">{relatedProduct.title}</div>
+                <div class="text-[10px] text-slate-500 dark:text-slate-400 uppercase tracking-wider font-bold">Associated Product</div>
+                <div class="text-sm font-bold text-slate-900 dark:text-white">{relatedProduct.title}</div>
               </div>
               <a
                 href={`/products/${relatedProduct.slug}`}
                 target="_blank"
-                class="px-3 py-1.5 bg-slate-800 hover:bg-slate-700 text-slate-300 rounded-lg text-xs font-semibold flex items-center gap-1.5 transition"
+                class="px-3 py-1.5 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 rounded-lg text-xs font-semibold flex items-center gap-1.5 transition border border-slate-200 dark:border-slate-700/60"
               >
                 <span>View Product</span>
                 <i data-lucide="external-link" class="w-3.5 h-3.5"></i>
@@ -195,10 +195,10 @@ const statusBadgeVariant =
 
     <!-- Sidebar Column: Management & Notes -->
     <div class="space-y-6">
-      <Card class="bg-slate-900/70 border-slate-800/80 rounded-2xl shadow-xl">
+      <Card class="bg-white dark:bg-slate-900/70 border border-slate-200 dark:border-slate-800/80 rounded-2xl shadow-sm dark:shadow-xl">
         <CardHeader>
-          <CardTitle class="text-xs font-bold text-slate-400 uppercase tracking-wider flex items-center gap-2">
-            <i data-lucide="sliders" class="w-4 h-4 text-emerald-400"></i>
+          <CardTitle class="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider flex items-center gap-2">
+            <i data-lucide="sliders" class="w-4 h-4 text-emerald-500 dark:text-emerald-400"></i>
             Pipeline Status
           </CardTitle>
         </CardHeader>
@@ -207,12 +207,12 @@ const statusBadgeVariant =
             <input type="hidden" name="_action" value="update" />
 
             <div>
-              <label class="block text-[11px] font-semibold text-slate-400 uppercase tracking-wider mb-1.5">
+              <label class="block text-[11px] font-semibold text-slate-700 dark:text-slate-400 uppercase tracking-wider mb-1.5">
                 Current Stage
               </label>
               <NativeSelect
                 name="status"
-                class="bg-slate-950/80 border-slate-700/80 text-white rounded-xl"
+                class="bg-white dark:bg-slate-950/80 border-slate-300 dark:border-slate-700/80 text-slate-900 dark:text-white rounded-xl"
               >
                 <NativeSelectOption value="new" selected={lead.status === "new"}>New / Unread</NativeSelectOption>
                 <NativeSelectOption value="contacted" selected={lead.status === "contacted"}>Contacted</NativeSelectOption>
@@ -223,7 +223,7 @@ const statusBadgeVariant =
             </div>
 
             <div>
-              <label class="block text-[11px] font-semibold text-slate-400 uppercase tracking-wider mb-1.5">
+              <label class="block text-[11px] font-semibold text-slate-700 dark:text-slate-400 uppercase tracking-wider mb-1.5">
                 Internal Private Notes (Admin Only)
               </label>
               <Textarea
@@ -231,7 +231,7 @@ const statusBadgeVariant =
                 rows={6}
                 value={lead.adminNotes || ""}
                 placeholder="Add internal notes about client meeting, pricing discussions, or custom development requirements..."
-                class="bg-slate-950/80 border-slate-700/80 text-white placeholder:text-slate-500 leading-relaxed rounded-xl text-xs"
+                class="bg-white dark:bg-slate-950/80 border-slate-300 dark:border-slate-700/80 text-slate-900 dark:text-white placeholder:text-slate-400 dark:placeholder:text-slate-500 leading-relaxed rounded-xl text-xs"
               />
             </div>
 
@@ -248,9 +248,9 @@ const statusBadgeVariant =
       </Card>
 
       <!-- Delete Lead Action Card -->
-      <Card class="bg-slate-900/70 border-slate-800/80 rounded-2xl shadow-xl">
+      <Card class="bg-white dark:bg-slate-900/70 border border-slate-200 dark:border-slate-800/80 rounded-2xl shadow-sm dark:shadow-xl">
         <CardContent class="pt-6">
-          <h3 class="text-xs font-bold text-slate-400 uppercase tracking-wider mb-2">Danger Zone</h3>
+          <h3 class="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-2">Danger Zone</h3>
           <p class="text-[11px] text-slate-500 mb-4">
             Permanently remove this inquiry from your database. This action cannot be reversed.
           </p>

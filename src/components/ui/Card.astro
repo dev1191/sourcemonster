@@ -36,14 +36,14 @@ const hasFooter = Astro.slots.has("footer");
 <StarwindCard
   size={size}
   class:list={[
-    "bg-slate-900/70 border-slate-800/80 rounded-2xl shadow-xl shadow-black/30",
+    "bg-white dark:bg-slate-900/70 border border-slate-200 dark:border-slate-800/80 rounded-2xl shadow-sm dark:shadow-xl dark:shadow-black/30",
     className,
   ]}
   {...rest}
 >
   {hasHeader ? (
     <>
-      <CardHeader class="flex flex-row items-center justify-between pb-3 border-b border-slate-800/80">
+      <CardHeader class="flex flex-row items-center justify-between pb-3 border-b border-slate-200 dark:border-slate-800/80">
         <div class="flex items-center gap-2.5 min-w-0">
           {icon && (
             <div class:list={["shrink-0", iconColor]}>
@@ -52,12 +52,12 @@ const hasFooter = Astro.slots.has("footer");
           )}
           <div class="min-w-0">
             {title && (
-              <CardTitle class="text-sm font-bold text-white uppercase tracking-wider truncate">
+              <CardTitle class="text-sm font-bold text-slate-900 dark:text-white uppercase tracking-wider truncate">
                 {title}
               </CardTitle>
             )}
             {subtitle && (
-              <CardDescription class="text-xs text-slate-400 mt-0.5 truncate">
+              <CardDescription class="text-xs text-slate-500 dark:text-slate-400 mt-0.5 truncate">
                 {subtitle}
               </CardDescription>
             )}
@@ -80,7 +80,7 @@ const hasFooter = Astro.slots.has("footer");
   )}
 
   {hasFooter && (
-    <CardFooter class="pt-3 border-t border-slate-800/80">
+    <CardFooter class="pt-3 border-t border-slate-200 dark:border-slate-800/80">
       <slot name="footer" />
     </CardFooter>
   )}

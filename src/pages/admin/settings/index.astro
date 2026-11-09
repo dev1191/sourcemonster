@@ -38,10 +38,10 @@ const settings = await getSiteSettings();
 ---
 
 <AdminLayout title="Site Settings | SourceMonster Admin" activeNav="settings">
-  <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-6 border-b border-slate-800">
+  <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-6 border-b border-slate-200 dark:border-slate-800">
     <div>
-      <h1 class="text-2xl font-black text-white tracking-tight">Global Site Settings</h1>
-      <p class="text-xs text-slate-400 mt-1">Configure platform parameters, contact channels, social networks, and SEO defaults.</p>
+      <h1 class="text-2xl font-black text-slate-900 dark:text-white tracking-tight">Global Site Settings</h1>
+      <p class="text-xs text-slate-500 dark:text-slate-400 mt-1">Configure platform parameters, contact channels, social networks, and SEO defaults.</p>
     </div>
   </div>
 
@@ -50,7 +50,7 @@ const settings = await getSiteSettings();
 
   <form method="POST" class="my-6 space-y-6 max-w-4xl">
     <!-- Brand & Identity Card -->
-    <Card class="bg-slate-900/70 border-slate-800/80 rounded-2xl shadow-xl">
+    <Card class="bg-white dark:bg-slate-900/70 border border-slate-200 dark:border-slate-800/80 rounded-2xl shadow-sm dark:shadow-xl">
       <CardHeader>
         <CardTitle class="text-xs font-bold text-primary uppercase tracking-wider flex items-center gap-2">
           <i data-lucide="shield" class="w-4 h-4"></i>
@@ -60,7 +60,7 @@ const settings = await getSiteSettings();
       <CardContent class="space-y-4 pt-2">
         <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <div>
-            <label class="block text-xs font-semibold text-slate-300 uppercase tracking-wider mb-1.5">
+            <label class="block text-xs font-semibold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-1.5">
               Platform Brand Name
             </label>
             <Input
@@ -68,12 +68,12 @@ const settings = await getSiteSettings();
               type="text"
               required
               value={settings.site_name}
-              class="bg-slate-950/80 border-slate-700/80 text-white placeholder:text-slate-500 rounded-xl"
+              class="bg-white dark:bg-slate-950/80 border-slate-300 dark:border-slate-700/80 text-slate-900 dark:text-white placeholder:text-slate-400 dark:placeholder:text-slate-500 rounded-xl"
             />
           </div>
 
           <div>
-            <label class="block text-xs font-semibold text-slate-300 uppercase tracking-wider mb-1.5">
+            <label class="block text-xs font-semibold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-1.5">
               Footer Copyright Text
             </label>
             <Input
@@ -81,7 +81,7 @@ const settings = await getSiteSettings();
               type="text"
               required
               value={settings.footer_copyright}
-              class="bg-slate-950/80 border-slate-700/80 text-white placeholder:text-slate-500 rounded-xl"
+              class="bg-white dark:bg-slate-950/80 border-slate-300 dark:border-slate-700/80 text-slate-900 dark:text-white placeholder:text-slate-400 dark:placeholder:text-slate-500 rounded-xl"
             />
           </div>
         </div>
@@ -89,7 +89,7 @@ const settings = await getSiteSettings();
     </Card>
 
     <!-- Communication & Contact Channels Card -->
-    <Card class="bg-slate-900/70 border-slate-800/80 rounded-2xl shadow-xl">
+    <Card class="bg-white dark:bg-slate-900/70 border border-slate-200 dark:border-slate-800/80 rounded-2xl shadow-sm dark:shadow-xl">
       <CardHeader>
         <CardTitle class="text-xs font-bold text-primary uppercase tracking-wider flex items-center gap-2">
           <i data-lucide="phone-call" class="w-4 h-4"></i>
@@ -99,7 +99,7 @@ const settings = await getSiteSettings();
       <CardContent class="space-y-4 pt-2">
         <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
           <div>
-            <label class="block text-xs font-semibold text-slate-300 uppercase tracking-wider mb-1.5">
+            <label class="block text-xs font-semibold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-1.5">
               Primary Email
             </label>
             <Input
@@ -107,24 +107,24 @@ const settings = await getSiteSettings();
               type="email"
               required
               value={settings.contact_email}
-              class="bg-slate-950/80 border-slate-700/80 text-white placeholder:text-slate-500 rounded-xl"
+              class="bg-white dark:bg-slate-950/80 border-slate-300 dark:border-slate-700/80 text-slate-900 dark:text-white placeholder:text-slate-400 dark:placeholder:text-slate-500 rounded-xl"
             />
           </div>
 
           <div>
-            <label class="block text-xs font-semibold text-slate-300 uppercase tracking-wider mb-1.5">
+            <label class="block text-xs font-semibold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-1.5">
               Public Phone Number
             </label>
             <Input
               name="contact_phone"
               type="text"
               value={settings.contact_phone}
-              class="bg-slate-950/80 border-slate-700/80 text-white placeholder:text-slate-500 rounded-xl"
+              class="bg-white dark:bg-slate-950/80 border-slate-300 dark:border-slate-700/80 text-slate-900 dark:text-white placeholder:text-slate-400 dark:placeholder:text-slate-500 rounded-xl"
             />
           </div>
 
           <div>
-            <label class="block text-xs font-semibold text-slate-300 uppercase tracking-wider mb-1.5">
+            <label class="block text-xs font-semibold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-1.5">
               WhatsApp Direct Number
             </label>
             <Input
@@ -132,7 +132,7 @@ const settings = await getSiteSettings();
               type="text"
               value={settings.whatsapp_number}
               placeholder="e.g. 918607248802"
-              class="bg-slate-950/80 border-slate-700/80 text-white placeholder:text-slate-500 font-mono rounded-xl"
+              class="bg-white dark:bg-slate-950/80 border-slate-300 dark:border-slate-700/80 text-slate-900 dark:text-white placeholder:text-slate-400 dark:placeholder:text-slate-500 font-mono rounded-xl"
             />
           </div>
         </div>
@@ -140,7 +140,7 @@ const settings = await getSiteSettings();
     </Card>
 
     <!-- Social Profiles Card -->
-    <Card class="bg-slate-900/70 border-slate-800/80 rounded-2xl shadow-xl">
+    <Card class="bg-white dark:bg-slate-900/70 border border-slate-200 dark:border-slate-800/80 rounded-2xl shadow-sm dark:shadow-xl">
       <CardHeader>
         <CardTitle class="text-xs font-bold text-primary uppercase tracking-wider flex items-center gap-2">
           <i data-lucide="share-2" class="w-4 h-4"></i>
@@ -150,7 +150,7 @@ const settings = await getSiteSettings();
       <CardContent class="space-y-4 pt-2">
         <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
           <div>
-            <label class="block text-xs font-semibold text-slate-300 uppercase tracking-wider mb-1.5">
+            <label class="block text-xs font-semibold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-1.5">
               Twitter / X Profile
             </label>
             <Input
@@ -158,12 +158,12 @@ const settings = await getSiteSettings();
               type="url"
               value={settings.social_twitter}
               placeholder="https://x.com/..."
-              class="bg-slate-950/80 border-slate-700/80 text-white placeholder:text-slate-500 rounded-xl"
+              class="bg-white dark:bg-slate-950/80 border-slate-300 dark:border-slate-700/80 text-slate-900 dark:text-white placeholder:text-slate-400 dark:placeholder:text-slate-500 rounded-xl"
             />
           </div>
 
           <div>
-            <label class="block text-xs font-semibold text-slate-300 uppercase tracking-wider mb-1.5">
+            <label class="block text-xs font-semibold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-1.5">
               GitHub Organization
             </label>
             <Input
@@ -171,12 +171,12 @@ const settings = await getSiteSettings();
               type="url"
               value={settings.social_github}
               placeholder="https://github.com/..."
-              class="bg-slate-950/80 border-slate-700/80 text-white placeholder:text-slate-500 rounded-xl"
+              class="bg-white dark:bg-slate-950/80 border-slate-300 dark:border-slate-700/80 text-slate-900 dark:text-white placeholder:text-slate-400 dark:placeholder:text-slate-500 rounded-xl"
             />
           </div>
 
           <div>
-            <label class="block text-xs font-semibold text-slate-300 uppercase tracking-wider mb-1.5">
+            <label class="block text-xs font-semibold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-1.5">
               LinkedIn Company
             </label>
             <Input
@@ -184,7 +184,7 @@ const settings = await getSiteSettings();
               type="url"
               value={settings.social_linkedin}
               placeholder="https://linkedin.com/company/..."
-              class="bg-slate-950/80 border-slate-700/80 text-white placeholder:text-slate-500 rounded-xl"
+              class="bg-white dark:bg-slate-950/80 border-slate-300 dark:border-slate-700/80 text-slate-900 dark:text-white placeholder:text-slate-400 dark:placeholder:text-slate-500 rounded-xl"
             />
           </div>
         </div>
@@ -192,7 +192,7 @@ const settings = await getSiteSettings();
     </Card>
 
     <!-- SEO Defaults Card -->
-    <Card class="bg-slate-900/70 border-slate-800/80 rounded-2xl shadow-xl">
+    <Card class="bg-white dark:bg-slate-900/70 border border-slate-200 dark:border-slate-800/80 rounded-2xl shadow-sm dark:shadow-xl">
       <CardHeader>
         <CardTitle class="text-xs font-bold text-primary uppercase tracking-wider flex items-center gap-2">
           <i data-lucide="search" class="w-4 h-4"></i>
@@ -201,26 +201,26 @@ const settings = await getSiteSettings();
       </CardHeader>
       <CardContent class="space-y-4 pt-2">
         <div>
-          <label class="block text-xs font-semibold text-slate-300 uppercase tracking-wider mb-1.5">
+          <label class="block text-xs font-semibold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-1.5">
             Default Meta Title
           </label>
           <Input
             name="seo_default_title"
             type="text"
             value={settings.seo_default_title}
-            class="bg-slate-950/80 border-slate-700/80 text-white placeholder:text-slate-500 rounded-xl"
+            class="bg-white dark:bg-slate-950/80 border-slate-300 dark:border-slate-700/80 text-slate-900 dark:text-white placeholder:text-slate-400 dark:placeholder:text-slate-500 rounded-xl"
           />
         </div>
 
         <div>
-          <label class="block text-xs font-semibold text-slate-300 uppercase tracking-wider mb-1.5">
+          <label class="block text-xs font-semibold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-1.5">
             Default Meta Description
           </label>
           <Textarea
             name="seo_default_description"
             rows={3}
             value={settings.seo_default_description}
-            class="bg-slate-950/80 border-slate-700/80 text-white placeholder:text-slate-500 leading-relaxed rounded-xl"
+            class="bg-white dark:bg-slate-950/80 border-slate-300 dark:border-slate-700/80 text-slate-900 dark:text-white placeholder:text-slate-400 dark:placeholder:text-slate-500 leading-relaxed rounded-xl"
           />
         </div>
       </CardContent>

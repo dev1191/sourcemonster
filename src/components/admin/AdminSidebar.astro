@@ -1,4 +1,5 @@
 ---
+import logoImg from "../../assets/images/logo.png";
 import logo2Img from "../../assets/images/logo-2.png";
 import { ConfirmDialog } from "@/components/ui";
 import {
@@ -32,12 +33,13 @@ const currentPath = Astro.url.pathname;
 const isProductActive = activeNav === "products" || activeNav === "addons" || currentPath.startsWith("/admin/products");
 ---
 
-<Sidebar collapsible="icon" class="border-r border-slate-800/80 bg-slate-900/95">
+<Sidebar collapsible="icon" class="border-r border-slate-200 dark:border-slate-800/80 bg-white dark:bg-slate-900/95 transition-colors duration-200">
   <!-- Brand Logo Header -->
-  <SidebarHeader class="p-4 border-b border-slate-800">
+  <SidebarHeader class="p-4 border-b border-slate-200 dark:border-slate-800">
     <div class="flex items-center justify-between">
       <a href="/admin" class="flex items-center gap-2" title="Admin Dashboard">
-        <img src={logo2Img.src} alt="SourceMonster" class="h-8 w-auto object-contain" />
+        <img src={logoImg.src} alt="SourceMonster" class="h-8 w-auto object-contain dark:hidden" />
+        <img src={logo2Img.src} alt="SourceMonster" class="h-8 w-auto object-contain hidden dark:block" />
       </a>
       <span class="text-[10px] uppercase font-bold tracking-wider px-2 py-0.5 rounded bg-primary/10 text-primary border border-primary/20 font-mono group-data-[collapsible=icon]:hidden">
         Admin
@@ -169,11 +171,11 @@ const isProductActive = activeNav === "products" || activeNav === "addons" || cu
   </SidebarContent>
 
   <!-- Sidebar Footer -->
-  <SidebarFooter class="p-3 border-t border-slate-800/80 space-y-2">
+  <SidebarFooter class="p-3 border-t border-slate-200 dark:border-slate-800/80 space-y-2">
     <a
       href="/"
       target="_blank"
-      class="flex items-center justify-between px-3 py-2 text-xs text-slate-400 hover:text-white rounded-lg hover:bg-slate-800/40 transition group-data-[collapsible=icon]:justify-center group-data-[collapsible=icon]:px-1"
+      class="flex items-center justify-between px-3 py-2 text-xs text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800/40 transition group-data-[collapsible=icon]:justify-center group-data-[collapsible=icon]:px-1"
       title="View Live Site"
     >
       <span class="flex items-center gap-2 group-data-[collapsible=icon]:hidden">
@@ -184,10 +186,10 @@ const isProductActive = activeNav === "products" || activeNav === "addons" || cu
       <i data-lucide="chevron-right" class="w-3.5 h-3.5 opacity-50 shrink-0 group-data-[collapsible=icon]:hidden"></i>
     </a>
 
-    <div class="p-2.5 bg-slate-950/60 rounded-xl border border-slate-800/60 flex items-center justify-between group-data-[collapsible=icon]:p-1 group-data-[collapsible=icon]:justify-center">
+    <div class="p-2.5 bg-slate-50 dark:bg-slate-950/60 rounded-xl border border-slate-200 dark:border-slate-800/60 flex items-center justify-between group-data-[collapsible=icon]:p-1 group-data-[collapsible=icon]:justify-center">
       <div class="overflow-hidden pr-2 group-data-[collapsible=icon]:hidden">
-        <div class="text-xs font-semibold text-white truncate">{user?.name || "Administrator"}</div>
-        <div class="text-[11px] text-slate-400 truncate">{user?.email || "admin@sourcemonster.in"}</div>
+        <div class="text-xs font-semibold text-slate-900 dark:text-white truncate">{user?.name || "Administrator"}</div>
+        <div class="text-[11px] text-slate-500 dark:text-slate-400 truncate">{user?.email || "admin@sourcemonster.in"}</div>
       </div>
       <ConfirmDialog
         title="Sign Out"
@@ -203,7 +205,7 @@ const isProductActive = activeNav === "products" || activeNav === "addons" || cu
           slot="trigger"
           type="button"
           title="Logout"
-          class="p-1.5 text-slate-400 hover:text-rose-400 hover:bg-rose-500/10 rounded-lg transition cursor-pointer"
+          class="p-1.5 text-slate-400 hover:text-rose-500 hover:bg-rose-500/10 rounded-lg transition cursor-pointer"
         >
           <i data-lucide="log-out" class="w-4 h-4 shrink-0"></i>
         </button>

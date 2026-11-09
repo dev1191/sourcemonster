@@ -29,10 +29,10 @@ const statusOptions = [
 ---
 
 <AdminLayout title="Leads & Inquiries | SourceMonster Admin" activeNav="leads">
-  <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-6 border-b border-slate-800">
+  <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-6 border-b border-slate-200 dark:border-slate-800">
     <div>
-      <h1 class="text-2xl font-black text-white tracking-tight">Leads & Inquiries</h1>
-      <p class="text-xs text-slate-400 mt-1">Review contact inquiries, customization requests, and manage pipeline status.</p>
+      <h1 class="text-2xl font-black text-slate-900 dark:text-white tracking-tight">Leads & Inquiries</h1>
+      <p class="text-xs text-slate-500 dark:text-slate-400 mt-1">Review contact inquiries, customization requests, and manage pipeline status.</p>
     </div>
   </div>
 
@@ -53,67 +53,67 @@ const statusOptions = [
     emptySubtitle="Try selecting a different status filter or clearing your search query."
     containerClass="my-6"
   >
-    <TableHeader class="bg-slate-950/80 text-[11px] uppercase tracking-wider text-slate-400 border-b border-slate-800">
-          <TableRow class="border-b border-slate-800 hover:bg-transparent">
-            <TableHead class="px-4 py-3.5 text-slate-400">Contact Prospect</TableHead>
-            <TableHead class="px-4 py-3.5 text-slate-400">Company</TableHead>
-            <TableHead class="px-4 py-3.5 text-slate-400">Service / Subject</TableHead>
-            <TableHead class="px-4 py-3.5 text-slate-400">Status</TableHead>
-            <TableHead class="px-4 py-3.5 text-slate-400">Date Received</TableHead>
-            <TableHead class="px-4 py-3.5 text-right text-slate-400">Action</TableHead>
-          </TableRow>
-        </TableHeader>
-        <TableBody class="divide-y divide-slate-800/60">
-          {allLeads.map((lead) => (
-            <TableRow class="hover:bg-slate-800/30 transition border-b border-slate-800/60">
-              <TableCell class="px-4 py-3.5">
-                <a href={`/admin/leads/${lead.id}`} class="font-bold text-white hover:text-primary transition block text-sm">
-                  {lead.name}
-                </a>
-                <a href={`mailto:${lead.email}`} class="text-[11px] text-slate-400 hover:text-slate-200 transition font-mono">
-                  {lead.email}
-                </a>
-              </TableCell>
-              <TableCell class="px-4 py-3.5 text-slate-400">
-                {lead.company || "—"}
-              </TableCell>
-              <TableCell class="px-4 py-3.5">
-                <div class="text-slate-200 font-semibold">{lead.subject || lead.serviceId || "Inquiry"}</div>
-                <div class="text-[11px] text-slate-500 line-clamp-1 max-w-xs">{lead.message}</div>
-              </TableCell>
-              <TableCell class="px-4 py-3.5">
-                <span class={`px-2.5 py-0.5 rounded-full text-[10px] font-bold uppercase ${
-                  lead.status === "new"
-                    ? "bg-primary/10 text-primary border border-primary/20 animate-pulse"
-                    : lead.status === "contacted"
-                    ? "bg-blue-500/10 text-blue-400 border border-blue-500/20"
-                    : lead.status === "qualified"
-                    ? "bg-emerald-500/10 text-emerald-400 border border-emerald-500/20"
-                    : lead.status === "converted"
-                    ? "bg-purple-500/10 text-purple-400 border border-purple-500/20"
-                    : "bg-slate-800 text-slate-400 border border-slate-700"
-                }`}>
-                  {lead.status}
-                </span>
-              </TableCell>
-              <TableCell class="px-4 py-3.5 text-slate-400 font-mono">
-                {new Date(lead.createdAt).toLocaleDateString("en-US", {
-                  month: "short",
-                  day: "numeric",
-                  year: "numeric",
-                })}
-              </TableCell>
-              <TableCell class="px-4 py-3.5 text-right">
-                <a
-                  href={`/admin/leads/${lead.id}`}
-                  class="inline-flex items-center gap-1.5 px-3 py-1.5 bg-slate-800 hover:bg-slate-700 text-slate-200 rounded-lg hover:text-white transition text-xs font-semibold"
-                >
-                  <span>Inspect</span>
-                  <i data-lucide="chevron-right" class="w-3.5 h-3.5"></i>
-                </a>
-              </TableCell>
-            </TableRow>
-          ))}
-        </TableBody>
+    <TableHeader class="bg-slate-50 dark:bg-slate-950/80 text-[11px] uppercase tracking-wider text-slate-600 dark:text-slate-400 border-b border-slate-200 dark:border-slate-800">
+      <TableRow class="border-b border-slate-200 dark:border-slate-800 hover:bg-transparent">
+        <TableHead class="px-4 py-3.5 text-slate-600 dark:text-slate-400 font-semibold">Contact Prospect</TableHead>
+        <TableHead class="px-4 py-3.5 text-slate-600 dark:text-slate-400 font-semibold">Company</TableHead>
+        <TableHead class="px-4 py-3.5 text-slate-600 dark:text-slate-400 font-semibold">Service / Subject</TableHead>
+        <TableHead class="px-4 py-3.5 text-slate-600 dark:text-slate-400 font-semibold">Status</TableHead>
+        <TableHead class="px-4 py-3.5 text-slate-600 dark:text-slate-400 font-semibold">Date Received</TableHead>
+        <TableHead class="px-4 py-3.5 text-right text-slate-600 dark:text-slate-400 font-semibold">Action</TableHead>
+      </TableRow>
+    </TableHeader>
+    <TableBody class="divide-y divide-slate-200 dark:divide-slate-800/60">
+      {allLeads.map((lead) => (
+        <TableRow class="hover:bg-slate-50/80 dark:hover:bg-slate-800/30 transition border-b border-slate-200 dark:border-slate-800/60">
+          <TableCell class="px-4 py-3.5">
+            <a href={`/admin/leads/${lead.id}`} class="font-bold text-slate-900 dark:text-white hover:text-primary transition block text-sm">
+              {lead.name}
+            </a>
+            <a href={`mailto:${lead.email}`} class="text-[11px] text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-200 transition font-mono">
+              {lead.email}
+            </a>
+          </TableCell>
+          <TableCell class="px-4 py-3.5 text-slate-500 dark:text-slate-400">
+            {lead.company || "—"}
+          </TableCell>
+          <TableCell class="px-4 py-3.5">
+            <div class="text-slate-800 dark:text-slate-200 font-semibold">{lead.subject || lead.serviceId || "Inquiry"}</div>
+            <div class="text-[11px] text-slate-500 line-clamp-1 max-w-xs">{lead.message}</div>
+          </TableCell>
+          <TableCell class="px-4 py-3.5">
+            <span class={`px-2.5 py-0.5 rounded-full text-[10px] font-bold uppercase ${
+              lead.status === "new"
+                ? "bg-primary/10 text-primary border border-primary/20 animate-pulse"
+                : lead.status === "contacted"
+                ? "bg-blue-500/10 text-blue-600 dark:text-blue-400 border border-blue-500/20"
+                : lead.status === "qualified"
+                ? "bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20"
+                : lead.status === "converted"
+                ? "bg-purple-500/10 text-purple-600 dark:text-purple-400 border border-purple-500/20"
+                : "bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 border border-slate-200 dark:border-slate-700"
+            }`}>
+              {lead.status}
+            </span>
+          </TableCell>
+          <TableCell class="px-4 py-3.5 text-slate-500 dark:text-slate-400 font-mono">
+            {new Date(lead.createdAt).toLocaleDateString("en-US", {
+              month: "short",
+              day: "numeric",
+              year: "numeric",
+            })}
+          </TableCell>
+          <TableCell class="px-4 py-3.5 text-right">
+            <a
+              href={`/admin/leads/${lead.id}`}
+              class="inline-flex items-center gap-1.5 px-3 py-1.5 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 rounded-lg hover:text-slate-900 dark:hover:text-white transition text-xs font-semibold border border-slate-200 dark:border-slate-700/60"
+            >
+              <span>Inspect</span>
+              <i data-lucide="chevron-right" class="w-3.5 h-3.5"></i>
+            </a>
+          </TableCell>
+        </TableRow>
+      ))}
+    </TableBody>
   </Table>
 </AdminLayout>
