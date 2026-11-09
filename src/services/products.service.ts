@@ -496,6 +496,7 @@ export async function createProductChangeLog(input: {
   productId: string;
   version?: string | null;
   content: string;
+  createdAt?: Date | null;
 }): Promise<ProductChangeLog> {
   const [created] = await db
     .insert(productChangeLog)
@@ -503,6 +504,7 @@ export async function createProductChangeLog(input: {
       productId: input.productId,
       version: input.version?.trim() || null,
       content: input.content.trim(),
+      ...(input.createdAt ? { createdAt: input.createdAt } : {}),
     })
     .returning();
   return created;

@@ -338,6 +338,7 @@ export async function createAddonChangeLog(input: {
   addonId: string;
   version?: string | null;
   content: string;
+  createdAt?: Date | null;
 }): Promise<ProductAddonChangeLog> {
   const [created] = await db
     .insert(productAddonChangeLog)
@@ -345,6 +346,7 @@ export async function createAddonChangeLog(input: {
       addonId: input.addonId,
       version: input.version?.trim() || null,
       content: input.content.trim(),
+      ...(input.createdAt ? { createdAt: input.createdAt } : {}),
     })
     .returning();
   return created;

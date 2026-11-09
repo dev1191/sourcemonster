@@ -10,7 +10,7 @@ import {
   deleteProductChangeLog,
 } from "../../../../services";
 import { getPublicUrl } from "../../../../lib/storage";
-import { Button, Dropzone, Toast, ConfirmDialog, HtmlEditor } from "../../../../components/ui";
+import { Button, Dropzone, Toast, ConfirmDialog, HtmlEditor, DatePicker } from "../../../../components/ui";
 import { Card, CardHeader, CardTitle, CardContent } from "../../../../components/starwind/card";
 import { Input } from "../../../../components/starwind/input";
 import { Textarea } from "../../../../components/starwind/textarea";
@@ -51,12 +51,15 @@ if (Astro.request.method === "POST") {
 
     if (action === "add_changelog") {
       const changelogVersion = formData.get("changelog_version")?.toString().trim() || null;
+      const changelogDateRaw = formData.get("changelog_date")?.toString().trim();
       const changelogContent = formData.get("changelog_content")?.toString().trim() || "";
       if (changelogContent) {
+        const clDate = changelogDateRaw ? new Date(changelogDateRaw) : new Date();
         await createProductChangeLog({
           productId: id,
           version: changelogVersion,
           content: changelogContent,
+          createdAt: !isNaN(clDate.getTime()) ? clDate : new Date(),
         });
         return Astro.redirect(`/admin/products/${id}/edit`);
       }
@@ -145,11 +148,14 @@ if (Astro.request.method === "POST") {
     );
 
     const newChangelog = formData.get("new_changelog_content")?.toString().trim();
+    const newChangelogDateRaw = formData.get("new_changelog_date")?.toString().trim();
     if (newChangelog) {
+      const clDate = newChangelogDateRaw ? new Date(newChangelogDateRaw) : new Date();
       await createProductChangeLog({
         productId: id,
         version: version || initialProductData.product.version || null,
         content: newChangelog,
+        createdAt: !isNaN(clDate.getTime()) ? clDate : new Date(),
       });
     }
 
@@ -374,6 +380,14 @@ const addons = await getAllAdminAddons(id);
             </label>
             <span class="text-[11px] text-slate-500 font-mono">Appends to version history</span>
           </div>
+          <div class="mb-3 max-w-xs">
+            <DatePicker
+              name="new_changelog_date"
+              label="Release Date"
+              placeholder="Select release date..."
+              defaultDate={new Date().toISOString().split("T")[0]}
+            />
+          </div>
           <HtmlEditor
             name="new_changelog_content"
             minHeight="140px"
@@ -565,17 +579,27 @@ const addons = await getAllAdminAddons(id);
       </div>
       <form method="POST" class="space-y-3">
         <input type="hidden" name="_action" value="add_changelog" />
-        <div class="w-full sm:w-1/2">
-          <label class="block text-xs font-semibold text-slate-700 dark:text-slate-400 uppercase tracking-wider mb-1">
-            Version Label
-          </label>
-          <Input
-            name="changelog_version"
-            type="text"
-            value={product.version || ""}
-            placeholder="e.g. v1.2.0"
-            class="bg-white dark:bg-slate-900 border-slate-300 dark:border-slate-700 text-slate-900 dark:text-white rounded-lg text-xs"
-          />
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <div>
+            <label class="block text-xs font-semibold text-slate-700 dark:text-slate-400 uppercase tracking-wider mb-1">
+              Version Label
+            </label>
+            <Input
+              name="changelog_version"
+              type="text"
+              value={product.version || ""}
+              placeholder="e.g. v1.2.0"
+              class="bg-white dark:bg-slate-900 border-slate-300 dark:border-slate-700 text-slate-900 dark:text-white rounded-lg text-xs"
+            />
+          </div>
+          <div>
+            <DatePicker
+              name="changelog_date"
+              label="Release Date"
+              placeholder="Select release date..."
+              defaultDate={new Date().toISOString().split("T")[0]}
+            />
+          </div>
         </div>
         <HtmlEditor
           name="changelog_content"

@@ -10,7 +10,7 @@ import {
   createAddonChangeLog,
   deleteAddonChangeLog,
 } from "../../../../../services";
-import { Button, Dropzone, Toast, ConfirmDialog, HtmlEditor } from "../../../../../components/ui";
+import { Button, Dropzone, Toast, ConfirmDialog, HtmlEditor, DatePicker } from "../../../../../components/ui";
 import { Card, CardHeader, CardTitle, CardContent } from "../../../../../components/starwind/card";
 import { Input } from "../../../../../components/starwind/input";
 import { Textarea } from "../../../../../components/starwind/textarea";
@@ -63,12 +63,15 @@ if (Astro.request.method === "POST") {
     // 4. Add standalone changelog entry
     if (action === "add_changelog") {
       const changelogVersion = formData.get("changelog_version")?.toString().trim() || null;
+      const changelogDateRaw = formData.get("changelog_date")?.toString().trim();
       const changelogContent = formData.get("changelog_content")?.toString().trim() || "";
       if (changelogContent) {
+        const clDate = changelogDateRaw ? new Date(changelogDateRaw) : new Date();
         await createAddonChangeLog({
           addonId: id,
           version: changelogVersion,
           content: changelogContent,
+          createdAt: !isNaN(clDate.getTime()) ? clDate : new Date(),
         });
         return Astro.redirect(`/admin/products/addons/${id}/edit`);
       }
@@ -113,11 +116,14 @@ if (Astro.request.method === "POST") {
     );
 
     const newChangelog = formData.get("new_changelog_content")?.toString().trim();
+    const newChangelogDateRaw = formData.get("new_changelog_date")?.toString().trim();
     if (newChangelog) {
+      const clDate = newChangelogDateRaw ? new Date(newChangelogDateRaw) : new Date();
       await createAddonChangeLog({
         addonId: id,
         version: formData.get("changelog_version")?.toString().trim() || null,
         content: newChangelog,
+        createdAt: !isNaN(clDate.getTime()) ? clDate : new Date(),
       });
     }
 
@@ -484,16 +490,26 @@ const currentParentProduct = allProducts.find((p) => p.id === addonData.productI
             </label>
             <span class="text-[11px] text-slate-500 font-mono">Appends to add-on history</span>
           </div>
-          <div class="mb-3">
-            <label class="block text-[11px] font-semibold text-slate-700 dark:text-slate-400 uppercase tracking-wider mb-1">
-              Version Label (Optional)
-            </label>
-            <Input
-              name="changelog_version"
-              type="text"
-              placeholder="e.g. v1.1.0"
-              class="max-w-xs bg-white dark:bg-slate-950 border-slate-300 dark:border-slate-700/80 text-slate-900 dark:text-white rounded-lg text-xs"
-            />
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-3">
+            <div>
+              <label class="block text-[11px] font-semibold text-slate-700 dark:text-slate-400 uppercase tracking-wider mb-1">
+                Version Label (Optional)
+              </label>
+              <Input
+                name="changelog_version"
+                type="text"
+                placeholder="e.g. v1.1.0"
+                class="w-full bg-white dark:bg-slate-950 border-slate-300 dark:border-slate-700/80 text-slate-900 dark:text-white rounded-xl text-xs"
+              />
+            </div>
+            <div>
+              <DatePicker
+                name="new_changelog_date"
+                label="Release Date"
+                placeholder="Select release date..."
+                defaultDate={new Date().toISOString().split("T")[0]}
+              />
+            </div>
           </div>
           <HtmlEditor
             name="new_changelog_content"
@@ -549,16 +565,26 @@ const currentParentProduct = allProducts.find((p) => p.id === addonData.productI
       </div>
       <form method="POST" class="space-y-3">
         <input type="hidden" name="_action" value="add_changelog" />
-        <div class="w-full sm:w-1/2">
-          <label class="block text-xs font-semibold text-slate-700 dark:text-slate-400 uppercase tracking-wider mb-1">
-            Version Label
-          </label>
-          <Input
-            name="changelog_version"
-            type="text"
-            placeholder="e.g. v1.1.0"
-            class="bg-white dark:bg-slate-900 border-slate-300 dark:border-slate-700 text-slate-900 dark:text-white rounded-lg text-xs"
-          />
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <div>
+            <label class="block text-xs font-semibold text-slate-700 dark:text-slate-400 uppercase tracking-wider mb-1">
+              Version Label
+            </label>
+            <Input
+              name="changelog_version"
+              type="text"
+              placeholder="e.g. v1.1.0"
+              class="bg-white dark:bg-slate-900 border-slate-300 dark:border-slate-700 text-slate-900 dark:text-white rounded-lg text-xs"
+            />
+          </div>
+          <div>
+            <DatePicker
+              name="changelog_date"
+              label="Release Date"
+              placeholder="Select release date..."
+              defaultDate={new Date().toISOString().split("T")[0]}
+            />
+          </div>
         </div>
         <HtmlEditor
           name="changelog_content"
