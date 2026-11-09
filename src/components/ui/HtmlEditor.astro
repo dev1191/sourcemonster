@@ -259,10 +259,8 @@ const {
       <textarea
         name={name}
         data-sync-textarea
-        required={required}
+        data-required={required ? "true" : undefined}
         class="sr-only"
-        tabindex="-1"
-        aria-hidden="true"
       >{value}</textarea>
     </div>
 
@@ -372,7 +370,8 @@ const {
             syncFromVisual();
           }
 
-          if (syncTextarea.required && !syncTextarea.value.trim()) {
+          const isRequired = syncTextarea.dataset.required === "true" || syncTextarea.required;
+          if (isRequired && !syncTextarea.value.trim()) {
             e.preventDefault();
             visualEditor.focus();
             visualEditor.scrollIntoView({ behavior: "smooth", block: "center" });

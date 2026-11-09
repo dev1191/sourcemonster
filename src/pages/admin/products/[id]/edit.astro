@@ -402,17 +402,14 @@ const addons = await getAllAdminAddons(id);
             {galleryItems.map((item) => (
               <div class="relative group rounded-xl overflow-hidden border border-slate-200 dark:border-slate-800 bg-slate-100 dark:bg-slate-950">
                 <img src={getPublicUrl(item.objectKey, item.disk)} alt={item.caption || "Screenshot"} class="w-full h-28 object-cover" />
-                <form method="POST" class="absolute top-1.5 right-1.5">
-                  <input type="hidden" name="_action" value="delete_gallery_image" />
-                  <input type="hidden" name="product_media_id" value={item.productMediaId} />
-                  <button
-                    type="submit"
-                    class="p-1.5 bg-rose-500/80 hover:bg-rose-600 text-white rounded-lg opacity-0 group-hover:opacity-100 transition shadow cursor-pointer"
-                    title="Remove Screenshot"
-                  >
-                    <i data-lucide="trash-2" class="w-3.5 h-3.5"></i>
-                  </button>
-                </form>
+                <button
+                  type="button"
+                  data-delete-gallery-id={item.productMediaId}
+                  class="absolute top-1.5 right-1.5 p-1.5 bg-rose-500/80 hover:bg-rose-600 text-white rounded-lg opacity-0 group-hover:opacity-100 transition shadow cursor-pointer"
+                  title="Remove Screenshot"
+                >
+                  <i data-lucide="trash-2" class="w-3.5 h-3.5"></i>
+                </button>
               </div>
             ))}
           </div>
@@ -502,41 +499,54 @@ const addons = await getAllAdminAddons(id);
       </CardContent>
     </Card>
 
-    <!-- Actions -->
-    <div class="flex items-center justify-between pt-4">
-      <ConfirmDialog
-        title="Delete Product"
-        description="Are you sure you want to permanently delete this product? All gallery images, reviews, and related add-ons will be removed."
-        confirmText="Delete Product"
-        confirmVariant="destructive"
-        confirmIcon="trash-2"
-        icon="trash-2"
-        formMethod="POST"
+    <!-- Form Actions Footer -->
+    <div class="flex items-center justify-end gap-3 pt-4 border-t border-slate-200 dark:border-slate-800">
+      <Button href="/admin/products" variant="secondary" size="md">Cancel</Button>
+      <Button
+        type="submit"
+        variant="primary"
+        size="md"
+        icon="save"
       >
-        <input type="hidden" name="_action" value="delete" slot="form-fields" />
-        <Button
-          slot="trigger"
-          type="button"
-          variant="danger"
-          size="md"
-          icon="trash-2"
-        >
-          Delete Product
-        </Button>
-      </ConfirmDialog>
-
-      <div class="flex items-center gap-3">
-        <Button href="/admin/products" variant="secondary" size="md">Cancel</Button>
-        <Button
-          type="submit"
-          variant="primary"
-          size="md"
-          icon="save"
-        >
-          Save Changes
-        </Button>
-      </div>
+        Save Changes
+      </Button>
     </div>
+  </form>
+
+  <!-- Danger Zone: Delete Product Card (outside main form to avoid nested form errors) -->
+  <div class="my-6 max-w-4xl p-5 rounded-2xl border border-rose-200 dark:border-rose-900/40 bg-rose-50/50 dark:bg-rose-950/20 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+    <div>
+      <h3 class="text-xs font-bold text-rose-600 dark:text-rose-400 uppercase tracking-wider">Danger Zone</h3>
+      <p class="text-xs text-slate-600 dark:text-slate-400 mt-1">
+        Permanently delete this product along with all gallery media, changelogs, and associated add-ons.
+      </p>
+    </div>
+    <ConfirmDialog
+      title="Delete Product"
+      description="Are you sure you want to permanently delete this product? All gallery images, reviews, and related add-ons will be removed."
+      confirmText="Delete Product"
+      confirmVariant="destructive"
+      confirmIcon="trash-2"
+      icon="trash-2"
+      formMethod="POST"
+    >
+      <input type="hidden" name="_action" value="delete" slot="form-fields" />
+      <Button
+        slot="trigger"
+        type="button"
+        variant="danger"
+        size="sm"
+        icon="trash-2"
+      >
+        Delete Product
+      </Button>
+    </ConfirmDialog>
+  </div>
+
+  <!-- Standalone Form for Deleting Gallery Screenshots (outside main form) -->
+  <form id="delete-gallery-form" method="POST" class="hidden">
+    <input type="hidden" name="_action" value="delete_gallery_image" />
+    <input type="hidden" name="product_media_id" id="delete-gallery-pm-id" value="" />
   </form>
 
   <!-- Product Changelog & Release History Card -->
@@ -761,6 +771,21 @@ const addons = await getAllAdminAddons(id);
         }
         if (viewEl) {
           viewEl.classList.remove("hidden");
+        }
+      });
+    });
+
+    // Gallery screenshot deletion handler
+    document.querySelectorAll("[data-delete-gallery-id]").forEach((btn) => {
+      btn.addEventListener("click", () => {
+        const pmId = btn.getAttribute("data-delete-gallery-id");
+        if (pmId && confirm("Remove this screenshot from the gallery?")) {
+          const form = document.getElementById("delete-gallery-form") as HTMLFormElement | null;
+          const input = document.getElementById("delete-gallery-pm-id") as HTMLInputElement | null;
+          if (form && input) {
+            input.value = pmId;
+            form.submit();
+          }
         }
       });
     });
