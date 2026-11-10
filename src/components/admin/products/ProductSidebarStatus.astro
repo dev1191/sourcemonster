@@ -1,0 +1,82 @@
+---
+import { Card, InputLabel, Button } from "../../ui";
+import { Input } from "../../starwind/input";
+import { NativeSelect, NativeSelectOption } from "../../starwind/native-select";
+import type { Product } from "../../../lib/db/schema";
+
+interface Props {
+  product?: Partial<Product>;
+  isEdit?: boolean;
+}
+
+const { product, isEdit = false } = Astro.props;
+const currentStatus = product?.status || "draft";
+const isFeatured = Boolean(product?.isFeatured);
+const sortOrder = product?.sortOrder ?? 0;
+---
+
+<Card
+  title={"Status & Visibility"}
+  subtitle="Manage product availability and catalog placement"
+  icon="rocket"
+>
+  <div class="space-y-4 pt-1">
+    <div>
+      <InputLabel for="status-select" label="Catalog Status" required />
+      <NativeSelect
+        id="status-select"
+        name="status"
+        class="bg-white dark:bg-slate-950/80 border-slate-300 dark:border-slate-700/80 text-slate-900 dark:text-white rounded-xl"
+      >
+        <NativeSelectOption value="published" selected={currentStatus === "published"}>
+          Published (Live to public)
+        </NativeSelectOption>
+        <NativeSelectOption value="draft" selected={currentStatus === "draft"}>
+          Draft (Hidden from store)
+        </NativeSelectOption>
+      </NativeSelect>
+    </div>
+
+    <div class="p-3.5 rounded-xl bg-slate-50 dark:bg-slate-950/60 border border-slate-200 dark:border-slate-800/80 flex items-center justify-between">
+      <div>
+        <div class="text-xs font-bold text-slate-900 dark:text-white">Featured Product</div>
+        <div class="text-[11px] text-slate-500 dark:text-slate-400">Spotlight on homepage showcase</div>
+      </div>
+      <label class="relative inline-flex items-center cursor-pointer">
+        <input
+          type="checkbox"
+          name="isFeatured"
+          checked={isFeatured}
+          class="sr-only peer"
+        />
+        <div class="w-11 h-6 bg-slate-300 dark:bg-slate-800 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-primary"></div>
+      </label>
+    </div>
+
+    <div>
+      <InputLabel for="sort-order-input" label="Catalog Priority Order" optional subtext="Ascending sort" />
+      <Input
+        id="sort-order-input"
+        name="sortOrder"
+        type="number"
+        value={String(sortOrder)}
+        placeholder="0"
+        class="bg-white dark:bg-slate-950/80 border-slate-300 dark:border-slate-700/80 text-slate-900 dark:text-white placeholder:text-slate-400 rounded-xl"
+      />
+    </div>
+
+    <!-- Primary Action Buttons in Sidebar -->
+    <div class="pt-2 border-t border-slate-200 dark:border-slate-800 space-y-2">
+      <button
+        type="submit"
+        class="w-full inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl text-sm font-bold bg-primary text-white hover:bg-orange-600 active:scale-[0.98] transition shadow-md shadow-primary/20 cursor-pointer"
+      >
+        <i data-lucide={isEdit ? "save" : "plus"} class="w-4 h-4"></i>
+        <span>{isEdit ? "Save Changes" : "Create Product"}</span>
+      </button>
+      <Button href="/admin/products" variant="secondary" size="md" class="w-full text-center">
+        Cancel
+      </Button>
+    </div>
+  </div>
+</Card>

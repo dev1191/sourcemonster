@@ -1,0 +1,47 @@
+---
+import { Button, ConfirmDialog } from "../../ui";
+
+interface Props {
+  product: {
+    id: string;
+    title: string;
+  };
+}
+
+const { product } = Astro.props;
+---
+
+<div class="my-10 p-6 rounded-2xl border border-rose-200 dark:border-rose-900/40 bg-rose-50/50 dark:bg-rose-950/20 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+  <div>
+    <div class="flex items-center gap-2">
+      <i data-lucide="alert-triangle" class="w-4 h-4 text-rose-600 dark:text-rose-400"></i>
+      <h3 class="text-sm font-bold text-rose-600 dark:text-rose-400 uppercase tracking-wider">
+        Danger Zone
+      </h3>
+    </div>
+    <p class="text-xs text-slate-600 dark:text-slate-400 mt-1 max-w-xl">
+      Permanently delete <strong class="text-slate-900 dark:text-white">{product.title}</strong> along with all gallery media, version changelogs, and associated companion modules. This action cannot be reversed.
+    </p>
+  </div>
+  <ConfirmDialog
+    title="Delete Product"
+    description={`Are you sure you want to permanently delete "${product.title}"? All gallery images, reviews, and related add-ons will be permanently removed.`}
+    confirmText="Delete Product"
+    confirmVariant="destructive"
+    confirmIcon="trash-2"
+    icon="trash-2"
+    formMethod="POST"
+  >
+    <input type="hidden" name="_action" value="delete" slot="form-fields" />
+    <Button
+      slot="trigger"
+      type="button"
+      variant="danger"
+      size="sm"
+      icon="trash-2"
+    >
+      Delete Product
+    </Button>
+  </ConfirmDialog>
+</div>
+
