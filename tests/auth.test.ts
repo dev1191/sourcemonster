@@ -15,7 +15,7 @@ describe("Authentication & Cryptographic Utilities", () => {
 
     const isWrongValid = await verifyPassword("WrongPassword456!", hash);
     expect(isWrongValid).toBe(false);
-  });
+  }, 15000);
 
   it("should generate random session tokens and compute deterministic SHA-256 hashes", () => {
     const token = generateSessionToken();

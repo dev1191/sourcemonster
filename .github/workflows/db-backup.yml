@@ -1,0 +1,49 @@
+name: Database Backup Cronjob
+
+on:
+  schedule:
+    - cron: '0 2 * * *' # Every night at 2:00 AM UTC
+  workflow_dispatch:
+    inputs:
+      email_override:
+        description: 'Optional email recipient override'
+        required: false
+        type: string
+
+jobs:
+  backup:
+    name: Trigger Database Backup & Email Dispatch
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Trigger Automated Database Backup
+        env:
+          SITE_URL: ${{ secrets.SITE_URL || 'https://sourcemonster.in' }}
+          CRON_SECRET: ${{ secrets.CRON_SECRET || 'sm_cron_backup_secret_key' }}
+          OVERRIDE_EMAIL: ${{ inputs.email_override }}
+        run: |
+          echo "🚀 Initializing Automated Database Backup..."
+          TARGET_URL="${SITE_URL%/}/api/cron/backup"
+
+          if [ -n "$OVERRIDE_EMAIL" ]; then
+            TARGET_URL="${TARGET_URL}?email=${OVERRIDE_EMAIL}"
+          fi
+
+          echo "Target Endpoint: $TARGET_URL"
+
+          RESPONSE=$(curl -s -w "\n%{http_code}" -X POST \
+            -H "Authorization: Bearer ${CRON_SECRET}" \
+            -H "Content-Type: application/json" \
+            "$TARGET_URL")
+
+          HTTP_CODE=$(echo "$RESPONSE" | tail -n1)
+          BODY=$(echo "$RESPONSE" | sed '$d')
+
+          echo "HTTP Status Code: $HTTP_CODE"
+          echo "Response Payload: $BODY"
+
+          if [ "$HTTP_CODE" -eq 200 ]; then
+            echo "✅ Database backup successfully created and emailed."
+          else
+            echo "⚠️ Backup endpoint returned status $HTTP_CODE"
+          fi
