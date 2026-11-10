@@ -11,8 +11,16 @@ import {
   deleteProductChangeLog,
 } from "../../../../services";
 import { getPublicUrl } from "../../../../lib/storage";
-import { Button, Dropzone, Toast, ConfirmDialog, HtmlEditor, DatePicker } from "../../../../components/ui";
-import { Card, CardHeader, CardTitle, CardContent } from "../../../../components/starwind/card";
+import {
+  Button,
+  Card,
+  Dropzone,
+  Toast,
+  ConfirmDialog,
+  HtmlEditor,
+  DatePicker,
+  InputLabel,
+} from "../../../../components/ui";
 import { Input } from "../../../../components/starwind/input";
 import { Textarea } from "../../../../components/starwind/textarea";
 import { NativeSelect, NativeSelectOption } from "../../../../components/starwind/native-select";
@@ -172,20 +180,46 @@ const addons = await getAllAdminAddons(id);
 ---
 
 <AdminLayout title={`Edit ${product.title} | SourceMonster Admin`} activeNav="products">
-  <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-6 border-b border-slate-200 dark:border-slate-800">
+  <!-- Top Command & Breadcrumb Bar -->
+  <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 pb-6 border-b border-slate-200 dark:border-slate-800">
     <div>
-      <div class="flex items-center gap-2 text-xs text-slate-500 dark:text-slate-400 mb-1">
-        <a href="/admin/products" class="hover:text-slate-900 dark:hover:text-white transition">Products</a>
-        <span>/</span>
-        <span class="text-slate-800 dark:text-white">Edit</span>
+      <div class="flex items-center gap-2 text-xs text-slate-500 dark:text-slate-400 mb-1.5 font-medium">
+        <a href="/admin/products" class="hover:text-primary transition flex items-center gap-1">
+          <i data-lucide="arrow-left" class="w-3.5 h-3.5"></i>
+          <span>Products</span>
+        </a>
+        <span class="text-slate-400 dark:text-slate-600">/</span>
+        <span class="text-slate-800 dark:text-white truncate max-w-xs">{product.title}</span>
+        <span class="text-slate-400 dark:text-slate-600">/</span>
+        <span class="text-primary font-semibold">Edit</span>
       </div>
-      <h1 class="text-2xl font-black text-slate-900 dark:text-white tracking-tight flex items-center gap-2">
-        <span>Edit Product:</span>
-        <span class="text-primary truncate">{product.title}</span>
-      </h1>
+      <div class="flex flex-wrap items-center gap-3">
+        <h1 class="text-2xl sm:text-3xl font-black text-slate-900 dark:text-white tracking-tight">
+          {product.title}
+        </h1>
+        <div class="flex items-center gap-2">
+          {product.status === "published" ? (
+            <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-semibold bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20">
+              <span class="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span>
+              Live Product
+            </span>
+          ) : (
+            <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-semibold bg-amber-500/10 text-amber-600 dark:text-amber-400 border border-amber-500/20">
+              <span class="w-1.5 h-1.5 rounded-full bg-amber-500"></span>
+              Draft
+            </span>
+          )}
+          {product.version && (
+            <span class="px-2.5 py-1 rounded-full text-xs font-mono font-medium bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 border border-slate-200 dark:border-slate-700">
+              {product.version}
+            </span>
+          )}
+        </div>
+      </div>
     </div>
 
-    <div class="flex items-center gap-2">
+    <!-- Quick Action Dock -->
+    <div class="flex items-center gap-2.5 shrink-0">
       {product.status === "published" && (
         <Button
           href={`/products/${product.slug}`}
@@ -197,338 +231,735 @@ const addons = await getAllAdminAddons(id);
           View Public Page
         </Button>
       )}
-      <Button href="/admin/products" variant="secondary" size="sm">Back to list</Button>
+      <Button href="/admin/products" variant="secondary" size="sm">
+        Back to List
+      </Button>
+      <button
+        type="submit"
+        form="product-edit-form"
+        class="inline-flex items-center justify-center gap-2 px-4 py-2 rounded-xl text-xs sm:text-sm font-bold bg-primary text-white hover:bg-orange-600 active:scale-[0.98] transition shadow-md shadow-primary/20 cursor-pointer"
+      >
+        <i data-lucide="save" class="w-4 h-4"></i>
+        <span>Save Changes</span>
+      </button>
     </div>
   </div>
 
   <Toast variant="error" message={errorMessage} />
   <Toast variant="success" message={successMessage} />
 
-  <form method="POST" enctype="multipart/form-data" class="my-6 space-y-6 max-w-4xl">
+  <!-- Main 2-Column Responsive Workspace Form -->
+  <form
+    id="product-edit-form"
+    method="POST"
+    enctype="multipart/form-data"
+    class="my-8 grid grid-cols-1 lg:grid-cols-12 gap-8 items-start"
+  >
     <input type="hidden" name="_action" value="update" />
 
-    <!-- Basic Info Card -->
-    <Card class="bg-white dark:bg-slate-900/70 border border-slate-200 dark:border-slate-800/80 rounded-2xl shadow-sm dark:shadow-xl">
-      <CardHeader class="border-b border-slate-200 dark:border-slate-800/60 pb-3">
-        <CardTitle class="text-sm font-bold text-primary uppercase tracking-wider">Basic Info</CardTitle>
-      </CardHeader>
-      <CardContent class="space-y-4 pt-4">
-        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+    <!-- Left Column: Core Product Content (8 Columns) -->
+    <div class="lg:col-span-8 space-y-8">
+      <!-- 1. Basic Information -->
+      <Card
+        title="General Information"
+        subtitle="Primary identity, URL slug, and architectural narrative"
+        icon="package"
+      >
+        <div class="space-y-5 pt-2">
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-5">
+            <div>
+              <InputLabel for="title-input" label="Product Title" required />
+              <Input
+                id="title-input"
+                name="title"
+                type="text"
+                required
+                value={product.title}
+                placeholder="e.g. Modern SaaS Starter Kit"
+                class="bg-white dark:bg-slate-950/80 border-slate-300 dark:border-slate-700/80 text-slate-900 dark:text-white placeholder:text-slate-400 dark:placeholder:text-slate-500 rounded-xl"
+              />
+            </div>
+
+            <div>
+              <InputLabel for="slug-input" label="URL Slug" required subtext="/products/[slug]" />
+              <Input
+                id="slug-input"
+                name="slug"
+                type="text"
+                required
+                value={product.slug}
+                placeholder="e.g. modern-saas-starter-kit"
+                class="bg-white dark:bg-slate-950/80 border-slate-300 dark:border-slate-700/80 text-slate-900 dark:text-white font-mono placeholder:text-slate-400 dark:placeholder:text-slate-500 rounded-xl"
+              />
+            </div>
+          </div>
+
           <div>
-            <label class="block text-xs font-semibold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-1.5">
-              Product Title *
-            </label>
-            <Input
-              name="title"
-              type="text"
+            <InputLabel
+              for="short-desc-input"
+              label="Short Description (Card Summary)"
               required
-              value={product.title}
+              subtext="Used in cards & listings"
+            />
+            <Textarea
+              id="short-desc-input"
+              name="shortDescription"
+              rows={2}
+              required
+              value={product.shortDescription}
+              placeholder="Concise 1-2 sentence overview highlighting key value proposition..."
               class="bg-white dark:bg-slate-950/80 border-slate-300 dark:border-slate-700/80 text-slate-900 dark:text-white placeholder:text-slate-400 dark:placeholder:text-slate-500 rounded-xl"
             />
           </div>
 
           <div>
-            <label class="block text-xs font-semibold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-1.5">
-              URL Slug *
-            </label>
-            <Input
-              name="slug"
-              type="text"
+            <InputLabel label="Full Architectural Description" required subtext="Rich HTML / Visual" />
+            <HtmlEditor
+              name="description"
+              value={product.description}
+              placeholder="Detailed product overview, architectural capabilities, value proposition, and technical specs..."
+              helperText="Format your architecture overview using rich text, headings, lists, code blocks, or raw HTML."
               required
-              value={product.slug}
-              class="bg-white dark:bg-slate-950/80 border-slate-300 dark:border-slate-700/80 text-slate-900 dark:text-white font-mono placeholder:text-slate-400 dark:placeholder:text-slate-500 rounded-xl"
             />
           </div>
         </div>
+      </Card>
 
-        <div>
-          <label class="block text-xs font-semibold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-1.5">
-            Short Description *
-          </label>
-          <Textarea
-            name="shortDescription"
-            rows={2}
-            required
-            value={product.shortDescription}
-            class="bg-white dark:bg-slate-950/80 border-slate-300 dark:border-slate-700/80 text-slate-900 dark:text-white placeholder:text-slate-400 dark:placeholder:text-slate-500 rounded-xl"
-          />
+      <!-- 2. Features & Specifications -->
+      <Card
+        title="Features & Specifications"
+        subtitle="Highlight technical capabilities, stack components, and deliverables"
+        icon="layers"
+      >
+        <div class="space-y-5 pt-2">
+          <div>
+            <InputLabel
+              label="Key Features & Capabilities"
+              optional
+              subtext="Bulleted feature list"
+            />
+            <HtmlEditor
+              name="features"
+              value={typeof product.features === "string"
+                ? product.features
+                : (Array.isArray(product.features) && product.features.length > 0
+                    ? (product.features.some((f: any) => typeof f === "string" && f.includes("<li"))
+                        ? `<ul>${product.features.join("")}</ul>`
+                        : `<ul>${product.features.map((f: any) => `<li>${f}</li>`).join("")}</ul>`)
+                    : "")}
+              minHeight="180px"
+              placeholder="<ul><li>Turnkey multi-tenant isolation</li><li>Stripe subscriptions and webhook handler</li><li>Dark-mode modern dashboard UI</li></ul>"
+              helperText="Format key capabilities using bulleted lists, numbered lists, or bold highlights."
+            />
+          </div>
+
+          <div>
+            <InputLabel
+              for="tech-input"
+              label="Tech Stack & Technologies"
+              optional
+              subtext="Comma separated"
+            />
+            <Input
+              id="tech-input"
+              name="technologies"
+              type="text"
+              value={product.technologies.join(", ")}
+              placeholder="Astro, TypeScript, Tailwind CSS, PostgreSQL, Docker"
+              class="bg-white dark:bg-slate-950/80 border-slate-300 dark:border-slate-700/80 text-slate-900 dark:text-white placeholder:text-slate-400 dark:placeholder:text-slate-500 rounded-xl"
+            />
+          </div>
         </div>
+      </Card>
 
-        <HtmlEditor
-          name="description"
-          label="Full Description"
-          required
-          value={product.description}
-          placeholder="Detailed product overview, architectural capabilities, value proposition, and technical specs..."
-          helperText="Format your architecture overview using rich text, headings, lists, code blocks, or raw HTML."
-        />
+      <!-- 3. Visual Media & Screenshots Gallery -->
+      <Card
+        title="Screenshots & Media Gallery"
+        subtitle="Manage product cover thumbnail and high-resolution showcase captures"
+        icon="images"
+      >
+        <div class="space-y-6 pt-2">
+          <!-- Primary Thumbnail Section -->
+          <div>
+            <InputLabel label="Primary Cover Thumbnail" optional subtext="Recommended: 1200x800px" />
+            {currentThumbnailUrl && (
+              <div class="mb-4 flex items-center gap-4 p-3 bg-slate-50 dark:bg-slate-950/60 rounded-xl border border-slate-200 dark:border-slate-800 w-fit">
+                <img
+                  src={currentThumbnailUrl}
+                  alt="Current thumbnail"
+                  class="w-20 h-14 rounded-lg object-cover border border-slate-200 dark:border-slate-700/60 shadow-xs"
+                />
+                <div>
+                  <div class="text-xs font-semibold text-slate-900 dark:text-white">Active Thumbnail</div>
+                  <div class="text-[11px] text-slate-500 dark:text-slate-400">Upload below to overwrite existing image</div>
+                </div>
+              </div>
+            )}
+            <Dropzone
+              name="thumbnail"
+              label="Replace Cover Thumbnail"
+              helperText="PNG, JPG, WebP, or SVG (Recommended: 1200x800px, max 5MB)"
+              maxSizeLabel="Max 5MB"
+              accept="image/png,image/jpeg,image/webp,image/svg+xml"
+            />
+          </div>
+
+          <!-- Gallery Screenshots Grid -->
+          <div class="pt-4 border-t border-slate-200 dark:border-slate-800">
+            <div class="flex items-center justify-between mb-3">
+              <InputLabel label="Gallery Showcase Screenshots" optional />
+              <span class="text-xs font-mono font-medium text-slate-500">
+                {galleryItems.length} {galleryItems.length === 1 ? "image" : "images"} uploaded
+              </span>
+            </div>
+
+            {galleryItems.length > 0 && (
+              <div class="grid grid-cols-2 sm:grid-cols-4 md:grid-cols-5 gap-3.5 mb-4">
+                {galleryItems.map((item, idx) => (
+                  <div class="group relative rounded-xl overflow-hidden border border-slate-200 dark:border-slate-800 bg-slate-100 dark:bg-slate-950 aspect-video shadow-xs transition hover:border-slate-300 dark:hover:border-slate-700">
+                    <img
+                      src={getPublicUrl(item.objectKey, item.disk)}
+                      alt={item.caption || `Screenshot ${idx + 1}`}
+                      class="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
+                    />
+                    <div class="absolute inset-0 bg-slate-950/50 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+                      <button
+                        type="button"
+                        data-delete-gallery-id={item.productMediaId}
+                        class="p-2 rounded-lg bg-rose-500 hover:bg-rose-600 text-white transition shadow-md cursor-pointer transform hover:scale-110"
+                        title="Delete screenshot"
+                      >
+                        <i data-lucide="trash-2" class="w-4 h-4"></i>
+                      </button>
+                    </div>
+                    <span class="absolute bottom-1 left-1.5 px-1.5 py-0.5 rounded-md bg-black/60 backdrop-blur-xs text-[10px] font-mono text-white/90">
+                      #{idx + 1}
+                    </span>
+                  </div>
+                ))}
+              </div>
+            )}
+
+            <Dropzone
+              name="screenshot"
+              label="Add Showcase Screenshots (Multi-Upload)"
+              helperText="Drag & drop multiple high-res product screenshots (PNG, JPG, WebP)"
+              maxSizeLabel="Max 5MB per image"
+              accept="image/png,image/jpeg,image/webp"
+              multiple={true}
+              icon="image-plus"
+            />
+          </div>
+        </div>
+      </Card>
+
+      <!-- 4. Companion Modules / Add-ons Preview -->
+      <Card
+        title="Companion Modules & Add-ons"
+        subtitle="Extend this core product with optional modules, expansions, and extensions"
+        icon="puzzle"
+      >
+        <div slot="action">
+          <Button
+            href={`/admin/products/addons/new?productId=${id}`}
+            variant="secondary"
+            size="sm"
+            icon="plus"
+          >
+            Add Module
+          </Button>
+        </div>
 
         <div class="pt-2">
-          {currentThumbnailUrl && (
-            <div class="mb-3 flex items-center gap-3 p-3 bg-slate-50 dark:bg-slate-950/60 rounded-xl border border-slate-200 dark:border-slate-800 w-fit">
-              <img src={currentThumbnailUrl} alt="Thumbnail preview" class="w-16 h-16 rounded-lg object-cover" />
-              <span class="text-xs text-slate-500 dark:text-slate-400">Current thumbnail</span>
+          {addons.length === 0 ? (
+            <div class="py-8 text-center text-slate-500 dark:text-slate-400 text-xs">
+              <i data-lucide="puzzle" class="w-8 h-8 mx-auto mb-2 opacity-30"></i>
+              <p>No add-on modules attached to this product yet.</p>
+              <div class="mt-3">
+                <Button href={`/admin/products/addons/new?productId=${id}`} variant="secondary" size="sm" icon="plus">
+                  Create First Module
+                </Button>
+              </div>
+            </div>
+          ) : (
+            <div class="divide-y divide-slate-200 dark:divide-slate-800/80">
+              {addons.map((addon) => (
+                <div class="py-3.5 flex items-center justify-between gap-4 first:pt-0 last:pb-0">
+                  <div class="flex items-center gap-3 min-w-0">
+                    {addon.thumbnailUrl ? (
+                      <img
+                        src={addon.thumbnailUrl}
+                        alt={addon.title}
+                        class="w-11 h-11 rounded-lg object-cover bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700/60 shrink-0"
+                      />
+                    ) : (
+                      <div class="w-11 h-11 rounded-lg bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700/60 flex items-center justify-center text-slate-400 dark:text-slate-500 shrink-0">
+                        <i data-lucide="puzzle" class="w-4 h-4"></i>
+                      </div>
+                    )}
+                    <div class="min-w-0">
+                      <a
+                        href={`/admin/products/addons/${addon.id}/edit`}
+                        class="font-bold text-slate-900 dark:text-white text-sm hover:text-primary transition truncate block"
+                      >
+                        {addon.title}
+                      </a>
+                      <div class="flex items-center gap-2 mt-0.5">
+                        <span class="text-[11px] font-mono font-medium text-emerald-600 dark:text-emerald-400">
+                          {addon.isFree ? "Free Addon" : addon.price ? `$${Number(addon.price).toFixed(2)}` : "—"}
+                        </span>
+                        <span class="text-slate-300 dark:text-slate-700">•</span>
+                        <span class="text-[11px] font-mono text-slate-400 dark:text-slate-500">
+                          /admin/products/addons/{addon.id}
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+                  <div class="flex items-center gap-2 shrink-0">
+                    <Button
+                      href={`/admin/products/addons/${addon.id}/edit`}
+                      variant="secondary"
+                      size="sm"
+                      icon="pencil"
+                    >
+                      Edit Module
+                    </Button>
+                  </div>
+                </div>
+              ))}
             </div>
           )}
-          <Dropzone
-            name="thumbnail"
-            label="Replace Thumbnail Image"
-            helperText="PNG, JPG, WebP, or SVG (Recommended: 1200x800px)"
-            maxSizeLabel="Max 5MB"
-            accept="image/png,image/jpeg,image/webp,image/svg+xml"
-          />
         </div>
-      </CardContent>
-    </Card>
+      </Card>
 
-    <!-- URLs & Technical Specifications Card -->
-    <Card class="bg-white dark:bg-slate-900/70 border border-slate-200 dark:border-slate-800/80 rounded-2xl shadow-sm dark:shadow-xl">
-      <CardHeader class="border-b border-slate-200 dark:border-slate-800/60 pb-3">
-        <CardTitle class="text-sm font-bold text-primary uppercase tracking-wider">Links & Meta</CardTitle>
-      </CardHeader>
-      <CardContent class="space-y-4 pt-4">
-        <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+      <!-- 5. Release Notes & Version History (Changelogs) -->
+      <Card
+        title="Version History & Release Changelogs"
+        subtitle="Manage product update notes, version milestones, and public changelogs"
+        icon="history"
+      >
+        <div slot="action">
+          <button
+            type="button"
+            id="toggle-changelog-btn"
+            class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-primary/10 hover:bg-primary/20 text-primary text-xs font-bold transition cursor-pointer"
+          >
+            <i data-lucide="plus" class="w-3.5 h-3.5"></i>
+            <span>Add Changelog</span>
+          </button>
+        </div>
+
+        <div class="space-y-4 pt-2">
+          {/* Form to directly add a standalone changelog entry */}
+          <div
+            id="quick-changelog-box"
+            class="hidden p-4 rounded-xl bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 space-y-3"
+          >
+            <div class="flex items-center justify-between">
+              <div class="flex items-center gap-2 text-xs font-bold text-slate-900 dark:text-slate-200 uppercase tracking-wider">
+                <i data-lucide="file-plus-2" class="w-4 h-4 text-primary"></i>
+                <span>Publish New Changelog Entry</span>
+              </div>
+              <span class="text-[11px] text-slate-500 font-mono">Instant save</span>
+            </div>
+
+            <!-- Standalone sub-form for add_changelog -->
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div>
+                <InputLabel label="Version Tag" optional subtext="e.g. v1.2.0" />
+                <Input
+                  form="add-changelog-form"
+                  name="changelog_version"
+                  type="text"
+                  value={product.version || ""}
+                  placeholder="e.g. v1.2.0"
+                  class="bg-white dark:bg-slate-900 border-slate-300 dark:border-slate-700 text-slate-900 dark:text-white rounded-lg text-xs"
+                />
+              </div>
+              <div>
+                <DatePicker
+                  name="changelog_date"
+                  label="Release Date"
+                  placeholder="Select release date..."
+                  defaultDate={new Date().toISOString().split("T")[0]}
+                />
+              </div>
+            </div>
+            <HtmlEditor
+              id="new-changelog-editor"
+              name="changelog_content"
+              label="Release Notes & Changes"
+              minHeight="140px"
+              placeholder="<ul><li>Added new authentication provider</li><li>Optimized database queries</li></ul>"
+              required
+            />
+            <div class="flex items-center justify-end gap-2 pt-2">
+              <button
+                type="button"
+                id="cancel-changelog-btn"
+                class="px-3.5 py-1.5 rounded-lg bg-slate-200 dark:bg-slate-800 hover:bg-slate-300 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 text-xs font-semibold transition cursor-pointer"
+              >
+                Cancel
+              </button>
+              <button
+                type="button"
+                id="submit-standalone-changelog-btn"
+                class="inline-flex items-center gap-1.5 px-4 py-1.5 rounded-lg bg-primary hover:bg-orange-600 text-white text-xs font-bold transition shadow-sm cursor-pointer"
+              >
+                <i data-lucide="check" class="w-3.5 h-3.5"></i>
+                <span>Publish Changelog</span>
+              </button>
+            </div>
+          </div>
+
+          {changelogs.length === 0 ? (
+            <div class="py-8 text-center text-slate-500 dark:text-slate-400 text-xs">
+              <i data-lucide="scroll-text" class="w-8 h-8 mx-auto mb-2 opacity-30"></i>
+              <p>No changelog records published for this product yet.</p>
+              <p class="text-[11px] text-slate-400 dark:text-slate-500 mt-1">
+                Release notes keep customers informed about updates, security patches, and new features.
+              </p>
+            </div>
+          ) : (
+            <div class="space-y-3.5">
+              {changelogs.map((log) => (
+                <div class="p-4 rounded-xl bg-slate-50/70 dark:bg-slate-950/60 border border-slate-200 dark:border-slate-800/80 hover:border-slate-300 dark:hover:border-slate-700/80 transition">
+                  <div class="flex items-center justify-between pb-2.5 mb-2.5 border-b border-slate-200 dark:border-slate-800/50">
+                    <div class="flex items-center gap-2.5">
+                      <span class="px-2.5 py-0.5 rounded-md bg-primary/10 text-primary border border-primary/20 text-xs font-mono font-bold">
+                        {log.version || product.version || "Release"}
+                      </span>
+                      <span class="text-xs text-slate-500 dark:text-slate-400">
+                        {new Date(log.createdAt).toLocaleDateString("en-US", {
+                          year: "numeric",
+                          month: "short",
+                          day: "numeric",
+                        })}
+                      </span>
+                    </div>
+                    <div class="flex items-center gap-1">
+                      <button
+                        type="button"
+                        data-edit-changelog-btn={log.id}
+                        class="p-1 rounded text-slate-400 hover:text-primary dark:text-slate-500 dark:hover:text-primary transition cursor-pointer"
+                        title="Edit changelog"
+                      >
+                        <i data-lucide="pencil" class="w-3.5 h-3.5"></i>
+                      </button>
+                      <button
+                        type="button"
+                        data-delete-changelog-btn={log.id}
+                        class="p-1 rounded text-slate-400 hover:text-rose-500 dark:text-slate-500 dark:hover:text-rose-400 transition cursor-pointer"
+                        title="Delete changelog"
+                      >
+                        <i data-lucide="trash-2" class="w-3.5 h-3.5"></i>
+                      </button>
+                    </div>
+                  </div>
+
+                  <div
+                    id={`view-changelog-${log.id}`}
+                    class="prose dark:prose-invert prose-xs max-w-none text-slate-700 dark:text-slate-300"
+                    set:html={log.content}
+                  ></div>
+
+                  <!-- Inline Edit Container for this Changelog Entry -->
+                  <div id={`edit-changelog-box-${log.id}`} class="hidden mt-3 pt-3 border-t border-slate-200 dark:border-slate-800">
+                    <div class="space-y-3">
+                      <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                        <div>
+                          <InputLabel label="Version Label" optional />
+                          <Input
+                            id={`edit-cl-version-${log.id}`}
+                            type="text"
+                            value={log.version || ""}
+                            placeholder="e.g. v1.2.0"
+                            class="bg-white dark:bg-slate-900 border-slate-300 dark:border-slate-700 text-slate-900 dark:text-white rounded-lg text-xs"
+                          />
+                        </div>
+                        <div>
+                          <DatePicker
+                            id={`edit-cl-date-${log.id}`}
+                            name={`edit_date_${log.id}`}
+                            label="Release Date"
+                            value={new Date(log.createdAt).toISOString().split("T")[0]}
+                            defaultDate={new Date(log.createdAt).toISOString().split("T")[0]}
+                          />
+                        </div>
+                      </div>
+                      <HtmlEditor
+                        id={`edit-changelog-editor-${log.id}`}
+                        name={`edit_content_${log.id}`}
+                        label="Changelog Release Notes"
+                        value={log.content}
+                        minHeight="140px"
+                        required
+                      />
+                      <div class="flex items-center justify-end gap-2 pt-2">
+                        <button
+                          type="button"
+                          data-cancel-edit-btn={log.id}
+                          class="px-3 py-1.5 rounded-lg bg-slate-200 dark:bg-slate-800 hover:bg-slate-300 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 text-xs font-semibold transition cursor-pointer"
+                        >
+                          Cancel
+                        </button>
+                        <button
+                          type="button"
+                          data-save-changelog-btn={log.id}
+                          class="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-lg bg-primary hover:bg-orange-600 text-white text-xs font-bold transition shadow-sm cursor-pointer"
+                        >
+                          <i data-lucide="check" class="w-3.5 h-3.5"></i>
+                          <span>Save Changes</span>
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+      </Card>
+    </div>
+
+    <!-- Right Column: Sticky Metadata & Operations Sidebar (4 Columns) -->
+    <div class="lg:col-span-4 space-y-6 lg:sticky lg:top-6 self-start">
+      <!-- 1. Publication & Core Status Card -->
+      <Card
+        title="Status & Visibility"
+        subtitle="Manage product availability and catalog placement"
+        icon="rocket"
+      >
+        <div class="space-y-4 pt-1">
           <div>
-            <label class="block text-xs font-semibold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-1.5">
-              CodeCanyon URL
+            <InputLabel for="status-select" label="Catalog Status" required />
+            <NativeSelect
+              id="status-select"
+              name="status"
+              class="bg-white dark:bg-slate-950/80 border-slate-300 dark:border-slate-700/80 text-slate-900 dark:text-white rounded-xl"
+            >
+              <NativeSelectOption value="published" selected={product.status === "published"}>
+                Published (Live to public)
+              </NativeSelectOption>
+              <NativeSelectOption value="draft" selected={product.status === "draft"}>
+                Draft (Hidden from store)
+              </NativeSelectOption>
+            </NativeSelect>
+          </div>
+
+          <div class="p-3.5 rounded-xl bg-slate-50 dark:bg-slate-950/60 border border-slate-200 dark:border-slate-800/80 flex items-center justify-between">
+            <div>
+              <div class="text-xs font-bold text-slate-900 dark:text-white">Featured Product</div>
+              <div class="text-[11px] text-slate-500 dark:text-slate-400">Spotlight on homepage showcase</div>
+            </div>
+            <label class="relative inline-flex items-center cursor-pointer">
+              <input
+                type="checkbox"
+                name="isFeatured"
+                checked={product.isFeatured}
+                class="sr-only peer"
+              />
+              <div class="w-11 h-6 bg-slate-300 dark:bg-slate-800 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-primary"></div>
             </label>
+          </div>
+
+          <div>
+            <InputLabel for="sort-order-input" label="Catalog Priority Order" optional subtext="Ascending sort" />
             <Input
+              id="sort-order-input"
+              name="sortOrder"
+              type="number"
+              value={product.sortOrder}
+              placeholder="0"
+              class="bg-white dark:bg-slate-950/80 border-slate-300 dark:border-slate-700/80 text-slate-900 dark:text-white placeholder:text-slate-400 rounded-xl"
+            />
+          </div>
+
+          <!-- Primary Save Action Button in Sidebar -->
+          <div class="pt-2 border-t border-slate-200 dark:border-slate-800 space-y-2">
+            <button
+              type="submit"
+              class="w-full inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl text-sm font-bold bg-primary text-white hover:bg-orange-600 active:scale-[0.98] transition shadow-md shadow-primary/20 cursor-pointer"
+            >
+              <i data-lucide="save" class="w-4 h-4"></i>
+              <span>Save Changes</span>
+            </button>
+            <Button href="/admin/products" variant="secondary" size="md" class="w-full text-center">
+              Cancel
+            </Button>
+          </div>
+        </div>
+      </Card>
+
+      <!-- 2. External Links & Version -->
+      <Card
+        title="Links & Version"
+        subtitle="Live demo, documentation, and marketplace destination"
+        icon="link-2"
+      >
+        <div class="space-y-4 pt-1">
+          <div>
+            <InputLabel for="version-input" label="Current Version" optional subtext="e.g. v2.4.0" />
+            <Input
+              id="version-input"
+              name="version"
+              type="text"
+              value={product.version || ""}
+              placeholder="v1.0.0"
+              class="bg-white dark:bg-slate-950/80 border-slate-300 dark:border-slate-700/80 text-slate-900 dark:text-white placeholder:text-slate-400 rounded-xl font-mono text-xs"
+            />
+          </div>
+
+          <div>
+            <InputLabel for="codecanyon-url-input" label="CodeCanyon Item URL" optional />
+            <Input
+              id="codecanyon-url-input"
               name="codecanyonUrl"
               type="url"
               value={product.codecanyonUrl || ""}
-              placeholder="https://codecanyon.net/..."
-              class="bg-white dark:bg-slate-950/80 border-slate-300 dark:border-slate-700/80 text-slate-900 dark:text-white placeholder:text-slate-400 dark:placeholder:text-slate-500 rounded-xl"
+              placeholder="https://codecanyon.net/item/..."
+              class="bg-white dark:bg-slate-950/80 border-slate-300 dark:border-slate-700/80 text-slate-900 dark:text-white placeholder:text-slate-400 rounded-xl text-xs"
             />
           </div>
 
           <div>
-            <label class="block text-xs font-semibold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-1.5">
-              Live Demo URL
-            </label>
+            <InputLabel for="demo-url-input" label="Live Demo URL" optional />
             <Input
+              id="demo-url-input"
               name="demoUrl"
               type="url"
               value={product.demoUrl || ""}
               placeholder="https://demo.sourcemonster.in/..."
-              class="bg-white dark:bg-slate-950/80 border-slate-300 dark:border-slate-700/80 text-slate-900 dark:text-white placeholder:text-slate-400 dark:placeholder:text-slate-500 rounded-xl"
+              class="bg-white dark:bg-slate-950/80 border-slate-300 dark:border-slate-700/80 text-slate-900 dark:text-white placeholder:text-slate-400 rounded-xl text-xs"
             />
           </div>
 
           <div>
-            <label class="block text-xs font-semibold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-1.5">
-              Documentation URL
-            </label>
+            <InputLabel for="doc-url-input" label="Documentation URL" optional />
             <Input
+              id="doc-url-input"
               name="documentationUrl"
               type="url"
               value={product.documentationUrl || ""}
               placeholder="https://docs.sourcemonster.in/..."
-              class="bg-white dark:bg-slate-950/80 border-slate-300 dark:border-slate-700/80 text-slate-900 dark:text-white placeholder:text-slate-400 dark:placeholder:text-slate-500 rounded-xl"
+              class="bg-white dark:bg-slate-950/80 border-slate-300 dark:border-slate-700/80 text-slate-900 dark:text-white placeholder:text-slate-400 rounded-xl text-xs"
             />
           </div>
         </div>
+      </Card>
 
-        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+      <!-- 3. Search Engine Optimization (SEO) & Google SERP Preview -->
+      <Card
+        title="Search Engine Optimization"
+        subtitle="Manage search ranking metadata and social tags"
+        icon="search"
+      >
+        <div class="space-y-4 pt-1">
           <div>
-            <label class="block text-xs font-semibold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-1.5">
-              Technologies (comma separated)
-            </label>
-            <Input
-              name="technologies"
-              type="text"
-              value={product.technologies.join(", ")}
-              class="bg-white dark:bg-slate-950/80 border-slate-300 dark:border-slate-700/80 text-slate-900 dark:text-white placeholder:text-slate-400 dark:placeholder:text-slate-500 rounded-xl"
+            <InputLabel
+              for="seo-title-input"
+              label="SEO Title"
+              optional
+              subtext="Recommended: ~60 chars"
             />
-          </div>
-
-          <div>
-            <label class="block text-xs font-semibold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-1.5">
-              Version
-            </label>
             <Input
-              name="version"
-              type="text"
-              value={product.version || ""}
-              class="bg-white dark:bg-slate-950/80 border-slate-300 dark:border-slate-700/80 text-slate-900 dark:text-white placeholder:text-slate-400 dark:placeholder:text-slate-500 rounded-xl"
-            />
-          </div>
-        </div>
-
-        <HtmlEditor
-          name="features"
-          label="Key Features & Capabilities (Bulleted List)"
-          minHeight="180px"
-          value={typeof product.features === "string"
-            ? product.features
-            : (Array.isArray(product.features) && product.features.length > 0
-                ? (product.features.some((f: any) => typeof f === "string" && f.includes("<li"))
-                    ? `<ul>${product.features.join("")}</ul>`
-                    : `<ul>${product.features.map((f: any) => `<li>${f}</li>`).join("")}</ul>`)
-                : "")}
-          helperText="Format key capabilities using bulleted lists, numbered lists, or bold highlights."
-        />
-
-        <!-- Add Changelog for this update -->
-        <div class="pt-4 border-t border-slate-200 dark:border-slate-800/80">
-          <div class="flex items-center justify-between mb-2">
-            <label class="block text-xs font-semibold text-primary uppercase tracking-wider flex items-center gap-1.5">
-              <i data-lucide="git-commit" class="w-3.5 h-3.5"></i>
-              Add Changelog / Release Notes for this Update (Optional)
-            </label>
-            <span class="text-[11px] text-slate-500 font-mono">Appends to version history</span>
-          </div>
-          <div class="mb-3 max-w-xs">
-            <DatePicker
-              name="new_changelog_date"
-              label="Release Date"
-              placeholder="Select release date..."
-              defaultDate={new Date().toISOString().split("T")[0]}
-            />
-          </div>
-          <HtmlEditor
-            name="new_changelog_content"
-            minHeight="140px"
-            placeholder="<p><strong>What's new in this release:</strong></p><ul><li>Added new capability...</li><li>Fixed layout issue...</li><li>Performance improvements</li></ul>"
-            helperText="If updating version or publishing changes, write release notes here to automatically record a changelog entry upon saving."
-          />
-        </div>
-      </CardContent>
-    </Card>
-
-    <!-- Gallery Screenshots Card -->
-    <Card class="bg-white dark:bg-slate-900/70 border border-slate-200 dark:border-slate-800/80 rounded-2xl shadow-sm dark:shadow-xl">
-      <CardHeader class="border-b border-slate-200 dark:border-slate-800/60 pb-3">
-        <CardTitle class="text-sm font-bold text-primary uppercase tracking-wider">Screenshots & Gallery</CardTitle>
-      </CardHeader>
-      <CardContent class="space-y-4 pt-4">
-        {galleryItems.length > 0 && (
-          <div class="grid grid-cols-3 sm:grid-cols-5 gap-4 mb-4">
-            {galleryItems.map((item) => (
-              <div class="relative group rounded-xl overflow-hidden border border-slate-200 dark:border-slate-800 bg-slate-100 dark:bg-slate-950">
-                <img src={getPublicUrl(item.objectKey, item.disk)} alt={item.caption || "Screenshot"} class="w-full h-28 object-cover" />
-                <button
-                  type="button"
-                  data-delete-gallery-id={item.productMediaId}
-                  class="absolute top-1.5 right-1.5 p-1.5 bg-rose-500/80 hover:bg-rose-600 text-white rounded-lg opacity-0 group-hover:opacity-100 transition shadow cursor-pointer"
-                  title="Remove Screenshot"
-                >
-                  <i data-lucide="trash-2" class="w-3.5 h-3.5"></i>
-                </button>
-              </div>
-            ))}
-          </div>
-        )}
-
-        <Dropzone
-          name="screenshot"
-          label="Add Gallery Screenshots"
-          helperText="Upload one or multiple gallery screenshots (PNG, JPG, WebP)"
-          maxSizeLabel="Max 5MB per image"
-          accept="image/png,image/jpeg,image/webp"
-          multiple={true}
-          icon="image-plus"
-        />
-      </CardContent>
-    </Card>
-
-    <!-- Publishing & SEO Card -->
-    <Card class="bg-white dark:bg-slate-900/70 border border-slate-200 dark:border-slate-800/80 rounded-2xl shadow-sm dark:shadow-xl">
-      <CardHeader class="border-b border-slate-200 dark:border-slate-800/60 pb-3">
-        <CardTitle class="text-sm font-bold text-primary uppercase tracking-wider">Publishing & SEO</CardTitle>
-      </CardHeader>
-      <CardContent class="space-y-4 pt-4">
-        <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
-          <div>
-            <label class="block text-xs font-semibold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-1.5">
-              Status
-            </label>
-            <NativeSelect
-              name="status"
-              class="bg-white dark:bg-slate-950/80 border-slate-300 dark:border-slate-700/80 text-slate-900 dark:text-white rounded-xl"
-            >
-              <NativeSelectOption value="draft" selected={product.status === "draft"}>Draft</NativeSelectOption>
-              <NativeSelectOption value="published" selected={product.status === "published"}>Published</NativeSelectOption>
-            </NativeSelect>
-          </div>
-
-          <div>
-            <label class="block text-xs font-semibold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-1.5">
-              Sort Order
-            </label>
-            <Input
-              name="sortOrder"
-              type="number"
-              value={product.sortOrder}
-              class="bg-white dark:bg-slate-950/80 border-slate-300 dark:border-slate-700/80 text-slate-900 dark:text-white placeholder:text-slate-400 dark:placeholder:text-slate-500 rounded-xl"
-            />
-          </div>
-
-          <div class="flex items-center pt-6">
-            <label class="flex items-center gap-2 cursor-pointer">
-              <input
-                name="isFeatured"
-                type="checkbox"
-                checked={product.isFeatured}
-                class="w-4 h-4 rounded text-primary focus:ring-primary bg-white dark:bg-slate-950 border-slate-300 dark:border-slate-700"
-              />
-              <span class="text-xs font-semibold text-slate-700 dark:text-slate-300 uppercase tracking-wider">Highlight as Featured</span>
-            </label>
-          </div>
-        </div>
-
-        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-          <div>
-            <label class="block text-xs font-semibold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-1.5">
-              SEO Title
-            </label>
-            <Input
+              id="seo-title-input"
               name="seoTitle"
               type="text"
               value={product.seoTitle || ""}
-              class="bg-white dark:bg-slate-950/80 border-slate-300 dark:border-slate-700/80 text-slate-900 dark:text-white placeholder:text-slate-400 dark:placeholder:text-slate-500 rounded-xl"
+              placeholder="Defaults to product title..."
+              class="bg-white dark:bg-slate-950/80 border-slate-300 dark:border-slate-700/80 text-slate-900 dark:text-white placeholder:text-slate-400 rounded-xl text-xs"
             />
+            <div class="text-right text-[10px] font-mono text-slate-400 mt-1" id="seo-title-counter">
+              {(product.seoTitle || "").length} / 60
+            </div>
           </div>
 
           <div>
-            <label class="block text-xs font-semibold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-1.5">
-              SEO Meta Description
-            </label>
-            <Input
-              name="seoDescription"
-              type="text"
-              value={product.seoDescription || ""}
-              class="bg-white dark:bg-slate-950/80 border-slate-300 dark:border-slate-700/80 text-slate-900 dark:text-white placeholder:text-slate-400 dark:placeholder:text-slate-500 rounded-xl"
+            <InputLabel
+              for="seo-desc-input"
+              label="SEO Meta Description"
+              optional
+              subtext="Recommended: ~160 chars"
             />
+            <Textarea
+              id="seo-desc-input"
+              name="seoDescription"
+              rows={3}
+              value={product.seoDescription || ""}
+              placeholder="Defaults to short description..."
+              class="bg-white dark:bg-slate-950/80 border-slate-300 dark:border-slate-700/80 text-slate-900 dark:text-white placeholder:text-slate-400 rounded-xl text-xs"
+            />
+            <div class="text-right text-[10px] font-mono text-slate-400 mt-1" id="seo-desc-counter">
+              {(product.seoDescription || "").length} / 160
+            </div>
+          </div>
+
+          <!-- Real-Time Google Search SERP Preview Box -->
+          <div class="p-3.5 rounded-xl bg-slate-50 dark:bg-slate-950/80 border border-slate-200 dark:border-slate-800 space-y-1">
+            <div class="text-[10px] font-bold uppercase tracking-wider text-slate-400 dark:text-slate-500 mb-1.5 flex items-center gap-1.5">
+              <i data-lucide="eye" class="w-3 h-3 text-primary"></i>
+              <span>Google Search Preview</span>
+            </div>
+            <div class="text-[11px] text-emerald-600 dark:text-emerald-400 font-mono truncate">
+              sourcemonster.in &rsaquo; products &rsaquo; <span id="serp-slug-preview">{product.slug}</span>
+            </div>
+            <div
+              id="serp-title-preview"
+              class="text-sm font-semibold text-blue-600 dark:text-blue-400 hover:underline cursor-pointer truncate"
+            >
+              {product.seoTitle || product.title} | SourceMonster
+            </div>
+            <div
+              id="serp-desc-preview"
+              class="text-xs text-slate-600 dark:text-slate-400 line-clamp-2 leading-relaxed"
+            >
+              {product.seoDescription || product.shortDescription || "High-performance turnkey source code, boilerplate, and developer assets."}
+            </div>
           </div>
         </div>
-      </CardContent>
-    </Card>
+      </Card>
 
-    <!-- Form Actions Footer -->
-    <div class="flex items-center justify-end gap-3 pt-4 border-t border-slate-200 dark:border-slate-800">
-      <Button href="/admin/products" variant="secondary" size="md">Cancel</Button>
-      <Button
-        type="submit"
-        variant="primary"
-        size="md"
-        icon="save"
+      <!-- 4. Optional Changelog Append on Save -->
+      <Card
+        title="Append Release Notes"
+        subtitle="Optionally log an update record alongside this save"
+        icon="git-commit"
       >
-        Save Changes
-      </Button>
+        <div class="space-y-3 pt-1">
+          <DatePicker
+            name="new_changelog_date"
+            label="Release Date"
+            placeholder="Select date..."
+            defaultDate={new Date().toISOString().split("T")[0]}
+          />
+          <HtmlEditor
+            name="new_changelog_content"
+            minHeight="120px"
+            placeholder="<p><strong>What's new in this release:</strong></p><ul><li>Added feature...</li><li>Bug fixes...</li></ul>"
+            helperText="If provided, a new changelog record will automatically be appended when saving."
+          />
+        </div>
+      </Card>
     </div>
   </form>
 
-  <!-- Danger Zone: Delete Product Card (outside main form to avoid nested form errors) -->
-  <div class="my-6 max-w-4xl p-5 rounded-2xl border border-rose-200 dark:border-rose-900/40 bg-rose-50/50 dark:bg-rose-950/20 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+  <!-- Danger Zone: Delete Product Card (Outside main form to prevent nested form submissions) -->
+  <div class="my-10 p-6 rounded-2xl border border-rose-200 dark:border-rose-900/40 bg-rose-50/50 dark:bg-rose-950/20 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
     <div>
-      <h3 class="text-xs font-bold text-rose-600 dark:text-rose-400 uppercase tracking-wider">Danger Zone</h3>
-      <p class="text-xs text-slate-600 dark:text-slate-400 mt-1">
-        Permanently delete this product along with all gallery media, changelogs, and associated add-ons.
+      <div class="flex items-center gap-2">
+        <i data-lucide="alert-triangle" class="w-4 h-4 text-rose-600 dark:text-rose-400"></i>
+        <h3 class="text-sm font-bold text-rose-600 dark:text-rose-400 uppercase tracking-wider">
+          Danger Zone
+        </h3>
+      </div>
+      <p class="text-xs text-slate-600 dark:text-slate-400 mt-1 max-w-xl">
+        Permanently delete <strong class="text-slate-900 dark:text-white">{product.title}</strong> along with all gallery media, version changelogs, and associated companion modules. This action cannot be reversed.
       </p>
     </div>
     <ConfirmDialog
       title="Delete Product"
-      description="Are you sure you want to permanently delete this product? All gallery images, reviews, and related add-ons will be removed."
+      description={`Are you sure you want to permanently delete "${product.title}"? All gallery images, reviews, and related add-ons will be permanently removed.`}
       confirmText="Delete Product"
       confirmVariant="destructive"
       confirmIcon="trash-2"
@@ -548,238 +979,36 @@ const addons = await getAllAdminAddons(id);
     </ConfirmDialog>
   </div>
 
-  <!-- Standalone Form for Deleting Gallery Screenshots (outside main form) -->
+  <!-- Standalone Form for Deleting Gallery Screenshots -->
   <form id="delete-gallery-form" method="POST" class="hidden">
     <input type="hidden" name="_action" value="delete_gallery_image" />
     <input type="hidden" name="product_media_id" id="delete-gallery-pm-id" value="" />
   </form>
 
-  <!-- Product Changelog & Release History Card -->
-  <Card class="my-8 max-w-4xl bg-white dark:bg-slate-900/70 border border-slate-200 dark:border-slate-800/80 rounded-2xl p-6 shadow-sm dark:shadow-xl">
-    <div class="flex items-center justify-between pb-4 mb-4 border-b border-slate-200 dark:border-slate-800">
-      <div class="flex items-center gap-2">
-        <i data-lucide="history" class="w-4 h-4 text-primary"></i>
-        <h2 class="text-sm font-bold text-slate-900 dark:text-white uppercase tracking-wider">
-          Changelog &amp; Version History
-        </h2>
-        <span class="text-[10px] font-mono bg-primary/10 text-primary border border-primary/20 px-2 py-0.5 rounded-full">
-          {changelogs.length} {changelogs.length === 1 ? "release" : "releases"}
-        </span>
-      </div>
-      <button
-        type="button"
-        id="toggle-changelog-btn"
-        class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-primary hover:bg-primary/90 text-white text-xs font-semibold transition cursor-pointer"
-      >
-        <i data-lucide="plus" class="w-3.5 h-3.5"></i>
-        <span>Add Changelog Entry</span>
-      </button>
-    </div>
+  <!-- Standalone Form for Adding a Changelog Entry -->
+  <form id="add-changelog-form" method="POST" class="hidden">
+    <input type="hidden" name="_action" value="add_changelog" />
+    <input type="hidden" name="changelog_version" id="add-cl-version-input" value="" />
+    <input type="hidden" name="changelog_date" id="add-cl-date-input" value="" />
+    <input type="hidden" name="changelog_content" id="add-cl-content-input" value="" />
+  </form>
 
-    {/* Form to directly add a standalone changelog entry */}
-    <div id="quick-changelog-box" class="hidden mb-6 p-4 rounded-xl bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800">
-      <div class="flex items-center justify-between mb-3">
-        <h3 class="text-xs font-bold text-slate-900 dark:text-slate-200 uppercase tracking-wider flex items-center gap-2">
-          <i data-lucide="file-plus-2" class="w-4 h-4 text-primary"></i>
-          Create New Changelog Entry
-        </h3>
-        <span class="text-[11px] text-slate-500 font-mono">Standalone entry</span>
-      </div>
-      <form method="POST" class="space-y-3">
-        <input type="hidden" name="_action" value="add_changelog" />
-        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-          <div>
-            <label class="block text-xs font-semibold text-slate-700 dark:text-slate-400 uppercase tracking-wider mb-1">
-              Version Label
-            </label>
-            <Input
-              name="changelog_version"
-              type="text"
-              value={product.version || ""}
-              placeholder="e.g. v1.2.0"
-              class="bg-white dark:bg-slate-900 border-slate-300 dark:border-slate-700 text-slate-900 dark:text-white rounded-lg text-xs"
-            />
-          </div>
-          <div>
-            <DatePicker
-              name="changelog_date"
-              label="Release Date"
-              placeholder="Select release date..."
-              defaultDate={new Date().toISOString().split("T")[0]}
-            />
-          </div>
-        </div>
-        <HtmlEditor
-          name="changelog_content"
-          label="Changelog Release Notes"
-          minHeight="140px"
-          placeholder="<ul><li>Added new authentication provider</li><li>Optimized database queries</li></ul>"
-          required
-        />
-        <div class="flex items-center justify-end gap-2 pt-2">
-          <button
-            type="button"
-            id="cancel-changelog-btn"
-            class="px-3 py-1.5 rounded-lg bg-slate-200 dark:bg-slate-800 hover:bg-slate-300 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 text-xs font-semibold transition cursor-pointer"
-          >
-            Cancel
-          </button>
-          <Button type="submit" variant="primary" size="sm" icon="check">
-            Publish Changelog
-          </Button>
-        </div>
-      </form>
-    </div>
+  <!-- Standalone Form for Updating a Changelog Entry -->
+  <form id="update-changelog-form" method="POST" class="hidden">
+    <input type="hidden" name="_action" value="update_changelog" />
+    <input type="hidden" name="changelog_id" id="update-cl-id-input" value="" />
+    <input type="hidden" name="changelog_version" id="update-cl-version-input" value="" />
+    <input type="hidden" name="changelog_date" id="update-cl-date-input" value="" />
+    <input type="hidden" name="changelog_content" id="update-cl-content-input" value="" />
+  </form>
 
-    {changelogs.length === 0 ? (
-      <div class="py-8 text-center text-slate-500 text-xs">
-        <i data-lucide="scroll-text" class="w-8 h-8 mx-auto mb-2 opacity-40"></i>
-        <p>No changelog records published for this product yet.</p>
-        <p class="text-[11px] text-slate-500 dark:text-slate-400 mt-1">
-          When you release updates, add release notes to keep users informed about new features and bug fixes.
-        </p>
-      </div>
-    ) : (
-      <div class="space-y-4">
-        {changelogs.map((log) => (
-          <div class="p-4 rounded-xl bg-slate-50/70 dark:bg-slate-950/60 border border-slate-200 dark:border-slate-800/80 hover:border-slate-300 dark:hover:border-slate-700/80 transition">
-            <div class="flex items-center justify-between pb-2 mb-2 border-b border-slate-200 dark:border-slate-800/50">
-              <div class="flex items-center gap-2">
-                <span class="px-2 py-0.5 rounded-md bg-primary/20 text-primary border border-primary/30 text-xs font-mono font-bold">
-                  {log.version || product.version || "Release"}
-                </span>
-                <span class="text-xs text-slate-500 dark:text-slate-400">
-                  {new Date(log.createdAt).toLocaleDateString("en-US", {
-                    year: "numeric",
-                    month: "short",
-                    day: "numeric",
-                  })}
-                </span>
-              </div>
-              <div class="flex items-center gap-1">
-                <button
-                  type="button"
-                  data-edit-changelog-btn={log.id}
-                  class="text-xs text-slate-400 hover:text-primary dark:text-slate-500 dark:hover:text-primary transition p-1 cursor-pointer"
-                  title="Edit entry"
-                >
-                  <i data-lucide="pencil" class="w-3.5 h-3.5"></i>
-                </button>
-                <form method="POST" onsubmit="return confirm('Delete this changelog entry?');" class="inline">
-                  <input type="hidden" name="_action" value="delete_changelog" />
-                  <input type="hidden" name="changelog_id" value={log.id} />
-                  <button
-                    type="submit"
-                    class="text-xs text-slate-400 hover:text-rose-500 dark:text-slate-500 dark:hover:text-rose-400 transition p-1 cursor-pointer"
-                    title="Delete entry"
-                  >
-                    <i data-lucide="trash-2" class="w-3.5 h-3.5"></i>
-                  </button>
-                </form>
-              </div>
-            </div>
-            
-            <div id={`view-changelog-${log.id}`} class="prose dark:prose-invert prose-xs max-w-none text-slate-700 dark:text-slate-300" set:html={log.content}></div>
-
-            <div id={`edit-changelog-box-${log.id}`} class="hidden mt-3 pt-3 border-t border-slate-200 dark:border-slate-800">
-              <form method="POST" class="space-y-3">
-                <input type="hidden" name="_action" value="update_changelog" />
-                <input type="hidden" name="changelog_id" value={log.id} />
-                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                  <div>
-                    <label class="block text-xs font-semibold text-slate-700 dark:text-slate-400 uppercase tracking-wider mb-1">
-                      Version Label
-                    </label>
-                    <Input
-                      name="changelog_version"
-                      type="text"
-                      value={log.version || ""}
-                      placeholder="e.g. v1.2.0"
-                      class="bg-white dark:bg-slate-900 border-slate-300 dark:border-slate-700 text-slate-900 dark:text-white rounded-lg text-xs"
-                    />
-                  </div>
-                  <div>
-                    <DatePicker
-                      name="changelog_date"
-                      label="Release Date"
-                      value={new Date(log.createdAt).toISOString().split("T")[0]}
-                      defaultDate={new Date(log.createdAt).toISOString().split("T")[0]}
-                    />
-                  </div>
-                </div>
-                <HtmlEditor
-                  id={`edit-changelog-editor-${log.id}`}
-                  name="changelog_content"
-                  label="Changelog Release Notes"
-                  value={log.content}
-                  minHeight="140px"
-                  required
-                />
-                <div class="flex items-center justify-end gap-2 pt-2">
-                  <button
-                    type="button"
-                    data-cancel-edit-btn={log.id}
-                    class="px-3 py-1.5 rounded-lg bg-slate-200 dark:bg-slate-800 hover:bg-slate-300 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 text-xs font-semibold transition cursor-pointer"
-                  >
-                    Cancel
-                  </button>
-                  <Button type="submit" variant="primary" size="sm" icon="check">
-                    Save Changes
-                  </Button>
-                </div>
-              </form>
-            </div>
-          </div>
-        ))}
-      </div>
-    )}
-  </Card>
+  <!-- Standalone Form for Deleting a Changelog Entry -->
+  <form id="delete-changelog-form" method="POST" class="hidden">
+    <input type="hidden" name="_action" value="delete_changelog" />
+    <input type="hidden" name="changelog_id" id="delete-cl-id-input" value="" />
+  </form>
 
   <script>
-    const toggleBtn = document.getElementById("toggle-changelog-btn");
-    const cancelBtn = document.getElementById("cancel-changelog-btn");
-    const box = document.getElementById("quick-changelog-box");
-
-    if (toggleBtn && box) {
-      toggleBtn.addEventListener("click", () => {
-        box.classList.toggle("hidden");
-      });
-    }
-
-    if (cancelBtn && box) {
-      cancelBtn.addEventListener("click", () => {
-        box.classList.add("hidden");
-      });
-    }
-
-    document.querySelectorAll("[data-edit-changelog-btn]").forEach((btn) => {
-      btn.addEventListener("click", () => {
-        const id = btn.getAttribute("data-edit-changelog-btn");
-        const editBox = document.getElementById(`edit-changelog-box-${id}`);
-        const viewEl = document.getElementById(`view-changelog-${id}`);
-        if (editBox) {
-          editBox.classList.toggle("hidden");
-        }
-        if (viewEl) {
-          viewEl.classList.toggle("hidden");
-        }
-      });
-    });
-
-    document.querySelectorAll("[data-cancel-edit-btn]").forEach((btn) => {
-      btn.addEventListener("click", () => {
-        const id = btn.getAttribute("data-cancel-edit-btn");
-        const editBox = document.getElementById(`edit-changelog-box-${id}`);
-        const viewEl = document.getElementById(`view-changelog-${id}`);
-        if (editBox) {
-          editBox.classList.add("hidden");
-        }
-        if (viewEl) {
-          viewEl.classList.remove("hidden");
-        }
-      });
-    });
-
     // Gallery screenshot deletion handler
     document.querySelectorAll("[data-delete-gallery-id]").forEach((btn) => {
       btn.addEventListener("click", () => {
@@ -794,80 +1023,155 @@ const addons = await getAllAdminAddons(id);
         }
       });
     });
+
+    // Toggle Standalone Add Changelog Box
+    const toggleBtn = document.getElementById("toggle-changelog-btn");
+    const cancelBtn = document.getElementById("cancel-changelog-btn");
+    const box = document.getElementById("quick-changelog-box");
+
+    if (toggleBtn && box) {
+      toggleBtn.addEventListener("click", () => {
+        box.classList.toggle("hidden");
+        if (!box.classList.contains("hidden")) {
+          box.scrollIntoView({ behavior: "smooth", block: "center" });
+        }
+      });
+    }
+
+    if (cancelBtn && box) {
+      cancelBtn.addEventListener("click", () => {
+        box.classList.add("hidden");
+      });
+    }
+
+    // Submit Standalone Add Changelog
+    const submitAddChangelogBtn = document.getElementById("submit-standalone-changelog-btn");
+    if (submitAddChangelogBtn) {
+      submitAddChangelogBtn.addEventListener("click", () => {
+        const addForm = document.getElementById("add-changelog-form") as HTMLFormElement | null;
+        const boxContainer = document.getElementById("quick-changelog-box");
+        if (!addForm || !boxContainer) return;
+
+        const versionInput = boxContainer.querySelector("input[name='changelog_version']") as HTMLInputElement | null;
+        const dateInput = boxContainer.querySelector("input[name='changelog_date']") as HTMLInputElement | null;
+        const editorTextarea = boxContainer.querySelector("textarea[name='changelog_content']") as HTMLTextAreaElement | null;
+
+        const content = editorTextarea?.value.trim() || "";
+        if (!content) {
+          alert("Please enter release notes for this changelog entry.");
+          return;
+        }
+
+        (document.getElementById("add-cl-version-input") as HTMLInputElement).value = versionInput?.value || "";
+        (document.getElementById("add-cl-date-input") as HTMLInputElement).value = dateInput?.value || "";
+        (document.getElementById("add-cl-content-input") as HTMLInputElement).value = content;
+
+        addForm.submit();
+      });
+    }
+
+    // Toggle Inline Edit Changelog Entries
+    document.querySelectorAll("[data-edit-changelog-btn]").forEach((btn) => {
+      btn.addEventListener("click", () => {
+        const id = btn.getAttribute("data-edit-changelog-btn");
+        const editBox = document.getElementById(`edit-changelog-box-${id}`);
+        const viewEl = document.getElementById(`view-changelog-${id}`);
+        if (editBox) editBox.classList.toggle("hidden");
+        if (viewEl) viewEl.classList.toggle("hidden");
+      });
+    });
+
+    document.querySelectorAll("[data-cancel-edit-btn]").forEach((btn) => {
+      btn.addEventListener("click", () => {
+        const id = btn.getAttribute("data-cancel-edit-btn");
+        const editBox = document.getElementById(`edit-changelog-box-${id}`);
+        const viewEl = document.getElementById(`view-changelog-${id}`);
+        if (editBox) editBox.classList.add("hidden");
+        if (viewEl) viewEl.classList.remove("hidden");
+      });
+    });
+
+    // Save Updated Changelog Entry
+    document.querySelectorAll("[data-save-changelog-btn]").forEach((btn) => {
+      btn.addEventListener("click", () => {
+        const id = btn.getAttribute("data-save-changelog-btn");
+        if (!id) return;
+
+        const editBox = document.getElementById(`edit-changelog-box-${id}`);
+        const updateForm = document.getElementById("update-changelog-form") as HTMLFormElement | null;
+        if (!editBox || !updateForm) return;
+
+        const versionInput = editBox.querySelector(`#edit-cl-version-${id}`) as HTMLInputElement | null;
+        const dateInput = editBox.querySelector(`input[name="edit_date_${id}"]`) as HTMLInputElement | null;
+        const contentTextarea = editBox.querySelector(`textarea[name="edit_content_${id}"]`) as HTMLTextAreaElement | null;
+
+        const content = contentTextarea?.value.trim() || "";
+        if (!content) {
+          alert("Release notes cannot be empty.");
+          return;
+        }
+
+        (document.getElementById("update-cl-id-input") as HTMLInputElement).value = id;
+        (document.getElementById("update-cl-version-input") as HTMLInputElement).value = versionInput?.value || "";
+        (document.getElementById("update-cl-date-input") as HTMLInputElement).value = dateInput?.value || "";
+        (document.getElementById("update-cl-content-input") as HTMLInputElement).value = content;
+
+        updateForm.submit();
+      });
+    });
+
+    // Delete Changelog Entry
+    document.querySelectorAll("[data-delete-changelog-btn]").forEach((btn) => {
+      btn.addEventListener("click", () => {
+        const id = btn.getAttribute("data-delete-changelog-btn");
+        if (id && confirm("Delete this changelog entry permanently?")) {
+          const deleteForm = document.getElementById("delete-changelog-form") as HTMLFormElement | null;
+          const idInput = document.getElementById("delete-cl-id-input") as HTMLInputElement | null;
+          if (deleteForm && idInput) {
+            idInput.value = id;
+            deleteForm.submit();
+          }
+        }
+      });
+    });
+
+    // Real-Time Google SERP & Character Counters
+    const titleInput = document.getElementById("title-input") as HTMLInputElement | null;
+    const slugInput = document.getElementById("slug-input") as HTMLInputElement | null;
+    const shortDescInput = document.getElementById("short-desc-input") as HTMLTextAreaElement | null;
+    const seoTitleInput = document.getElementById("seo-title-input") as HTMLInputElement | null;
+    const seoDescInput = document.getElementById("seo-desc-input") as HTMLTextAreaElement | null;
+
+    const serpSlug = document.getElementById("serp-slug-preview");
+    const serpTitle = document.getElementById("serp-title-preview");
+    const serpDesc = document.getElementById("serp-desc-preview");
+    const seoTitleCounter = document.getElementById("seo-title-counter");
+    const seoDescCounter = document.getElementById("seo-desc-counter");
+
+    function updateSerpPreview() {
+      const activeSlug = slugInput?.value.trim() || "product-slug";
+      const activeTitle = seoTitleInput?.value.trim() || titleInput?.value.trim() || "Product Title";
+      const activeDesc = seoDescInput?.value.trim() || shortDescInput?.value.trim() || "High-performance turnkey source code, boilerplate, and developer assets.";
+
+      if (serpSlug) serpSlug.textContent = activeSlug;
+      if (serpTitle) serpTitle.textContent = `${activeTitle} | SourceMonster`;
+      if (serpDesc) serpDesc.textContent = activeDesc;
+
+      if (seoTitleCounter && seoTitleInput) {
+        const len = seoTitleInput.value.length;
+        seoTitleCounter.textContent = `${len} / 60`;
+        seoTitleCounter.classList.toggle("text-rose-500", len > 60);
+      }
+
+      if (seoDescCounter && seoDescInput) {
+        const len = seoDescInput.value.length;
+        seoDescCounter.textContent = `${len} / 160`;
+        seoDescCounter.classList.toggle("text-rose-500", len > 160);
+      }
+    }
+
+    [titleInput, slugInput, shortDescInput, seoTitleInput, seoDescInput].forEach((el) => {
+      el?.addEventListener("input", updateSerpPreview);
+    });
   </script>
-
-  <!-- Add-ons & Companion Modules Summary Card -->
-  <Card class="my-8 max-w-4xl bg-white dark:bg-slate-900/70 border border-slate-200 dark:border-slate-800/80 rounded-2xl p-6 shadow-sm dark:shadow-xl">
-    <div class="flex items-center justify-between pb-4 mb-4 border-b border-slate-200 dark:border-slate-800">
-      <div class="flex items-center gap-2">
-        <i data-lucide="puzzle" class="w-4 h-4 text-primary"></i>
-        <h2 class="text-sm font-bold text-slate-900 dark:text-white uppercase tracking-wider">
-          Product Add-ons &amp; Companion Modules
-        </h2>
-        <span class="text-[10px] font-mono bg-primary/10 text-primary border border-primary/20 px-2 py-0.5 rounded-full">
-          {addons.length} {addons.length === 1 ? "module" : "modules"}
-        </span>
-      </div>
-      <Button
-        href={`/admin/products/addons/new?productId=${id}`}
-        variant="primary"
-        size="sm"
-        icon="plus"
-      >
-        Add New Module
-      </Button>
-    </div>
-
-    {addons.length === 0 ? (
-      <div class="py-8 text-center text-slate-500 text-xs">
-        <p>No add-on modules attached to this product yet.</p>
-        <div class="mt-3">
-          <Button href={`/admin/products/addons/new?productId=${id}`} variant="secondary" size="sm" icon="plus">
-            Create First Module
-          </Button>
-        </div>
-      </div>
-    ) : (
-      <div class="divide-y divide-slate-200 dark:divide-slate-800/60">
-        {addons.map((addon) => (
-          <div class="py-3 flex items-center justify-between gap-4 first:pt-0 last:pb-0">
-            <div class="flex items-center gap-3">
-              {addon.thumbnailUrl ? (
-                <img
-                  src={addon.thumbnailUrl}
-                  alt={addon.title}
-                  class="w-10 h-10 rounded-lg object-cover bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700/60 shrink-0"
-                />
-              ) : (
-                <div class="w-10 h-10 rounded-lg bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700/60 flex items-center justify-center text-slate-400 dark:text-slate-500 shrink-0">
-                  <i data-lucide="puzzle" class="w-4 h-4"></i>
-                </div>
-              )}
-              <div>
-                <a
-                  href={`/admin/products/addons/${addon.id}/edit`}
-                  class="font-bold text-slate-900 dark:text-white text-sm hover:text-primary transition truncate block max-w-sm"
-                >
-                  {addon.title}
-                </a>
-                <div class="text-[11px] text-slate-500 dark:text-slate-400 font-mono">
-                  {addon.isFree ? "Free" : addon.price ? `$${Number(addon.price).toFixed(2)}` : "—"}
-                </div>
-              </div>
-            </div>
-            <div class="flex items-center gap-2">
-              <Button
-                href={`/admin/products/addons/${addon.id}/edit`}
-                variant="secondary"
-                size="sm"
-                icon="pencil"
-              >
-                Edit Add-on
-              </Button>
-            </div>
-          </div>
-        ))}
-      </div>
-    )}
-  </Card>
 </AdminLayout>

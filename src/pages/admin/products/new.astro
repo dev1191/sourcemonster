@@ -2,7 +2,15 @@
 import AdminLayout from "../../../layouts/AdminLayout.astro";
 import { createProduct, createProductChangeLog } from "../../../services";
 import { slugify } from "../../../lib/utils";
-import { Button, Card, Dropzone, Toast, HtmlEditor, DatePicker } from "../../../components/ui";
+import {
+  Button,
+  Card,
+  Dropzone,
+  Toast,
+  HtmlEditor,
+  DatePicker,
+  InputLabel,
+} from "../../../components/ui";
 import { Input } from "../../../components/starwind/input";
 import { Textarea } from "../../../components/starwind/textarea";
 import { NativeSelect, NativeSelectOption } from "../../../components/starwind/native-select";
@@ -80,183 +88,184 @@ if (Astro.request.method === "POST") {
 }
 ---
 
-<AdminLayout title="New Product | SourceMonster Admin" activeNav="products">
-  <div class="flex items-center justify-between pb-6 border-b border-slate-200 dark:border-slate-800">
+<AdminLayout title="Create Product | SourceMonster Admin" activeNav="products">
+  <!-- Top Command & Breadcrumb Bar -->
+  <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-6 border-b border-slate-200 dark:border-slate-800">
     <div>
-      <div class="flex items-center gap-2 text-xs text-slate-500 dark:text-slate-400 mb-1">
-        <a href="/admin/products" class="hover:text-slate-900 dark:hover:text-white transition">Products</a>
-        <span>/</span>
-        <span class="text-slate-800 dark:text-white">Create</span>
+      <div class="flex items-center gap-2 text-xs text-slate-500 dark:text-slate-400 mb-1.5 font-medium">
+        <a href="/admin/products" class="hover:text-primary transition flex items-center gap-1">
+          <i data-lucide="arrow-left" class="w-3.5 h-3.5"></i>
+          <span>Products</span>
+        </a>
+        <span class="text-slate-400 dark:text-slate-600">/</span>
+        <span class="text-primary font-semibold">Create</span>
       </div>
-      <h1 class="text-2xl font-black text-slate-900 dark:text-white tracking-tight">Create New Product</h1>
+      <h1 class="text-2xl sm:text-3xl font-black text-slate-900 dark:text-white tracking-tight">
+        Create New Product
+      </h1>
     </div>
-    <Button href="/admin/products" variant="secondary" size="sm">Cancel</Button>
+
+    <!-- Quick Action Dock -->
+    <div class="flex items-center gap-2.5 shrink-0">
+      <Button href="/admin/products" variant="secondary" size="sm">
+        Cancel
+      </Button>
+      <button
+        type="submit"
+        form="product-create-form"
+        class="inline-flex items-center justify-center gap-2 px-4 py-2 rounded-xl text-xs sm:text-sm font-bold bg-primary text-white hover:bg-orange-600 active:scale-[0.98] transition shadow-md shadow-primary/20 cursor-pointer"
+      >
+        <i data-lucide="plus" class="w-4 h-4"></i>
+        <span>Create Product</span>
+      </button>
+    </div>
   </div>
 
   <Toast variant="error" message={errorMessage} />
 
-  <form method="POST" enctype="multipart/form-data" class="my-6 space-y-6 max-w-4xl">
-    <!-- Basic Info Card -->
-    <Card title="Basic Info" icon="package">
-      <div class="space-y-4">
-        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+  <!-- Main 2-Column Responsive Workspace Form -->
+  <form
+    id="product-create-form"
+    method="POST"
+    enctype="multipart/form-data"
+    class="my-8 grid grid-cols-1 lg:grid-cols-12 gap-8 items-start"
+  >
+    <!-- Left Column: Core Product Content (8 Columns) -->
+    <div class="lg:col-span-8 space-y-8">
+      <!-- 1. General Information -->
+      <Card
+        title="General Information"
+        subtitle="Primary identity, URL slug, and architectural narrative"
+        icon="package"
+      >
+        <div class="space-y-5 pt-2">
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-5">
+            <div>
+              <InputLabel for="title-input" label="Product Title" required />
+              <Input
+                id="title-input"
+                name="title"
+                type="text"
+                required
+                placeholder="e.g. MonsterSaaS Boilerplate"
+                class="bg-white dark:bg-slate-950/80 border-slate-300 dark:border-slate-700/80 text-slate-900 dark:text-white placeholder:text-slate-400 dark:placeholder:text-slate-500 rounded-xl"
+              />
+            </div>
+
+            <div>
+              <InputLabel for="slug-input" label="URL Slug" required subtext="/products/[slug]" />
+              <Input
+                id="slug-input"
+                name="slug"
+                type="text"
+                required
+                placeholder="e.g. monstersaas-boilerplate"
+                class="bg-white dark:bg-slate-950/80 border-slate-300 dark:border-slate-700/80 text-slate-900 dark:text-white font-mono placeholder:text-slate-400 dark:placeholder:text-slate-500 rounded-xl"
+              />
+            </div>
+          </div>
+
           <div>
-            <label class="block text-xs font-semibold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-1.5">
-              Product Title *
-            </label>
-            <Input
-              id="title-input"
-              name="title"
-              type="text"
+            <InputLabel
+              for="short-desc-input"
+              label="Short Description (Card Summary)"
               required
-              placeholder="e.g. MonsterSaaS Boilerplate"
-              class="bg-white dark:bg-slate-950/80 border-slate-300 dark:border-slate-700/80 text-slate-900 dark:text-white placeholder:text-slate-400 dark:placeholder:text-slate-500 rounded-xl"
+              subtext="Used in catalog cards & listings"
             />
-          </div>
-
-          <div>
-            <label class="block text-xs font-semibold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-1.5">
-              URL Slug *
-            </label>
-            <Input
-              id="slug-input"
-              name="slug"
-              type="text"
+            <Textarea
+              id="short-desc-input"
+              name="shortDescription"
+              rows={2}
               required
-              placeholder="e.g. monstersaas-boilerplate"
-              class="bg-white dark:bg-slate-950/80 border-slate-300 dark:border-slate-700/80 text-slate-900 dark:text-white font-mono placeholder:text-slate-400 dark:placeholder:text-slate-500 rounded-xl"
-            />
-          </div>
-        </div>
-
-        <div>
-          <label class="block text-xs font-semibold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-1.5">
-            Short Description (Card Summary) *
-          </label>
-          <Textarea
-            name="shortDescription"
-            rows={2}
-            required
-            placeholder="Brief 1-2 sentence pitch for catalog cards..."
-            class="bg-white dark:bg-slate-950/80 border-slate-300 dark:border-slate-700/80 text-slate-900 dark:text-white placeholder:text-slate-400 dark:placeholder:text-slate-500 rounded-xl"
-          />
-        </div>
-
-        <HtmlEditor
-          name="description"
-          label="Full Description"
-          required
-          placeholder="Detailed product overview, architectural capabilities, value proposition, and technical specs..."
-          helperText="Format your architecture overview using rich text, headings, lists, code blocks, or raw HTML."
-        />
-
-        <Dropzone
-          name="thumbnail"
-          label="Thumbnail Image"
-          helperText="PNG, JPG, WebP, or SVG (Recommended: 1200x800px)"
-          maxSizeLabel="Max 5MB"
-          accept="image/png,image/jpeg,image/webp,image/svg+xml"
-        />
-      </div>
-    </Card>
-
-    <!-- URLs & Technical Specifications Card -->
-    <Card title="Links & Meta" icon="link-2">
-      <div class="space-y-4">
-        <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
-          <div>
-            <label class="block text-xs font-semibold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-1.5">
-              CodeCanyon URL
-            </label>
-            <Input
-              name="codecanyonUrl"
-              type="url"
-              placeholder="https://codecanyon.net/item/..."
+              placeholder="Brief 1-2 sentence pitch for catalog cards and search highlights..."
               class="bg-white dark:bg-slate-950/80 border-slate-300 dark:border-slate-700/80 text-slate-900 dark:text-white placeholder:text-slate-400 dark:placeholder:text-slate-500 rounded-xl"
             />
           </div>
 
           <div>
-            <label class="block text-xs font-semibold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-1.5">
-              Live Demo URL
-            </label>
-            <Input
-              name="demoUrl"
-              type="url"
-              placeholder="https://demo.sourcemonster.in/..."
-              class="bg-white dark:bg-slate-950/80 border-slate-300 dark:border-slate-700/80 text-slate-900 dark:text-white placeholder:text-slate-400 dark:placeholder:text-slate-500 rounded-xl"
-            />
-          </div>
-
-          <div>
-            <label class="block text-xs font-semibold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-1.5">
-              Documentation URL
-            </label>
-            <Input
-              name="documentationUrl"
-              type="url"
-              placeholder="https://docs.sourcemonster.in/..."
-              class="bg-white dark:bg-slate-950/80 border-slate-300 dark:border-slate-700/80 text-slate-900 dark:text-white placeholder:text-slate-400 dark:placeholder:text-slate-500 rounded-xl"
+            <InputLabel label="Full Architectural Description" required subtext="Rich HTML / Visual" />
+            <HtmlEditor
+              name="description"
+              required
+              placeholder="Detailed product overview, architectural capabilities, value proposition, and technical specs..."
+              helperText="Format your architecture overview using rich text, headings, lists, code blocks, or raw HTML."
             />
           </div>
         </div>
+      </Card>
 
-        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+      <!-- 2. Features & Specifications -->
+      <Card
+        title="Features & Specifications"
+        subtitle="Highlight technical capabilities, stack components, and deliverables"
+        icon="layers"
+      >
+        <div class="space-y-5 pt-2">
           <div>
-            <label class="block text-xs font-semibold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-1.5">
-              Technologies (comma separated)
-            </label>
+            <InputLabel
+              label="Key Features & Capabilities"
+              optional
+              subtext="Bulleted feature list"
+            />
+            <HtmlEditor
+              name="features"
+              minHeight="180px"
+              placeholder="<ul><li>Turnkey multi-tenant isolation</li><li>Stripe subscriptions and webhook handler</li><li>Dark-mode modern dashboard UI</li></ul>"
+              helperText="Format key capabilities using bulleted lists, numbered lists, or bold highlights."
+            />
+          </div>
+
+          <div>
+            <InputLabel
+              for="tech-input"
+              label="Tech Stack & Technologies"
+              optional
+              subtext="Comma separated"
+            />
             <Input
+              id="tech-input"
               name="technologies"
               type="text"
-              placeholder="TypeScript, Astro, PostgreSQL, Tailwind"
-              class="bg-white dark:bg-slate-950/80 border-slate-300 dark:border-slate-700/80 text-slate-900 dark:text-white placeholder:text-slate-400 dark:placeholder:text-slate-500 rounded-xl"
-            />
-          </div>
-
-          <div>
-            <label class="block text-xs font-semibold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-1.5">
-              Version
-            </label>
-            <Input
-              name="version"
-              type="text"
-              placeholder="v1.0.0"
+              placeholder="TypeScript, Astro, PostgreSQL, Tailwind, Docker"
               class="bg-white dark:bg-slate-950/80 border-slate-300 dark:border-slate-700/80 text-slate-900 dark:text-white placeholder:text-slate-400 dark:placeholder:text-slate-500 rounded-xl"
             />
           </div>
         </div>
+      </Card>
 
-        <HtmlEditor
-          name="features"
-          label="Key Features & Capabilities (Bulleted List)"
-          minHeight="180px"
-          placeholder="<ul><li>Turnkey multi-tenant isolation</li><li>Stripe subscriptions and webhook handler</li><li>Dark-mode modern dashboard UI</li></ul>"
-          helperText="Format key capabilities using bulleted lists, numbered lists, or bold highlights."
-        />
+      <!-- 3. Primary Media / Cover Thumbnail -->
+      <Card
+        title="Product Cover Thumbnail"
+        subtitle="Primary showcase image used across store cards and social snippets"
+        icon="image"
+      >
+        <div class="pt-2">
+          <Dropzone
+            name="thumbnail"
+            label="Upload Cover Thumbnail"
+            helperText="PNG, JPG, WebP, or SVG (Recommended: 1200x800px)"
+            maxSizeLabel="Max 5MB"
+            accept="image/png,image/jpeg,image/webp,image/svg+xml"
+          />
+        </div>
+      </Card>
 
-        <!-- Initial Changelog / Release Notes -->
-        <div class="pt-4 border-t border-slate-200 dark:border-slate-800/80">
-          <div class="flex items-center justify-between mb-3">
-            <label class="block text-xs font-semibold text-primary uppercase tracking-wider flex items-center gap-1.5">
-              <i data-lucide="git-commit" class="w-3.5 h-3.5"></i>
-              Initial Release Notes / Changelog (Optional)
-            </label>
-            <span class="text-[11px] text-slate-500 font-mono">Seeds version history</span>
-          </div>
-
-          <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-4">
+      <!-- 4. Initial Changelog & Release Notes (Optional) -->
+      <Card
+        title="Initial Release Notes / Changelog"
+        subtitle="Optionally seed the version history with launch notes"
+        icon="history"
+      >
+        <div class="space-y-4 pt-2">
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div>
-              <label class="block text-xs font-semibold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-1.5">
-                Release Version
-              </label>
+              <InputLabel label="Release Version" optional subtext="e.g. v1.0.0" />
               <Input
                 name="initialChangelogVersion"
                 type="text"
-                placeholder="e.g. v1.0.0"
-                class="bg-white dark:bg-slate-950/80 border-slate-300 dark:border-slate-700/80 text-slate-900 dark:text-white placeholder:text-slate-400 dark:placeholder:text-slate-500 rounded-xl"
+                placeholder="Defaults to product version..."
+                class="bg-white dark:bg-slate-950/80 border-slate-300 dark:border-slate-700/80 text-slate-900 dark:text-white placeholder:text-slate-400 dark:placeholder:text-slate-500 rounded-xl text-xs font-mono"
               />
-              <p class="text-[11px] text-slate-500 mt-1">Leave empty to inherit the product version.</p>
             </div>
 
             <div>
@@ -264,7 +273,6 @@ if (Astro.request.method === "POST") {
                 name="initialChangelogDate"
                 label="Release Date"
                 placeholder="Select release date..."
-                helperText="Release date shown on the public changelog timeline."
                 defaultDate={new Date().toISOString().split("T")[0]}
               />
             </div>
@@ -272,94 +280,204 @@ if (Astro.request.method === "POST") {
 
           <HtmlEditor
             name="initialChangelog"
-            label="Changelog Release Notes"
+            label="Initial Release Notes"
             minHeight="140px"
-            placeholder="<p><strong>Initial Public Launch:</strong></p><ul><li>Initial complete system release</li><li>Modern web interface with full dark mode</li><li>Full API documentation</li></ul>"
-            helperText="Write notes about what's included in this initial release to seed the product version history."
+            placeholder="<p><strong>Initial Public Launch:</strong></p><ul><li>Initial complete system release</li><li>Modern web interface with full dark mode</li><li>Complete architectural documentation</li></ul>"
+            helperText="Write notes about what is included in this initial release to seed the product version history."
           />
         </div>
-      </div>
-    </Card>
+      </Card>
+    </div>
 
-    <!-- Publishing & SEO Card -->
-    <Card title="Publishing & SEO" icon="globe">
-      <div class="space-y-4">
-        <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+    <!-- Right Column: Sticky Metadata & Operations Sidebar (4 Columns) -->
+    <div class="lg:col-span-4 space-y-6 lg:sticky lg:top-6 self-start">
+      <!-- 1. Publication & Core Status Card -->
+      <Card
+        title="Status & Visibility"
+        subtitle="Manage product availability and catalog placement"
+        icon="rocket"
+      >
+        <div class="space-y-4 pt-1">
           <div>
-            <label class="block text-xs font-semibold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-1.5">
-              Status
-            </label>
+            <InputLabel for="status-select" label="Catalog Status" required />
             <NativeSelect
+              id="status-select"
               name="status"
               class="bg-white dark:bg-slate-950/80 border-slate-300 dark:border-slate-700/80 text-slate-900 dark:text-white rounded-xl"
             >
-              <NativeSelectOption value="draft">Draft</NativeSelectOption>
-              <NativeSelectOption value="published">Published</NativeSelectOption>
+              <NativeSelectOption value="draft" selected>
+                Draft (Hidden from store)
+              </NativeSelectOption>
+              <NativeSelectOption value="published">
+                Published (Live to public)
+              </NativeSelectOption>
             </NativeSelect>
           </div>
 
-          <div>
-            <label class="block text-xs font-semibold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-1.5">
-              Sort Order
+          <div class="p-3.5 rounded-xl bg-slate-50 dark:bg-slate-950/60 border border-slate-200 dark:border-slate-800/80 flex items-center justify-between">
+            <div>
+              <div class="text-xs font-bold text-slate-900 dark:text-white">Featured Product</div>
+              <div class="text-[11px] text-slate-500 dark:text-slate-400">Spotlight on homepage showcase</div>
+            </div>
+            <label class="relative inline-flex items-center cursor-pointer">
+              <input
+                type="checkbox"
+                name="isFeatured"
+                class="sr-only peer"
+              />
+              <div class="w-11 h-6 bg-slate-300 dark:bg-slate-800 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-primary"></div>
             </label>
+          </div>
+
+          <div>
+            <InputLabel for="sort-order-input" label="Catalog Priority Order" optional subtext="Ascending sort" />
             <Input
+              id="sort-order-input"
               name="sortOrder"
               type="number"
               value="0"
-              class="bg-white dark:bg-slate-950/80 border-slate-300 dark:border-slate-700/80 text-slate-900 dark:text-white placeholder:text-slate-400 dark:placeholder:text-slate-500 rounded-xl"
+              class="bg-white dark:bg-slate-950/80 border-slate-300 dark:border-slate-700/80 text-slate-900 dark:text-white placeholder:text-slate-400 rounded-xl"
             />
           </div>
 
-          <div class="flex items-center pt-6">
-            <label class="flex items-center gap-2 cursor-pointer">
-              <input
-                name="isFeatured"
-                type="checkbox"
-                class="w-4 h-4 rounded text-primary focus:ring-primary bg-white dark:bg-slate-950 border-slate-300 dark:border-slate-700"
-              />
-              <span class="text-xs font-semibold text-slate-700 dark:text-slate-300 uppercase tracking-wider">Highlight as Featured</span>
-            </label>
+          <!-- Primary Save Action Button in Sidebar -->
+          <div class="pt-2 border-t border-slate-200 dark:border-slate-800 space-y-2">
+            <button
+              type="submit"
+              class="w-full inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl text-sm font-bold bg-primary text-white hover:bg-orange-600 active:scale-[0.98] transition shadow-md shadow-primary/20 cursor-pointer"
+            >
+              <i data-lucide="plus" class="w-4 h-4"></i>
+              <span>Create Product</span>
+            </button>
+            <Button href="/admin/products" variant="secondary" size="md" class="w-full text-center">
+              Cancel
+            </Button>
           </div>
         </div>
+      </Card>
 
-        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+      <!-- 2. External Links & Version -->
+      <Card
+        title="Links & Version"
+        subtitle="Live demo, documentation, and marketplace destination"
+        icon="link-2"
+      >
+        <div class="space-y-4 pt-1">
           <div>
-            <label class="block text-xs font-semibold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-1.5">
-              SEO Title
-            </label>
+            <InputLabel for="version-input" label="Initial Version" optional subtext="e.g. v1.0.0" />
             <Input
+              id="version-input"
+              name="version"
+              type="text"
+              placeholder="v1.0.0"
+              class="bg-white dark:bg-slate-950/80 border-slate-300 dark:border-slate-700/80 text-slate-900 dark:text-white placeholder:text-slate-400 rounded-xl font-mono text-xs"
+            />
+          </div>
+
+          <div>
+            <InputLabel for="codecanyon-url-input" label="CodeCanyon Item URL" optional />
+            <Input
+              id="codecanyon-url-input"
+              name="codecanyonUrl"
+              type="url"
+              placeholder="https://codecanyon.net/item/..."
+              class="bg-white dark:bg-slate-950/80 border-slate-300 dark:border-slate-700/80 text-slate-900 dark:text-white placeholder:text-slate-400 rounded-xl text-xs"
+            />
+          </div>
+
+          <div>
+            <InputLabel for="demo-url-input" label="Live Demo URL" optional />
+            <Input
+              id="demo-url-input"
+              name="demoUrl"
+              type="url"
+              placeholder="https://demo.sourcemonster.in/..."
+              class="bg-white dark:bg-slate-950/80 border-slate-300 dark:border-slate-700/80 text-slate-900 dark:text-white placeholder:text-slate-400 rounded-xl text-xs"
+            />
+          </div>
+
+          <div>
+            <InputLabel for="doc-url-input" label="Documentation URL" optional />
+            <Input
+              id="doc-url-input"
+              name="documentationUrl"
+              type="url"
+              placeholder="https://docs.sourcemonster.in/..."
+              class="bg-white dark:bg-slate-950/80 border-slate-300 dark:border-slate-700/80 text-slate-900 dark:text-white placeholder:text-slate-400 rounded-xl text-xs"
+            />
+          </div>
+        </div>
+      </Card>
+
+      <!-- 3. Search Engine Optimization (SEO) & Google SERP Preview -->
+      <Card
+        title="Search Engine Optimization"
+        subtitle="Manage search ranking metadata and social tags"
+        icon="search"
+      >
+        <div class="space-y-4 pt-1">
+          <div>
+            <InputLabel
+              for="seo-title-input"
+              label="SEO Title"
+              optional
+              subtext="Recommended: ~60 chars"
+            />
+            <Input
+              id="seo-title-input"
               name="seoTitle"
               type="text"
-              placeholder="Custom SEO Title..."
-              class="bg-white dark:bg-slate-950/80 border-slate-300 dark:border-slate-700/80 text-slate-900 dark:text-white placeholder:text-slate-400 dark:placeholder:text-slate-500 rounded-xl"
+              placeholder="Defaults to product title..."
+              class="bg-white dark:bg-slate-950/80 border-slate-300 dark:border-slate-700/80 text-slate-900 dark:text-white placeholder:text-slate-400 rounded-xl text-xs"
             />
+            <div class="text-right text-[10px] font-mono text-slate-400 mt-1" id="seo-title-counter">
+              0 / 60
+            </div>
           </div>
 
           <div>
-            <label class="block text-xs font-semibold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-1.5">
-              SEO Meta Description
-            </label>
-            <Input
-              name="seoDescription"
-              type="text"
-              placeholder="Custom meta description for search snippets..."
-              class="bg-white dark:bg-slate-950/80 border-slate-300 dark:border-slate-700/80 text-slate-900 dark:text-white placeholder:text-slate-400 dark:placeholder:text-slate-500 rounded-xl"
+            <InputLabel
+              for="seo-desc-input"
+              label="SEO Meta Description"
+              optional
+              subtext="Recommended: ~160 chars"
             />
+            <Textarea
+              id="seo-desc-input"
+              name="seoDescription"
+              rows={3}
+              placeholder="Defaults to short description..."
+              class="bg-white dark:bg-slate-950/80 border-slate-300 dark:border-slate-700/80 text-slate-900 dark:text-white placeholder:text-slate-400 rounded-xl text-xs"
+            />
+            <div class="text-right text-[10px] font-mono text-slate-400 mt-1" id="seo-desc-counter">
+              0 / 160
+            </div>
+          </div>
+
+          <!-- Real-Time Google Search SERP Preview Box -->
+          <div class="p-3.5 rounded-xl bg-slate-50 dark:bg-slate-950/80 border border-slate-200 dark:border-slate-800 space-y-1">
+            <div class="text-[10px] font-bold uppercase tracking-wider text-slate-400 dark:text-slate-500 mb-1.5 flex items-center gap-1.5">
+              <i data-lucide="eye" class="w-3 h-3 text-primary"></i>
+              <span>Google Search Preview</span>
+            </div>
+            <div class="text-[11px] text-emerald-600 dark:text-emerald-400 font-mono truncate">
+              sourcemonster.in &rsaquo; products &rsaquo; <span id="serp-slug-preview">product-slug</span>
+            </div>
+            <div
+              id="serp-title-preview"
+              class="text-sm font-semibold text-blue-600 dark:text-blue-400 hover:underline cursor-pointer truncate"
+            >
+              New Product | SourceMonster
+            </div>
+            <div
+              id="serp-desc-preview"
+              class="text-xs text-slate-600 dark:text-slate-400 line-clamp-2 leading-relaxed"
+            >
+              High-performance turnkey source code, boilerplate, and developer assets.
+            </div>
           </div>
         </div>
-      </div>
-    </Card>
-
-    <div class="flex items-center justify-end gap-3 pt-2">
-      <Button href="/admin/products" variant="secondary" size="md">Cancel</Button>
-      <Button
-        type="submit"
-        variant="primary"
-        size="md"
-        icon="plus"
-      >
-        Save & Create Product
-      </Button>
+      </Card>
     </div>
   </form>
 
@@ -368,16 +486,53 @@ if (Astro.request.method === "POST") {
 
     const titleInput = document.getElementById("title-input") as HTMLInputElement | null;
     const slugInput = document.getElementById("slug-input") as HTMLInputElement | null;
+    const shortDescInput = document.getElementById("short-desc-input") as HTMLTextAreaElement | null;
+    const seoTitleInput = document.getElementById("seo-title-input") as HTMLInputElement | null;
+    const seoDescInput = document.getElementById("seo-desc-input") as HTMLTextAreaElement | null;
 
+    const serpSlug = document.getElementById("serp-slug-preview");
+    const serpTitle = document.getElementById("serp-title-preview");
+    const serpDesc = document.getElementById("serp-desc-preview");
+    const seoTitleCounter = document.getElementById("seo-title-counter");
+    const seoDescCounter = document.getElementById("seo-desc-counter");
+
+    // Auto-generate slug from title while user hasn't explicitly customized slug
     if (titleInput && slugInput) {
       titleInput.addEventListener("input", () => {
         if (!slugInput.dataset.touched) {
           slugInput.value = slugify(titleInput.value);
+          updateSerpPreview();
         }
       });
       slugInput.addEventListener("input", () => {
         slugInput.dataset.touched = "true";
       });
     }
+
+    function updateSerpPreview() {
+      const activeSlug = slugInput?.value.trim() || "product-slug";
+      const activeTitle = seoTitleInput?.value.trim() || titleInput?.value.trim() || "New Product";
+      const activeDesc = seoDescInput?.value.trim() || shortDescInput?.value.trim() || "High-performance turnkey source code, boilerplate, and developer assets.";
+
+      if (serpSlug) serpSlug.textContent = activeSlug;
+      if (serpTitle) serpTitle.textContent = `${activeTitle} | SourceMonster`;
+      if (serpDesc) serpDesc.textContent = activeDesc;
+
+      if (seoTitleCounter && seoTitleInput) {
+        const len = seoTitleInput.value.length;
+        seoTitleCounter.textContent = `${len} / 60`;
+        seoTitleCounter.classList.toggle("text-rose-500", len > 60);
+      }
+
+      if (seoDescCounter && seoDescInput) {
+        const len = seoDescInput.value.length;
+        seoDescCounter.textContent = `${len} / 160`;
+        seoDescCounter.classList.toggle("text-rose-500", len > 160);
+      }
+    }
+
+    [titleInput, slugInput, shortDescInput, seoTitleInput, seoDescInput].forEach((el) => {
+      el?.addEventListener("input", updateSerpPreview);
+    });
   </script>
 </AdminLayout>
