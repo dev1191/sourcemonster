@@ -67,13 +67,15 @@ const sortOrder = product?.sortOrder ?? 0;
 
     <!-- Primary Action Buttons in Sidebar -->
     <div class="pt-2 border-t border-slate-200 dark:border-slate-800 space-y-2">
-      <button
+      <Button
         type="submit"
-        class="w-full inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl text-sm font-bold bg-primary text-white hover:bg-orange-600 active:scale-[0.98] transition shadow-md shadow-primary/20 cursor-pointer"
+        variant="primary"
+        size="md"
+        icon={isEdit ? "save" : "plus"}
+        class="w-full"
       >
-        <i data-lucide={isEdit ? "save" : "plus"} class="w-4 h-4"></i>
-        <span>{isEdit ? "Save Changes" : "Create Product"}</span>
-      </button>
+        {isEdit ? "Save Changes" : "Create Product"}
+      </Button>
       <Button href="/admin/products" variant="secondary" size="md" class="w-full text-center">
         Cancel
       </Button>
