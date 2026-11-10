@@ -129,7 +129,7 @@ if (Astro.request.method === "POST") {
     class="my-8 grid grid-cols-1 lg:grid-cols-12 gap-8 items-start"
   >
     <!-- Left Column: Core Product Content (8 Columns) -->
-    <div class="lg:col-span-8 space-y-8">
+    <div class="lg:col-span-8 space-y-8 min-w-0">
       <ProductGeneralInfo />
       <ProductFeaturesTech />
       <ProductMediaUpload isEdit={false} />
@@ -137,7 +137,7 @@ if (Astro.request.method === "POST") {
     </div>
 
     <!-- Right Column: Sticky Sidebar (4 Columns) -->
-    <div class="lg:col-span-4 space-y-6 lg:sticky lg:top-6 self-start">
+    <div class="lg:col-span-4 space-y-6 lg:sticky lg:top-6 self-start min-w-0">
       <ProductSidebarStatus isEdit={false} />
       <ProductLinksVersion />
       <ProductSeoSection />
