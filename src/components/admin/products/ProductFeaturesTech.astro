@@ -1,0 +1,69 @@
+---
+import { Card, InputLabel, HtmlEditor } from "../../ui";
+import { Input } from "../../starwind/input";
+import type { Product } from "../../../lib/db/schema";
+
+interface Props {
+  product?: Partial<Product>;
+}
+
+const { product } = Astro.props;
+
+let formattedFeatures = "";
+if (typeof product?.features === "string") {
+  formattedFeatures = product.features;
+} else if (Array.isArray(product?.features) && product.features.length > 0) {
+  const isAlreadyList = product.features.some(
+    (f: any) => typeof f === "string" && f.includes("&lt;li") || (typeof f === "string" && f.indexOf("<" + "li") !== -1)
+  );
+  if (isAlreadyList) {
+    formattedFeatures = "<ul>" + product.features.join("") + "</ul>";
+  } else {
+    formattedFeatures = "<ul>" + product.features.map((f: any) => "<li>" + f + "</li>").join("") + "</ul>";
+  }
+}
+
+const technologiesStr = Array.isArray(product?.technologies)
+  ? product.technologies.join(", ")
+  : (typeof product?.technologies === "string" ? product.technologies : "");
+---
+
+<Card
+  title="Features & Specifications"
+  subtitle="Highlight technical capabilities, stack components, and deliverables"
+  icon="layers"
+>
+  <div class="space-y-5 pt-2">
+    <div>
+      <InputLabel
+        label="Key Features & Capabilities"
+        optional
+        subtext="Bulleted feature list"
+      />
+      <HtmlEditor
+        name="features"
+        value={formattedFeatures}
+        minHeight="180px"
+        placeholder="<ul><li>Turnkey multi-tenant isolation</li><li>Stripe subscriptions and webhook handler</li><li>Dark-mode modern dashboard UI</li></ul>"
+        helperText="Format key capabilities using bulleted lists, numbered lists, or bold highlights."
+      />
+    </div>
+
+    <div>
+      <InputLabel
+        for="tech-input"
+        label="Tech Stack & Technologies"
+        optional
+        subtext="Comma separated"
+      />
+      <Input
+        id="tech-input"
+        name="technologies"
+        type="text"
+        value={technologiesStr}
+        placeholder="TypeScript, Astro, PostgreSQL, Tailwind, Docker"
+        class="bg-white dark:bg-slate-950/80 border-slate-300 dark:border-slate-700/80 text-slate-900 dark:text-white placeholder:text-slate-400 dark:placeholder:text-slate-500 rounded-xl"
+      />
+    </div>
+  </div>
+</Card>
