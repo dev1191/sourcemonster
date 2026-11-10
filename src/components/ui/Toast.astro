@@ -31,6 +31,15 @@ const shouldTrigger = Boolean(message || title);
 <script>
   import { toast } from "../starwind/toast";
 
+  declare global {
+    interface Window {
+      __starwindRuntime__?: {
+        toast?: any;
+        [key: string]: any;
+      };
+    }
+  }
+
   const dispatchToast = (el: HTMLElement) => {
     const variant = (el.dataset.variant as "info" | "success" | "warning" | "error" | "default") || "info";
     const title = el.dataset.title || "";
@@ -38,15 +47,19 @@ const shouldTrigger = Boolean(message || title);
     const durationAttr = el.dataset.duration;
     const duration = durationAttr ? Number(durationAttr) : undefined;
 
-    const toastFn = (typeof toast[variant] === "function" ? toast[variant] : toast) as (
+    const toastFn = (typeof (toast as any)[variant] === "function" ? (toast as any)[variant] : toast) as (
       msg: string,
       opts?: Record<string, unknown>
     ) => string;
 
-    if (title && message) {
-      toastFn(title, { description: message, duration });
-    } else if (message || title) {
-      toastFn(title || message, { duration });
+    try {
+      if (title && message) {
+        toastFn(title, { description: message, duration });
+      } else if (message || title) {
+        toastFn(title || message, { duration });
+      }
+    } catch (err) {
+      console.warn("Failed to dispatch toast:", err);
     }
     el.remove();
   };
@@ -58,12 +71,27 @@ const shouldTrigger = Boolean(message || title);
     let attempts = 0;
     const interval = setInterval(() => {
       attempts++;
-      const viewport = document.querySelector("[data-sw-toast-viewport]");
-      if (window.__starwindRuntime__?.toast || viewport || attempts > 20) {
+      const hasManager = Boolean(window.__starwindRuntime__?.toast);
+
+      if (hasManager || attempts > 25) {
         clearInterval(interval);
         elements.forEach(dispatchToast);
+
+        // Clean up status params from browser URL without reloading
+        const url = new URL(window.location.href);
+        const flashKeys = ["created", "updated", "cl_added", "cl_updated", "cl_deleted", "img_deleted"];
+        let modified = false;
+        flashKeys.forEach((key) => {
+          if (url.searchParams.has(key)) {
+            url.searchParams.delete(key);
+            modified = true;
+          }
+        });
+        if (modified) {
+          window.history.replaceState({}, "", url.pathname + (url.search ? url.search : ""));
+        }
       }
-    }, 25);
+    }, 30);
   };
 
   if (document.readyState === "loading") {
@@ -73,4 +101,3 @@ const shouldTrigger = Boolean(message || title);
   }
   document.addEventListener("astro:page-load", triggerToasts);
 </script>
-

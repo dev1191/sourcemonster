@@ -33,6 +33,21 @@ if (!id) {
 let errorMessage = "";
 let successMessage = "";
 
+// Flash notifications from redirect parameters
+if (Astro.url.searchParams.has("created")) {
+  successMessage = "Product created successfully!";
+} else if (Astro.url.searchParams.has("updated")) {
+  successMessage = "Product updated successfully!";
+} else if (Astro.url.searchParams.has("cl_added")) {
+  successMessage = "Changelog entry published successfully!";
+} else if (Astro.url.searchParams.has("cl_updated")) {
+  successMessage = "Changelog entry updated successfully!";
+} else if (Astro.url.searchParams.has("cl_deleted")) {
+  successMessage = "Changelog entry deleted successfully!";
+} else if (Astro.url.searchParams.has("img_deleted")) {
+  successMessage = "Gallery screenshot removed successfully!";
+}
+
 // Initial check
 const initialProductData = await getAdminProductById(id);
 if (!initialProductData) {
@@ -53,7 +68,7 @@ if (Astro.request.method === "POST") {
       const pmId = formData.get("product_media_id")?.toString();
       if (pmId) {
         await deleteProductGalleryImage(pmId);
-        return Astro.redirect(`/admin/products/${id}/edit`);
+        return Astro.redirect(`/admin/products/${id}/edit?img_deleted=1`);
       }
     }
 
@@ -69,7 +84,7 @@ if (Astro.request.method === "POST") {
           content: changelogContent,
           createdAt: !isNaN(clDate.getTime()) ? clDate : new Date(),
         });
-        return Astro.redirect(`/admin/products/${id}/edit`);
+        return Astro.redirect(`/admin/products/${id}/edit?cl_added=1`);
       }
     }
 
@@ -85,7 +100,7 @@ if (Astro.request.method === "POST") {
           content: changelogContent,
           createdAt: clDate && !isNaN(clDate.getTime()) ? clDate : undefined,
         });
-        return Astro.redirect(`/admin/products/${id}/edit`);
+        return Astro.redirect(`/admin/products/${id}/edit?cl_updated=1`);
       }
     }
 
@@ -93,7 +108,7 @@ if (Astro.request.method === "POST") {
       const clId = formData.get("changelog_id")?.toString();
       if (clId) {
         await deleteProductChangeLog(clId);
-        return Astro.redirect(`/admin/products/${id}/edit`);
+        return Astro.redirect(`/admin/products/${id}/edit?cl_deleted=1`);
       }
     }
 
@@ -233,14 +248,15 @@ const addons = await getAllAdminAddons(id);
       <Button href="/admin/products" variant="secondary" size="sm">
         Back to List
       </Button>
-      <button
+      <Button
         type="submit"
         form="product-edit-form"
-        class="inline-flex items-center justify-center gap-2 px-4 py-2 rounded-xl text-xs sm:text-sm font-bold bg-primary text-white hover:bg-orange-600 active:scale-[0.98] transition shadow-md shadow-primary/20 cursor-pointer"
+        variant="primary"
+        size="sm"
+        icon="save"
       >
-        <i data-lucide="save" class="w-4 h-4"></i>
-        <span>Save Changes</span>
-      </button>
+        Save Changes
+      </Button>
     </div>
   </div>
 

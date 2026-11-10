@@ -78,7 +78,7 @@ if (Astro.request.method === "POST") {
       });
     }
 
-    return Astro.redirect(`/admin/products/${newProduct.id}/edit`);
+    return Astro.redirect(`/admin/products/${newProduct.id}/edit?created=1`);
   } catch (err: any) {
     console.error("Create product failed:", err);
     errorMessage = err?.message || "Failed to create product. Check server logs.";
@@ -108,14 +108,15 @@ if (Astro.request.method === "POST") {
       <Button href="/admin/products" variant="secondary" size="sm">
         Cancel
       </Button>
-      <button
+      <Button
         type="submit"
         form="product-create-form"
-        class="inline-flex items-center justify-center gap-2 px-4 py-2 rounded-xl text-xs sm:text-sm font-bold bg-primary text-white hover:bg-orange-600 active:scale-[0.98] transition shadow-md shadow-primary/20 cursor-pointer"
+        variant="primary"
+        size="sm"
+        icon="plus"
       >
-        <i data-lucide="plus" class="w-4 h-4"></i>
-        <span>Create Product</span>
-      </button>
+        Create Product
+      </Button>
     </div>
   </div>
 
