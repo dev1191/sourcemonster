@@ -7,6 +7,7 @@ export { default as Toast } from "./Toast.astro";
 export { default as ConfirmDialog } from "./ConfirmDialog.astro";
 export { default as HtmlEditor } from "./HtmlEditor.astro";
 export { default as DatePicker } from "./DatePicker.astro";
+export { default as InputLabel } from "./InputLabel.astro";
 export { default as ThemeToggle } from "../starwind/theme-toggle/ThemeToggle.astro";
 export { Toaster, toast } from "../starwind/toast";
 
