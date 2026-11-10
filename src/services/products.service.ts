@@ -351,7 +351,7 @@ export async function updateProduct(
   id: string,
   input: ProductInput,
   thumbnailFile?: File | null,
-  screenshotFile?: File | null,
+  screenshotFile?: File | File[] | null,
   screenshotCaption?: string | null
 ): Promise<Product> {
   const [existingProduct] = await db
@@ -420,26 +420,34 @@ export async function updateProduct(
     }
   }
 
-  if (screenshotFile && screenshotFile.size > 0) {
-    const uploadRes = await uploadFile(screenshotFile, screenshotFile.name, screenshotFile.type);
-    const [galleryMedia] = await db
-      .insert(media)
-      .values({
-        disk: uploadRes.disk,
-        objectKey: uploadRes.objectKey,
-        originalName: uploadRes.originalName,
-        mimeType: uploadRes.mimeType,
-        sizeBytes: uploadRes.sizeBytes,
-        altText: screenshotCaption || `${title} screenshot`,
-      })
-      .returning();
+  const screenshotFiles: File[] = Array.isArray(screenshotFile)
+    ? screenshotFile
+    : screenshotFile
+    ? [screenshotFile]
+    : [];
 
-    if (galleryMedia) {
-      await db.insert(productMedia).values({
-        productId: id,
-        mediaId: galleryMedia.id,
-        caption: screenshotCaption || null,
-      });
+  for (const file of screenshotFiles) {
+    if (file && file.size > 0) {
+      const uploadRes = await uploadFile(file, file.name, file.type);
+      const [galleryMedia] = await db
+        .insert(media)
+        .values({
+          disk: uploadRes.disk,
+          objectKey: uploadRes.objectKey,
+          originalName: uploadRes.originalName,
+          mimeType: uploadRes.mimeType,
+          sizeBytes: uploadRes.sizeBytes,
+          altText: screenshotCaption || `${title} screenshot`,
+        })
+        .returning();
+
+      if (galleryMedia) {
+        await db.insert(productMedia).values({
+          productId: id,
+          mediaId: galleryMedia.id,
+          caption: screenshotCaption || null,
+        });
+      }
     }
   }
 

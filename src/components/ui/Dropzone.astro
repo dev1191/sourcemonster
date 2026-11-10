@@ -120,33 +120,61 @@ const previewContainerId = `${inputId}-preview`;
     {preview && (
       <div
         id={previewContainerId}
-        class="hidden mt-3 p-3 bg-slate-900/90 border border-slate-800 rounded-xl items-center justify-between gap-3 shadow-md"
+        class="hidden mt-3 p-3 bg-slate-900/90 border border-slate-800 rounded-xl flex-col gap-3 shadow-md"
         data-preview-wrapper
       >
-        <div class="flex items-center gap-3 min-w-0">
-          <img
-            src=""
-            alt="Upload Preview"
-            class="w-12 h-12 rounded-lg object-cover border border-slate-700/80 shrink-0 bg-slate-950"
-            data-preview-img
-          />
-          <div class="min-w-0">
-            <p class="text-xs font-semibold text-slate-200 truncate" data-preview-name>
-              file-name.png
-            </p>
-            <p class="text-[11px] text-slate-400" data-preview-size>
-              0 KB
-            </p>
+        <!-- Single File Preview -->
+        <div class="hidden items-center justify-between gap-3 w-full" data-preview-single>
+          <div class="flex items-center gap-3 min-w-0">
+            <img
+              src=""
+              alt="Upload Preview"
+              class="w-12 h-12 rounded-lg object-cover border border-slate-700/80 shrink-0 bg-slate-950"
+              data-preview-img
+            />
+            <div class="min-w-0">
+              <p class="text-xs font-semibold text-slate-200 truncate" data-preview-name>
+                file-name.png
+              </p>
+              <p class="text-[11px] text-slate-400 font-mono" data-preview-size>
+                0 KB
+              </p>
+            </div>
+          </div>
+          <button
+            type="button"
+            class="p-1.5 text-slate-400 hover:text-rose-400 hover:bg-rose-500/10 rounded-lg transition shrink-0 cursor-pointer"
+            title="Remove file"
+            data-preview-remove
+          >
+            <i data-lucide="x" class="w-4 h-4"></i>
+          </button>
+        </div>
+
+        <!-- Multi Files Preview -->
+        <div class="hidden flex-col gap-2.5 w-full" data-preview-multi>
+          <div class="flex items-center justify-between pb-2 border-b border-slate-800">
+            <div class="flex items-center gap-2">
+              <span class="w-2 h-2 rounded-full bg-emerald-500"></span>
+              <span class="text-xs font-semibold text-slate-200" data-preview-multi-count>
+                0 files selected
+              </span>
+              <span class="text-[11px] text-slate-400 font-mono" data-preview-multi-size>
+                (0 KB)
+              </span>
+            </div>
+            <button
+              type="button"
+              class="text-xs text-rose-400 hover:text-rose-300 font-semibold px-2 py-1 rounded hover:bg-rose-500/10 transition cursor-pointer"
+              data-preview-clear-all
+            >
+              Clear all
+            </button>
+          </div>
+          <div class="grid grid-cols-2 sm:grid-cols-4 gap-2.5 max-h-60 overflow-y-auto" data-preview-multi-grid>
+            <!-- Generated dynamically via JS -->
           </div>
         </div>
-        <button
-          type="button"
-          class="p-1.5 text-slate-400 hover:text-rose-400 hover:bg-rose-500/10 rounded-lg transition shrink-0"
-          title="Remove file"
-          data-preview-remove
-        >
-          <i data-lucide="x" class="w-4 h-4"></i>
-        </button>
       </div>
     )}
   </div>
@@ -162,14 +190,25 @@ const previewContainerId = `${inputId}-preview`;
 {preview && (
   <script is:inline define:vars={{ inputId, previewContainerId }}>
     document.addEventListener("DOMContentLoaded", () => {
-      const dropzoneInput = document.getElementById(inputId);
+      const container = document.getElementById(inputId);
       const previewWrapper = document.getElementById(previewContainerId);
-      if (!dropzoneInput || !previewWrapper) return;
+      if (!container || !previewWrapper) return;
 
+      const fileInput = container.matches('input[type="file"]')
+        ? container
+        : container.querySelector('input[type="file"]');
+      if (!fileInput) return;
+
+      const singleContainer = previewWrapper.querySelector("[data-preview-single]");
+      const multiContainer = previewWrapper.querySelector("[data-preview-multi]");
+      const multiGrid = previewWrapper.querySelector("[data-preview-multi-grid]");
+      const multiCount = previewWrapper.querySelector("[data-preview-multi-count]");
+      const multiSize = previewWrapper.querySelector("[data-preview-multi-size]");
       const previewImg = previewWrapper.querySelector("[data-preview-img]");
       const previewName = previewWrapper.querySelector("[data-preview-name]");
       const previewSize = previewWrapper.querySelector("[data-preview-size]");
       const removeBtn = previewWrapper.querySelector("[data-preview-remove]");
+      const clearAllBtn = previewWrapper.querySelector("[data-preview-clear-all]");
 
       const formatBytes = (bytes) => {
         if (!bytes || bytes === 0) return "0 Bytes";
@@ -183,51 +222,113 @@ const previewContainerId = `${inputId}-preview`;
         if (!files || files.length === 0) {
           previewWrapper.classList.add("hidden");
           previewWrapper.classList.remove("flex");
+          if (multiGrid) multiGrid.innerHTML = "";
           return;
         }
 
-        const file = files[0];
-        if (file.type.startsWith("image/")) {
-          const reader = new FileReader();
-          reader.onload = (e) => {
-            if (previewImg) previewImg.src = e.target.result;
-            if (previewName) previewName.textContent = file.name;
-            if (previewSize) previewSize.textContent = formatBytes(file.size);
-            previewWrapper.classList.remove("hidden");
-            previewWrapper.classList.add("flex");
-            if (typeof lucide !== "undefined") {
-              lucide.createIcons();
-            }
-          };
-          reader.readAsDataURL(file);
-        } else {
-          // Non-image file (e.g. zip, pdf)
-          if (previewImg) {
-            previewImg.src = "data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24' fill='none' stroke='%23ff4d1c' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'><path d='M14.5 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7.5L14.5 2z'/><polyline points='14 2 14 8 20 8'/></svg>";
+        if (files.length === 1) {
+          // Single file preview
+          if (multiContainer) {
+            multiContainer.classList.add("hidden");
+            multiContainer.classList.remove("flex");
           }
-          if (previewName) previewName.textContent = file.name;
-          if (previewSize) previewSize.textContent = formatBytes(file.size);
+          if (singleContainer) {
+            singleContainer.classList.remove("hidden");
+            singleContainer.classList.add("flex");
+          }
           previewWrapper.classList.remove("hidden");
           previewWrapper.classList.add("flex");
-          if (typeof lucide !== "undefined") {
-            lucide.createIcons();
+
+          const file = files[0];
+          if (file.type.startsWith("image/")) {
+            const reader = new FileReader();
+            reader.onload = (e) => {
+              if (previewImg) previewImg.src = e.target.result;
+              if (previewName) previewName.textContent = file.name;
+              if (previewSize) previewSize.textContent = formatBytes(file.size);
+              if (typeof lucide !== "undefined") lucide.createIcons();
+            };
+            reader.readAsDataURL(file);
+          } else {
+            if (previewImg) {
+              previewImg.src = "data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24' fill='none' stroke='%23ff4d1c' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'><path d='M14.5 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7.5L14.5 2z'/><polyline points='14 2 14 8 20 8'/></svg>";
+            }
+            if (previewName) previewName.textContent = file.name;
+            if (previewSize) previewSize.textContent = formatBytes(file.size);
+          }
+        } else {
+          // Multiple files preview
+          if (singleContainer) {
+            singleContainer.classList.add("hidden");
+            singleContainer.classList.remove("flex");
+          }
+          if (multiContainer) {
+            multiContainer.classList.remove("hidden");
+            multiContainer.classList.add("flex");
+          }
+          previewWrapper.classList.remove("hidden");
+          previewWrapper.classList.add("flex");
+
+          let totalBytes = 0;
+          for (let i = 0; i < files.length; i++) {
+            totalBytes += files[i].size;
+          }
+          if (multiCount) multiCount.textContent = `${files.length} images selected`;
+          if (multiSize) multiSize.textContent = `(${formatBytes(totalBytes)})`;
+
+          if (multiGrid) {
+            multiGrid.innerHTML = "";
+            Array.from(files).forEach((file) => {
+              const card = document.createElement("div");
+              card.className = "flex items-center gap-2.5 p-2 rounded-lg bg-slate-950/70 border border-slate-800 text-xs min-w-0";
+
+              const img = document.createElement("img");
+              img.className = "w-10 h-10 rounded object-cover border border-slate-700/60 bg-slate-900 shrink-0";
+              img.alt = file.name;
+
+              if (file.type.startsWith("image/")) {
+                const reader = new FileReader();
+                reader.onload = (e) => {
+                  img.src = e.target.result;
+                };
+                reader.readAsDataURL(file);
+              }
+
+              const info = document.createElement("div");
+              info.className = "min-w-0 flex-1";
+
+              const nameEl = document.createElement("p");
+              nameEl.className = "font-medium text-slate-200 truncate";
+              nameEl.textContent = file.name;
+
+              const sizeEl = document.createElement("p");
+              sizeEl.className = "text-[10px] text-slate-400 font-mono";
+              sizeEl.textContent = formatBytes(file.size);
+
+              info.appendChild(nameEl);
+              info.appendChild(sizeEl);
+              card.appendChild(img);
+              card.appendChild(info);
+              multiGrid.appendChild(card);
+            });
           }
         }
       };
 
-      dropzoneInput.addEventListener("change", (e) => {
+      fileInput.addEventListener("change", (e) => {
         handleFiles(e.target.files);
       });
 
-      if (removeBtn) {
-        removeBtn.addEventListener("click", () => {
-          dropzoneInput.value = "";
-          dropzoneInput.dispatchEvent(new Event("change", { bubbles: true }));
-          previewWrapper.classList.add("hidden");
-          previewWrapper.classList.remove("flex");
-        });
-      }
+      const clearSelection = () => {
+        fileInput.value = "";
+        fileInput.dispatchEvent(new Event("change", { bubbles: true }));
+        previewWrapper.classList.add("hidden");
+        previewWrapper.classList.remove("flex");
+        if (multiGrid) multiGrid.innerHTML = "";
+      };
+
+      if (removeBtn) removeBtn.addEventListener("click", clearSelection);
+      if (clearAllBtn) clearAllBtn.addEventListener("click", clearSelection);
     });
   </script>
 )}
-

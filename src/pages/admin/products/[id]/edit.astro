@@ -113,7 +113,11 @@ if (Astro.request.method === "POST") {
     const features = formData.get("features")?.toString().trim() || "";
 
     const thumbnailFile = formData.get("thumbnail") as File | null;
-    const screenshotFile = formData.get("screenshot") as File | null;
+    const rawScreenshots = [
+      ...(formData.getAll("screenshot") as File[]),
+      ...(formData.getAll("screenshots") as File[]),
+    ];
+    const screenshotFiles = rawScreenshots.filter((f) => f && f.size > 0);
 
     await updateProduct(
       id,
@@ -135,7 +139,7 @@ if (Astro.request.method === "POST") {
         seoDescription,
       },
       thumbnailFile,
-      screenshotFile
+      screenshotFiles
     );
 
     const newChangelog = formData.get("new_changelog_content")?.toString().trim();
@@ -417,10 +421,11 @@ const addons = await getAllAdminAddons(id);
 
         <Dropzone
           name="screenshot"
-          label="Add Screenshot Image"
-          helperText="Upload additional gallery screenshot (PNG, JPG, WebP)"
-          maxSizeLabel="Max 5MB"
+          label="Add Gallery Screenshots"
+          helperText="Upload one or multiple gallery screenshots (PNG, JPG, WebP)"
+          maxSizeLabel="Max 5MB per image"
           accept="image/png,image/jpeg,image/webp"
+          multiple={true}
           icon="image-plus"
         />
       </CardContent>
