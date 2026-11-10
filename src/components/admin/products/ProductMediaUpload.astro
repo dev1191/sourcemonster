@@ -104,16 +104,29 @@ const { currentThumbnailUrl, galleryItems = [], isEdit = false } = Astro.props;
 
 {isEdit && (
   <script>
+    function submitAction(fields: Record<string, string>) {
+      const form = document.createElement("form");
+      form.method = "POST";
+      form.style.display = "none";
+      for (const [key, value] of Object.entries(fields)) {
+        const input = document.createElement("input");
+        input.type = "hidden";
+        input.name = key;
+        input.value = value;
+        form.appendChild(input);
+      }
+      document.body.appendChild(form);
+      form.submit();
+    }
+
     document.querySelectorAll("[data-delete-gallery-id]").forEach((btn) => {
       btn.addEventListener("click", () => {
         const pmId = btn.getAttribute("data-delete-gallery-id");
         if (pmId && confirm("Remove this screenshot from the gallery?")) {
-          const form = document.getElementById("delete-gallery-form") as HTMLFormElement | null;
-          const input = document.getElementById("delete-gallery-pm-id") as HTMLInputElement | null;
-          if (form && input) {
-            input.value = pmId;
-            form.submit();
-          }
+          submitAction({
+            _action: "delete_gallery_image",
+            product_media_id: pmId,
+          });
         }
       });
     });

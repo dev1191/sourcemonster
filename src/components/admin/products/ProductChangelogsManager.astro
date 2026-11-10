@@ -200,6 +200,21 @@ const { productId, defaultVersion = "", changelogs = [] } = Astro.props;
 </Card>
 
 <script>
+  function submitAction(fields: Record<string, string>) {
+    const form = document.createElement("form");
+    form.method = "POST";
+    form.style.display = "none";
+    for (const [key, value] of Object.entries(fields)) {
+      const input = document.createElement("input");
+      input.type = "hidden";
+      input.name = key;
+      input.value = value;
+      form.appendChild(input);
+    }
+    document.body.appendChild(form);
+    form.submit();
+  }
+
   // Toggle Standalone Add Changelog Box
   const toggleBtn = document.getElementById("toggle-changelog-btn");
   const cancelBtn = document.getElementById("cancel-changelog-btn");
@@ -224,9 +239,8 @@ const { productId, defaultVersion = "", changelogs = [] } = Astro.props;
   const submitAddChangelogBtn = document.getElementById("submit-standalone-changelog-btn");
   if (submitAddChangelogBtn) {
     submitAddChangelogBtn.addEventListener("click", () => {
-      const addForm = document.getElementById("add-changelog-form") as HTMLFormElement | null;
       const boxContainer = document.getElementById("quick-changelog-box");
-      if (!addForm || !boxContainer) return;
+      if (!boxContainer) return;
 
       const versionInput = boxContainer.querySelector("#new-cl-version-input") as HTMLInputElement | null;
       const dateInput = boxContainer.querySelector("input[name='quick_cl_date']") as HTMLInputElement | null;
@@ -238,11 +252,12 @@ const { productId, defaultVersion = "", changelogs = [] } = Astro.props;
         return;
       }
 
-      (document.getElementById("add-cl-version-input") as HTMLInputElement).value = versionInput?.value || "";
-      (document.getElementById("add-cl-date-input") as HTMLInputElement).value = dateInput?.value || "";
-      (document.getElementById("add-cl-content-input") as HTMLInputElement).value = content;
-
-      addForm.submit();
+      submitAction({
+        _action: "add_changelog",
+        changelog_version: versionInput?.value || "",
+        changelog_date: dateInput?.value || "",
+        changelog_content: content,
+      });
     });
   }
 
@@ -274,8 +289,7 @@ const { productId, defaultVersion = "", changelogs = [] } = Astro.props;
       if (!id) return;
 
       const editBox = document.getElementById(`edit-changelog-box-${id}`);
-      const updateForm = document.getElementById("update-changelog-form") as HTMLFormElement | null;
-      if (!editBox || !updateForm) return;
+      if (!editBox) return;
 
       const versionInput = editBox.querySelector(`#edit-cl-version-${id}`) as HTMLInputElement | null;
       const dateInput = editBox.querySelector(`input[name="edit_date_${id}"]`) as HTMLInputElement | null;
@@ -287,12 +301,13 @@ const { productId, defaultVersion = "", changelogs = [] } = Astro.props;
         return;
       }
 
-      (document.getElementById("update-cl-id-input") as HTMLInputElement).value = id;
-      (document.getElementById("update-cl-version-input") as HTMLInputElement).value = versionInput?.value || "";
-      (document.getElementById("update-cl-date-input") as HTMLInputElement).value = dateInput?.value || "";
-      (document.getElementById("update-cl-content-input") as HTMLInputElement).value = content;
-
-      updateForm.submit();
+      submitAction({
+        _action: "update_changelog",
+        changelog_id: id,
+        changelog_version: versionInput?.value || "",
+        changelog_date: dateInput?.value || "",
+        changelog_content: content,
+      });
     });
   });
 
@@ -301,12 +316,10 @@ const { productId, defaultVersion = "", changelogs = [] } = Astro.props;
     btn.addEventListener("click", () => {
       const id = btn.getAttribute("data-delete-changelog-btn");
       if (id && confirm("Delete this changelog entry permanently?")) {
-        const deleteForm = document.getElementById("delete-changelog-form") as HTMLFormElement | null;
-        const idInput = document.getElementById("delete-cl-id-input") as HTMLInputElement | null;
-        if (deleteForm && idInput) {
-          idInput.value = id;
-          deleteForm.submit();
-        }
+        submitAction({
+          _action: "delete_changelog",
+          changelog_id: id,
+        });
       }
     });
   });
