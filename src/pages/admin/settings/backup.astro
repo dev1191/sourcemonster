@@ -1,0 +1,272 @@
+---
+import AdminLayout from "../../../layouts/AdminLayout.astro";
+import { getSiteSettings, updateSiteSettings } from "../../../lib/settings";
+import { generateSqlBackup, sendBackupToEmail } from "../../../services/backup.service";
+import { Card, CardHeader, CardTitle, CardContent } from "../../../components/starwind/card";
+import { Input } from "../../../components/starwind/input";
+import { NativeSelect, NativeSelectOption } from "../../../components/starwind/native-select";
+import { Button, Toast } from "../../../components/ui";
+
+let successMessage = "";
+let errorMessage = "";
+
+if (Astro.request.method === "POST") {
+  try {
+    const formData = await Astro.request.formData();
+    const action = formData.get("_action")?.toString();
+
+    if (action === "save_backup_settings") {
+      const backup_email = formData.get("backup_email")?.toString().trim();
+      const backup_frequency = formData.get("backup_frequency")?.toString().trim();
+      const backup_cron_secret = formData.get("backup_cron_secret")?.toString().trim();
+
+      await updateSiteSettings({
+        backup_email,
+        backup_frequency,
+        backup_cron_secret,
+      });
+
+      successMessage = "Backup settings saved successfully!";
+    }
+
+    if (action === "trigger_email_backup") {
+      const backup = await generateSqlBackup();
+      const result = await sendBackupToEmail(backup);
+
+      if (result.success) {
+        successMessage = `Backup successfully generated (${(backup.sizeBytes / 1024).toFixed(1)} KB, ${backup.totalRows} rows) and emailed to ${result.sentTo}!`;
+      } else {
+        errorMessage = `Backup generated but email delivery failed: ${result.error}`;
+      }
+    }
+  } catch (err: any) {
+    console.error("Backup action failed:", err);
+    errorMessage = err?.message || "Failed to process backup request.";
+  }
+}
+
+const settings = await getSiteSettings();
+
+// Format last backup timestamp
+let formattedLastBackup = "No backups recorded yet";
+if (settings.last_backup_at) {
+  try {
+    const d = new Date(settings.last_backup_at);
+    if (!isNaN(d.getTime())) {
+      formattedLastBackup = d.toLocaleString("en-US", {
+        year: "numeric",
+        month: "short",
+        day: "numeric",
+        hour: "2-digit",
+        minute: "2-digit",
+      });
+    }
+  } catch {}
+}
+
+const currentCronSecret = settings.backup_cron_secret || "sm_cron_backup_secret_key";
+const downloadBackupUrl = `/api/cron/backup?download=true&secret=${encodeURIComponent(currentCronSecret)}`;
+const cronApiUrl = `${Astro.url.origin}/api/cron/backup?secret=${encodeURIComponent(currentCronSecret)}`;
+---
+
+<AdminLayout title="Database Backup & Automation | SourceMonster Admin" activeNav="settings">
+  <!-- Header & Tab Navigation -->
+  <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-6 border-b border-slate-200 dark:border-slate-800">
+    <div>
+      <h1 class="text-2xl font-black text-slate-900 dark:text-white tracking-tight">Database Backup &amp; Disaster Recovery</h1>
+      <p class="text-xs text-slate-500 dark:text-slate-400 mt-1">Configure automated SQL snapshots, email delivery schedules, and instant offline database export.</p>
+    </div>
+
+    <!-- Subnav Tabs -->
+    <div class="flex items-center gap-2 p-1 bg-slate-100 dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-800">
+      <a
+        href="/admin/settings"
+        class="px-3.5 py-1.5 rounded-lg text-xs font-semibold text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white transition"
+      >
+        General Settings
+      </a>
+      <a
+        href="/admin/settings/backup"
+        class="px-3.5 py-1.5 rounded-lg text-xs font-bold bg-white dark:bg-slate-800 text-primary shadow-xs border border-slate-200 dark:border-slate-700 transition"
+      >
+        Database &amp; Cron Backup
+      </a>
+    </div>
+  </div>
+
+  <Toast variant="success" message={successMessage} />
+  <Toast variant="error" message={errorMessage} />
+
+  <div class="my-6 space-y-6 max-w-4xl">
+    <!-- Live Status Banner -->
+    <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+      <div class="p-5 rounded-2xl bg-white dark:bg-slate-900/80 border border-slate-200 dark:border-slate-800 flex items-center gap-4 shadow-sm">
+        <div class="w-12 h-12 rounded-xl bg-emerald-500/10 text-emerald-500 flex items-center justify-center shrink-0">
+          <i data-lucide="shield-check" class="w-6 h-6"></i>
+        </div>
+        <div>
+          <div class="text-[11px] font-mono uppercase tracking-wider text-slate-400">Recovery Status</div>
+          <div class="text-base font-bold text-slate-900 dark:text-white">Active &amp; Protected</div>
+        </div>
+      </div>
+
+      <div class="p-5 rounded-2xl bg-white dark:bg-slate-900/80 border border-slate-200 dark:border-slate-800 flex items-center gap-4 shadow-sm">
+        <div class="w-12 h-12 rounded-xl bg-primary/10 text-primary flex items-center justify-center shrink-0">
+          <i data-lucide="clock" class="w-6 h-6"></i>
+        </div>
+        <div>
+          <div class="text-[11px] font-mono uppercase tracking-wider text-slate-400">Last Backup</div>
+          <div class="text-sm font-bold text-slate-900 dark:text-white truncate max-w-[180px]">{formattedLastBackup}</div>
+        </div>
+      </div>
+
+      <div class="p-5 rounded-2xl bg-white dark:bg-slate-900/80 border border-slate-200 dark:border-slate-800 flex items-center gap-4 shadow-sm">
+        <div class="w-12 h-12 rounded-xl bg-blue-500/10 text-blue-500 flex items-center justify-center shrink-0">
+          <i data-lucide="database" class="w-6 h-6"></i>
+        </div>
+        <div>
+          <div class="text-[11px] font-mono uppercase tracking-wider text-slate-400">Format</div>
+          <div class="text-base font-bold text-slate-900 dark:text-white">PostgreSQL .SQL</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Manual On-Demand Actions Card -->
+    <Card class="bg-white dark:bg-slate-900/70 border border-slate-200 dark:border-slate-800/80 rounded-2xl shadow-sm dark:shadow-xl">
+      <CardHeader>
+        <CardTitle class="text-xs font-bold text-primary uppercase tracking-wider flex items-center gap-2">
+          <i data-lucide="zap" class="w-4 h-4"></i>
+          Instant On-Demand Actions
+        </CardTitle>
+      </CardHeader>
+      <CardContent class="space-y-4 pt-2">
+        <p class="text-xs text-slate-600 dark:text-slate-400">
+          Trigger an immediate full database export. The system will compile all PostgreSQL tables and either send them directly to your email or download the raw <code class="px-1.5 py-0.5 rounded bg-slate-100 dark:bg-slate-800 font-mono text-[11px]">.sql</code> file to your computer.
+        </p>
+
+        <div class="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 pt-2">
+          <form method="POST" class="inline">
+            <input type="hidden" name="_action" value="trigger_email_backup" />
+            <Button
+              type="submit"
+              variant="primary"
+              size="md"
+              icon="mail"
+              class="w-full sm:w-auto"
+            >
+              Generate &amp; Email SQL Backup Now
+            </Button>
+          </form>
+
+          <a
+            href={downloadBackupUrl}
+            target="_blank"
+            rel="noopener noreferrer"
+            class="inline-flex items-center justify-center gap-2 px-5 py-2.5 rounded-xl text-xs font-bold bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-900 dark:text-white border border-slate-300 dark:border-slate-700 transition"
+          >
+            <i data-lucide="download" class="w-4 h-4"></i>
+            <span>Download .SQL File Directly</span>
+          </a>
+        </div>
+      </CardContent>
+    </Card>
+
+    <!-- Automated Backup Settings Form -->
+    <form method="POST" class="space-y-6">
+      <input type="hidden" name="_action" value="save_backup_settings" />
+
+      <Card class="bg-white dark:bg-slate-900/70 border border-slate-200 dark:border-slate-800/80 rounded-2xl shadow-sm dark:shadow-xl">
+        <CardHeader>
+          <CardTitle class="text-xs font-bold text-primary uppercase tracking-wider flex items-center gap-2">
+            <i data-lucide="settings" class="w-4 h-4"></i>
+            Automated Delivery Parameters
+          </CardTitle>
+        </CardHeader>
+        <CardContent class="space-y-4 pt-2">
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div>
+              <label class="block text-xs font-semibold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-1.5">
+                Primary Backup Recipient Email *
+              </label>
+              <Input
+                name="backup_email"
+                type="email"
+                required
+                value={settings.backup_email || settings.contact_email}
+                placeholder="contact@sourcemonster.in"
+                class="bg-white dark:bg-slate-950/80 border-slate-300 dark:border-slate-700/80 text-slate-900 dark:text-white placeholder:text-slate-400 dark:placeholder:text-slate-500 rounded-xl"
+              />
+              <p class="text-[11px] text-slate-500 mt-1 font-mono">SQL archives will be delivered as email attachments to this inbox.</p>
+            </div>
+
+            <div>
+              <label class="block text-xs font-semibold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-1.5">
+                Backup Frequency Target
+              </label>
+              <NativeSelect
+                name="backup_frequency"
+                class="bg-white dark:bg-slate-950/80 border-slate-300 dark:border-slate-700/80 text-slate-900 dark:text-white rounded-xl"
+              >
+                <NativeSelectOption value="daily" selected={settings.backup_frequency === "daily"}>Daily Automated (Recommended)</NativeSelectOption>
+                <NativeSelectOption value="weekly" selected={settings.backup_frequency === "weekly"}>Weekly Automated</NativeSelectOption>
+                <NativeSelectOption value="manual" selected={settings.backup_frequency === "manual"}>On-Demand / Manual Only</NativeSelectOption>
+              </NativeSelect>
+              <p class="text-[11px] text-slate-500 mt-1 font-mono">Governs expected interval for cron monitoring.</p>
+            </div>
+          </div>
+
+          <div>
+            <label class="block text-xs font-semibold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-1.5">
+              Automated Cron Secret Key (Authorization)
+            </label>
+            <Input
+              name="backup_cron_secret"
+              type="text"
+              required
+              value={currentCronSecret}
+              class="bg-white dark:bg-slate-950/80 border-slate-300 dark:border-slate-700/80 text-slate-900 dark:text-white placeholder:text-slate-400 dark:placeholder:text-slate-500 font-mono text-xs rounded-xl"
+            />
+            <p class="text-[11px] text-slate-500 mt-1 font-mono">Required to authenticate external cron providers and GitHub Actions without exposing your database.</p>
+          </div>
+        </CardContent>
+      </Card>
+
+      <div class="flex items-center justify-end gap-3">
+        <Button
+          type="submit"
+          variant="primary"
+          size="md"
+          icon="save"
+        >
+          Save Backup Settings
+        </Button>
+      </div>
+    </form>
+
+    <!-- Automated Cronjob Configuration Instructions -->
+    <Card class="bg-white dark:bg-slate-900/70 border border-slate-200 dark:border-slate-800/80 rounded-2xl shadow-sm dark:shadow-xl">
+      <CardHeader>
+        <CardTitle class="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider flex items-center gap-2">
+          <i data-lucide="terminal" class="w-4 h-4 text-primary"></i>
+          Automated Cronjob Integration
+        </CardTitle>
+      </CardHeader>
+      <CardContent class="space-y-4 pt-2">
+        <p class="text-xs text-slate-600 dark:text-slate-400">
+          You can automate daily backups using your hosting crontab, GitHub Actions, or any webhook cron service (e.g. cron-job.org).
+        </p>
+
+        <!-- Command snippet -->
+        <div class="p-3.5 rounded-xl bg-slate-950 border border-slate-800 text-xs font-mono text-slate-300 overflow-x-auto space-y-2">
+          <div class="text-[10px] uppercase tracking-wider text-slate-500 font-bold">cURL Command for Server Crontab (0 2 * * *):</div>
+          <code class="text-emerald-400 block whitespace-pre">curl -X POST -H "Authorization: Bearer {currentCronSecret}" "{Astro.url.origin}/api/cron/backup"</code>
+        </div>
+
+        <div class="p-3.5 rounded-xl bg-slate-950 border border-slate-800 text-xs font-mono text-slate-300 overflow-x-auto space-y-2">
+          <div class="text-[10px] uppercase tracking-wider text-slate-500 font-bold">Direct Secure Endpoint URL:</div>
+          <code class="text-blue-400 block whitespace-pre">{cronApiUrl}</code>
+        </div>
+      </CardContent>
+    </Card>
+  </div>
+</AdminLayout>

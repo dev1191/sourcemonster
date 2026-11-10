@@ -13,6 +13,10 @@ export interface SiteSettingsMap {
   seo_default_title: string;
   seo_default_description: string;
   footer_copyright: string;
+  backup_email?: string;
+  backup_frequency?: string;
+  backup_cron_secret?: string;
+  last_backup_at?: string;
 }
 
 export const DEFAULT_SITE_SETTINGS: SiteSettingsMap = {
@@ -27,6 +31,10 @@ export const DEFAULT_SITE_SETTINGS: SiteSettingsMap = {
   seo_default_description:
     "Source Monster is a premium digital task force of elite freelancers. We deliver high-performance web development, alpha UI/UX design, and aggressive digital growth strategies.",
   footer_copyright: "© 2026 Source Monster. All rights reserved.",
+  backup_email: "contact@sourcemonster.in",
+  backup_frequency: "daily",
+  backup_cron_secret: "sm_cron_backup_secret_key",
+  last_backup_at: "",
 };
 
 let cachedSettings: SiteSettingsMap | null = null;
