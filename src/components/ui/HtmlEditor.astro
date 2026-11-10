@@ -452,7 +452,8 @@ const {
           }
 
           const isRequired = syncTextarea.dataset.required === "true" || syncTextarea.required;
-          if (isRequired && !syncTextarea.value.trim()) {
+          const isVisible = container.offsetParent !== null && !container.closest(".hidden");
+          if (isRequired && isVisible && !syncTextarea.value.trim()) {
             e.preventDefault();
             visualEditor.focus();
             visualEditor.scrollIntoView({ behavior: "smooth", block: "center" });
