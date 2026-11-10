@@ -11,7 +11,10 @@ interface Props {
 const { product } = Astro.props;
 const activeSlug = product?.slug || "product-slug";
 const activeTitle = product?.seoTitle || product?.title || "Product Title";
-const activeDesc = product?.seoDescription || product?.shortDescription || "High-performance turnkey source code, boilerplate, and developer assets.";
+const activeDesc =
+  product?.seoDescription ||
+  product?.shortDescription ||
+  "High-performance turnkey source code, boilerplate, and developer assets.";
 ---
 
 <Card
@@ -35,7 +38,10 @@ const activeDesc = product?.seoDescription || product?.shortDescription || "High
         placeholder="Defaults to product title..."
         class="bg-white dark:bg-slate-950/80 border-slate-300 dark:border-slate-700/80 text-slate-900 dark:text-white placeholder:text-slate-400 rounded-xl text-xs"
       />
-      <div class="text-right text-[10px] font-mono text-slate-400 mt-1" id="seo-title-counter">
+      <div
+        class="text-right text-[10px] font-mono text-slate-400 mt-1"
+        id="seo-title-counter"
+      >
         {(product?.seoTitle || "").length} / 60
       </div>
     </div>
@@ -50,24 +56,35 @@ const activeDesc = product?.seoDescription || product?.shortDescription || "High
       <Textarea
         id="seo-desc-input"
         name="seoDescription"
-        rows={3}
+        rows={5}
         value={product?.seoDescription || ""}
         placeholder="Defaults to short description..."
         class="bg-white dark:bg-slate-950/80 border-slate-300 dark:border-slate-700/80 text-slate-900 dark:text-white placeholder:text-slate-400 rounded-xl text-xs"
       />
-      <div class="text-right text-[10px] font-mono text-slate-400 mt-1" id="seo-desc-counter">
+      <div
+        class="text-right text-[10px] font-mono text-slate-400 mt-1"
+        id="seo-desc-counter"
+      >
         {(product?.seoDescription || "").length} / 160
       </div>
     </div>
 
     <!-- Real-Time Google Search SERP Preview Box -->
-    <div class="p-3.5 rounded-xl bg-slate-50 dark:bg-slate-950/80 border border-slate-200 dark:border-slate-800 space-y-1">
-      <div class="text-[10px] font-bold uppercase tracking-wider text-slate-400 dark:text-slate-500 mb-1.5 flex items-center gap-1.5">
+    <div
+      class="p-3.5 rounded-xl bg-slate-50 dark:bg-slate-950/80 border border-slate-200 dark:border-slate-800 space-y-1"
+    >
+      <div
+        class="text-[10px] font-bold uppercase tracking-wider text-slate-400 dark:text-slate-500 mb-1.5 flex items-center gap-1.5"
+      >
         <i data-lucide="eye" class="w-3 h-3 text-primary"></i>
         <span>Google Search Preview</span>
       </div>
-      <div class="text-[11px] text-emerald-600 dark:text-emerald-400 font-mono truncate">
-        sourcemonster.in &rsaquo; products &rsaquo; <span id="serp-slug-preview">{activeSlug}</span>
+      <div
+        class="text-[11px] text-emerald-600 dark:text-emerald-400 font-mono truncate"
+      >
+        sourcemonster.in &rsaquo; products &rsaquo; <span id="serp-slug-preview"
+          >{activeSlug}</span
+        >
       </div>
       <div
         id="serp-title-preview"
@@ -88,11 +105,21 @@ const activeDesc = product?.seoDescription || product?.shortDescription || "High
 <script>
   import { slugify } from "../../../lib/utils";
 
-  const titleInput = document.getElementById("title-input") as HTMLInputElement | null;
-  const slugInput = document.getElementById("slug-input") as HTMLInputElement | null;
-  const shortDescInput = document.getElementById("short-desc-input") as HTMLTextAreaElement | null;
-  const seoTitleInput = document.getElementById("seo-title-input") as HTMLInputElement | null;
-  const seoDescInput = document.getElementById("seo-desc-input") as HTMLTextAreaElement | null;
+  const titleInput = document.getElementById(
+    "title-input",
+  ) as HTMLInputElement | null;
+  const slugInput = document.getElementById(
+    "slug-input",
+  ) as HTMLInputElement | null;
+  const shortDescInput = document.getElementById(
+    "short-desc-input",
+  ) as HTMLTextAreaElement | null;
+  const seoTitleInput = document.getElementById(
+    "seo-title-input",
+  ) as HTMLInputElement | null;
+  const seoDescInput = document.getElementById(
+    "seo-desc-input",
+  ) as HTMLTextAreaElement | null;
 
   const serpSlug = document.getElementById("serp-slug-preview");
   const serpTitle = document.getElementById("serp-title-preview");
@@ -115,8 +142,14 @@ const activeDesc = product?.seoDescription || product?.shortDescription || "High
 
   function updateSerpPreview() {
     const sSlug = slugInput?.value.trim() || "product-slug";
-    const sTitle = seoTitleInput?.value.trim() || titleInput?.value.trim() || "Product Title";
-    const sDesc = seoDescInput?.value.trim() || shortDescInput?.value.trim() || "High-performance turnkey source code, boilerplate, and developer assets.";
+    const sTitle =
+      seoTitleInput?.value.trim() ||
+      titleInput?.value.trim() ||
+      "Product Title";
+    const sDesc =
+      seoDescInput?.value.trim() ||
+      shortDescInput?.value.trim() ||
+      "High-performance turnkey source code, boilerplate, and developer assets.";
 
     if (serpSlug) serpSlug.textContent = sSlug;
     if (serpTitle) serpTitle.textContent = `${sTitle} | SourceMonster`;
@@ -135,8 +168,9 @@ const activeDesc = product?.seoDescription || product?.shortDescription || "High
     }
   }
 
-  [titleInput, slugInput, shortDescInput, seoTitleInput, seoDescInput].forEach((el) => {
-    el?.addEventListener("input", updateSerpPreview);
-  });
+  [titleInput, slugInput, shortDescInput, seoTitleInput, seoDescInput].forEach(
+    (el) => {
+      el?.addEventListener("input", updateSerpPreview);
+    },
+  );
 </script>
-
