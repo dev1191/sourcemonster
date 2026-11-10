@@ -109,6 +109,7 @@ if (Astro.request.method === "POST") {
         Cancel
       </Button>
       <Button
+        id="create-product-top-btn"
         type="submit"
         form="product-create-form"
         variant="primary"
@@ -144,4 +145,33 @@ if (Astro.request.method === "POST") {
       <ProductSeoSection />
     </div>
   </form>
+
+  <script>
+    const form = document.getElementById("product-create-form") as HTMLFormElement | null;
+    const topCreateBtn = document.getElementById("create-product-top-btn") as HTMLButtonElement | null;
+
+    if (topCreateBtn && form) {
+      topCreateBtn.addEventListener("click", () => {
+        if (typeof form.requestSubmit === "function") {
+          form.requestSubmit();
+        } else {
+          form.submit();
+        }
+      });
+    }
+
+    if (form) {
+      form.addEventListener("submit", (e) => {
+        if (e.defaultPrevented) return;
+
+        const submitBtns = document.querySelectorAll<HTMLButtonElement>(
+          '#create-product-top-btn, button[form="product-create-form"][type="submit"], #product-create-form button[type="submit"]'
+        );
+        submitBtns.forEach((btn) => {
+          btn.disabled = true;
+          btn.classList.add("opacity-80", "cursor-wait");
+        });
+      });
+    }
+  </script>
 </AdminLayout>

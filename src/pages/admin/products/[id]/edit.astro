@@ -249,6 +249,7 @@ const addons = await getAllAdminAddons(id);
         Back to List
       </Button>
       <Button
+        id="save-product-top-btn"
         type="submit"
         form="product-edit-form"
         variant="primary"
@@ -300,4 +301,33 @@ const addons = await getAllAdminAddons(id);
 
   <!-- Danger Zone (Kept outside main form to prevent accidental submission) -->
   <ProductDangerZone product={product} />
+
+  <script>
+    const form = document.getElementById("product-edit-form") as HTMLFormElement | null;
+    const topSaveBtn = document.getElementById("save-product-top-btn") as HTMLButtonElement | null;
+
+    if (topSaveBtn && form) {
+      topSaveBtn.addEventListener("click", () => {
+        if (typeof form.requestSubmit === "function") {
+          form.requestSubmit();
+        } else {
+          form.submit();
+        }
+      });
+    }
+
+    if (form) {
+      form.addEventListener("submit", (e) => {
+        if (e.defaultPrevented) return;
+
+        const submitBtns = document.querySelectorAll<HTMLButtonElement>(
+          '#save-product-top-btn, button[form="product-edit-form"][type="submit"], #product-edit-form button[type="submit"]'
+        );
+        submitBtns.forEach((btn) => {
+          btn.disabled = true;
+          btn.classList.add("opacity-80", "cursor-wait");
+        });
+      });
+    }
+  </script>
 </AdminLayout>

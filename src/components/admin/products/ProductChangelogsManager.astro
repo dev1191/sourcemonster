@@ -69,7 +69,6 @@ const { productId, defaultVersion = "", changelogs = [] } = Astro.props;
         label={"Release Notes & Changes"}
         minHeight="140px"
         placeholder="<ul><li>Added new authentication provider</li><li>Optimized database queries</li></ul>"
-        required
       />
       <div class="flex items-center justify-end gap-2 pt-2">
         <button
@@ -171,7 +170,6 @@ const { productId, defaultVersion = "", changelogs = [] } = Astro.props;
                   label="Changelog Release Notes"
                   value={log.content}
                   minHeight="140px"
-                  required
                 />
                 <div class="flex items-center justify-end gap-2 pt-2">
                   <button
