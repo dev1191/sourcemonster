@@ -199,27 +199,6 @@ const { productId, defaultVersion = "", changelogs = [] } = Astro.props;
   </div>
 </Card>
 
-<!-- Standalone Hidden Forms for Changelog Actions -->
-<form id="add-changelog-form" method="POST" class="hidden">
-  <input type="hidden" name="_action" value="add_changelog" />
-  <input type="hidden" name="changelog_version" id="add-cl-version-input" value="" />
-  <input type="hidden" name="changelog_date" id="add-cl-date-input" value="" />
-  <input type="hidden" name="changelog_content" id="add-cl-content-input" value="" />
-</form>
-
-<form id="update-changelog-form" method="POST" class="hidden">
-  <input type="hidden" name="_action" value="update_changelog" />
-  <input type="hidden" name="changelog_id" id="update-cl-id-input" value="" />
-  <input type="hidden" name="changelog_version" id="update-cl-version-input" value="" />
-  <input type="hidden" name="changelog_date" id="update-cl-date-input" value="" />
-  <input type="hidden" name="changelog_content" id="update-cl-content-input" value="" />
-</form>
-
-<form id="delete-changelog-form" method="POST" class="hidden">
-  <input type="hidden" name="_action" value="delete_changelog" />
-  <input type="hidden" name="changelog_id" id="delete-cl-id-input" value="" />
-</form>
-
 <script>
   // Toggle Standalone Add Changelog Box
   const toggleBtn = document.getElementById("toggle-changelog-btn");

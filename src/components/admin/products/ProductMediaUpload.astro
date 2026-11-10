@@ -97,12 +97,6 @@ const { currentThumbnailUrl, galleryItems = [], isEdit = false } = Astro.props;
           multiple={true}
           icon="image-plus"
         />
-
-        <!-- Standalone Form for Deleting Gallery Screenshots -->
-        <form id="delete-gallery-form" method="POST" class="hidden">
-          <input type="hidden" name="_action" value="delete_gallery_image" />
-          <input type="hidden" name="product_media_id" id="delete-gallery-pm-id" value="" />
-        </form>
       </div>
     )}
   </div>
