@@ -1,0 +1,13 @@
+---
+import type { HTMLAttributes } from "astro/types";
+
+import { paginationContent } from "./variants";
+
+type Props = HTMLAttributes<"ul">;
+
+const { class: className, ...rest } = Astro.props;
+---
+
+<ul {...rest} class={paginationContent({ class: className })} data-slot="pagination-content">
+  <slot />
+</ul>

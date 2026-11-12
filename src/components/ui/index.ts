@@ -1,7 +1,7 @@
 export { default as Button } from "./Button.astro";
 export { default as Card } from "./Card.astro";
 export { default as Table } from "./Table.astro";
-export type { TableFilterItem } from "./Table.astro";
+export type { TableFilterItem, TablePaginationConfig } from "./Table.astro";
 export { default as Dropzone } from "./Dropzone.astro";
 export { default as Toast } from "./Toast.astro";
 export { default as ConfirmDialog } from "./ConfirmDialog.astro";
@@ -51,3 +51,14 @@ export {
   DropzoneLoadingIndicator,
   DropzoneUploadIndicator,
 } from "../starwind/dropzone";
+
+// Starwind Pagination primitives
+export {
+  Pagination,
+  PaginationContent,
+  PaginationEllipsis,
+  PaginationItem,
+  PaginationLink,
+  PaginationNext,
+  PaginationPrevious,
+} from "../starwind/pagination";

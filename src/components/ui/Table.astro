@@ -1,6 +1,15 @@
 ---
 import type { HTMLAttributes } from "astro/types";
 import { Table as StarwindTable } from "../starwind/table";
+import {
+  Pagination,
+  PaginationContent,
+  PaginationItem,
+  PaginationLink,
+  PaginationNext,
+  PaginationPrevious,
+  PaginationEllipsis,
+} from "../starwind/pagination";
 
 export interface TableFilterItem {
   label: string;
@@ -8,6 +17,16 @@ export interface TableFilterItem {
   href?: string;
   active?: boolean;
   count?: number;
+}
+
+export interface TablePaginationConfig {
+  currentPage?: number;
+  totalPages?: number;
+  totalItems?: number;
+  pageSize?: number;
+  pageParamName?: string;
+  baseUrl?: string;
+  showPageSummary?: boolean;
 }
 
 interface Props extends HTMLAttributes<"table"> {
@@ -29,6 +48,17 @@ interface Props extends HTMLAttributes<"table"> {
   filters?: TableFilterItem[];
   filterParamName?: string;
   activeFilter?: string;
+
+  // Pagination capabilities
+  pagination?: TablePaginationConfig | boolean;
+  currentPage?: number;
+  totalPages?: number;
+  totalItems?: number;
+  pageSize?: number;
+  pageParamName?: string;
+  baseUrl?: string;
+  showPageSummary?: boolean;
+  clientPagination?: boolean;
 }
 
 const {
@@ -48,6 +78,16 @@ const {
   filters = [],
   filterParamName = "status",
   activeFilter,
+
+  pagination = false,
+  currentPage,
+  totalPages,
+  totalItems,
+  pageSize,
+  pageParamName,
+  baseUrl,
+  showPageSummary,
+  clientPagination = false,
   ...rest
 } = Astro.props;
 
@@ -57,10 +97,60 @@ const hasCustomEmpty = Astro.slots.has("empty");
 const hasToolbarSlot = Astro.slots.has("toolbar");
 const hasFiltersSlot = Astro.slots.has("filters");
 const hasActionsSlot = Astro.slots.has("actions");
+const hasCustomPagination = Astro.slots.has("pagination");
 
 const showSearch = searchable || Boolean(searchAction);
 const hasFilters = filters.length > 0 || hasFiltersSlot;
 const hasHeaderBar = hasToolbarSlot || showSearch || hasFilters || hasActionsSlot;
+
+// Resolved pagination settings
+const paginationConfig: TablePaginationConfig = typeof pagination === "object" ? pagination : {};
+const resolvedCurrentPage = currentPage ?? paginationConfig.currentPage ?? 1;
+const resolvedTotalPages = totalPages ?? paginationConfig.totalPages ?? 1;
+const resolvedTotalItems = totalItems ?? paginationConfig.totalItems;
+const resolvedPageSize = pageSize ?? paginationConfig.pageSize ?? 10;
+const resolvedPageParamName = pageParamName ?? paginationConfig.pageParamName ?? "page";
+const resolvedBaseUrl = baseUrl ?? paginationConfig.baseUrl;
+const resolvedShowPageSummary = showPageSummary ?? paginationConfig.showPageSummary ?? true;
+
+const hasServerPagination = resolvedTotalPages > 1 || Boolean(pagination);
+const hasPaginationFooter = hasCustomPagination || (hasServerPagination && !isEmpty) || clientPagination;
+
+// Helper to generate range with ellipses: e.g. [1, "ellipsis-start", 4, 5, 6, "ellipsis-end", 10]
+function getPaginationRange(current: number, total: number): (number | string)[] {
+  if (total <= 7) {
+    return Array.from({ length: total }, (_, i) => i + 1);
+  }
+
+  if (current <= 3) {
+    return [1, 2, 3, 4, "ellipsis-end", total];
+  }
+
+  if (current >= total - 2) {
+    return [1, "ellipsis-start", total - 3, total - 2, total - 1, total];
+  }
+
+  return [1, "ellipsis-start", current - 1, current, current + 1, "ellipsis-end", total];
+}
+
+const pageNumbers = getPaginationRange(resolvedCurrentPage, resolvedTotalPages);
+
+const startItem = resolvedTotalItems !== undefined && resolvedTotalItems > 0
+  ? (resolvedCurrentPage - 1) * resolvedPageSize + 1
+  : 0;
+const endItem = resolvedTotalItems !== undefined
+  ? Math.min(resolvedCurrentPage * resolvedPageSize, resolvedTotalItems)
+  : 0;
+
+const getPageUrl = (page: number) => {
+  if (resolvedBaseUrl) {
+    const separator = resolvedBaseUrl.includes("?") ? "&" : "?";
+    return `${resolvedBaseUrl}${separator}${resolvedPageParamName}=${page}`;
+  }
+  const url = new URL(Astro.url);
+  url.searchParams.set(resolvedPageParamName, page.toString());
+  return `${url.pathname}?${url.searchParams.toString()}`;
+};
 ---
 
 <div
@@ -234,6 +324,93 @@ const hasHeaderBar = hasToolbarSlot || showSearch || hasFilters || hasActionsSlo
       </div>
     )
   }
+
+  {/* Table Footer / Pagination */}
+  {hasPaginationFooter && (
+    <div
+      data-table-footer
+      class="px-4 py-3 border-t border-slate-200 dark:border-slate-800/80 bg-slate-50/70 dark:bg-slate-950/40 flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-xs text-slate-500 dark:text-slate-400"
+    >
+      {hasCustomPagination ? (
+        <slot name="pagination" />
+      ) : hasServerPagination ? (
+        <>
+          {/* Summary */}
+          {resolvedShowPageSummary && (
+            <div class="text-xs text-slate-500 dark:text-slate-400">
+              {resolvedTotalItems !== undefined ? (
+                <>
+                  Showing <span class="font-semibold text-slate-800 dark:text-slate-200">{startItem}</span> to{" "}
+                  <span class="font-semibold text-slate-800 dark:text-slate-200">{endItem}</span> of{" "}
+                  <span class="font-semibold text-slate-800 dark:text-slate-200">{resolvedTotalItems}</span> records
+                </>
+              ) : (
+                <>
+                  Page <span class="font-semibold text-slate-800 dark:text-slate-200">{resolvedCurrentPage}</span> of{" "}
+                  <span class="font-semibold text-slate-800 dark:text-slate-200">{resolvedTotalPages}</span>
+                </>
+              )}
+            </div>
+          )}
+
+          {/* Starwind Pagination Controls */}
+          {resolvedTotalPages > 1 && (
+            <Pagination class="w-auto mx-0 justify-end">
+              <PaginationContent class="gap-1">
+                {/* Previous Button */}
+                <PaginationItem>
+                  <PaginationPrevious
+                    href={resolvedCurrentPage > 1 ? getPageUrl(resolvedCurrentPage - 1) : undefined}
+                    class={resolvedCurrentPage <= 1 ? "pointer-events-none opacity-40 cursor-not-allowed" : "cursor-pointer"}
+                    size="sm"
+                  />
+                </PaginationItem>
+
+                {/* Page Number Links with Ellipsis */}
+                {pageNumbers.map((p) => {
+                  if (p === "ellipsis-start" || p === "ellipsis-end") {
+                    return (
+                      <PaginationItem>
+                        <PaginationEllipsis size="icon-sm" />
+                      </PaginationItem>
+                    );
+                  }
+                  const pageNum = Number(p);
+                  const isCurrent = pageNum === resolvedCurrentPage;
+                  return (
+                    <PaginationItem>
+                      <PaginationLink
+                        href={getPageUrl(pageNum)}
+                        isActive={isCurrent}
+                        size="icon-sm"
+                        class={isCurrent ? "font-bold shadow-xs" : ""}
+                      >
+                        {pageNum}
+                      </PaginationLink>
+                    </PaginationItem>
+                  );
+                })}
+
+                {/* Next Button */}
+                <PaginationItem>
+                  <PaginationNext
+                    href={resolvedCurrentPage < resolvedTotalPages ? getPageUrl(resolvedCurrentPage + 1) : undefined}
+                    class={resolvedCurrentPage >= resolvedTotalPages ? "pointer-events-none opacity-40 cursor-not-allowed" : "cursor-pointer"}
+                    size="sm"
+                  />
+                </PaginationItem>
+              </PaginationContent>
+            </Pagination>
+          )}
+        </>
+      ) : clientPagination ? (
+        <div data-client-pagination-container class="w-full flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+          <div data-client-pagination-summary class="text-xs text-slate-500 dark:text-slate-400"></div>
+          <div data-client-pagination-controls class="flex items-center gap-1 justify-end"></div>
+        </div>
+      ) : null}
+    </div>
+  )}
 </div>
 
 {/* Client-side Live Search Script */}
@@ -313,3 +490,4 @@ const hasHeaderBar = hasToolbarSlot || showSearch || hasFilters || hasActionsSlo
     })();
   </script>
 )}
+
