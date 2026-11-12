@@ -22,7 +22,8 @@ if (Astro.request.method === "POST") {
       const faqId = formData.get("faqId")?.toString();
       if (faqId) {
         await deleteFaq(faqId);
-        return Astro.redirect("/admin/faqs");
+        const search = Astro.url.search;
+        return Astro.redirect(`/admin/faqs${search}`);
       }
     }
   } catch (e) {
@@ -31,7 +32,18 @@ if (Astro.request.method === "POST") {
 }
 
 const selectedCategory = Astro.url.searchParams.get("category") || "";
-const allFaqs = await getAllAdminFaqs(selectedCategory);
+const currentPage = Math.max(1, parseInt(Astro.url.searchParams.get("page") || "1", 10));
+const pageSize = 10;
+const searchQuery = Astro.url.searchParams.get("q") || "";
+
+const faqsData = await getAllAdminFaqs({
+  category: selectedCategory,
+  page: currentPage,
+  pageSize,
+  search: searchQuery,
+});
+
+const allFaqs = faqsData.items;
 const categories = await getFaqCategories();
 ---
 
@@ -41,7 +53,7 @@ const categories = await getFaqCategories();
       <div class="flex items-center gap-2">
         <h1 class="text-2xl font-black text-slate-900 dark:text-white tracking-tight">Frequently Asked Questions</h1>
         <Badge variant="outline" class="border-primary/40 text-primary text-[10px] font-mono">
-          {allFaqs.length} {allFaqs.length === 1 ? "FAQ" : "FAQs"}
+          {faqsData.total} {faqsData.total === 1 ? "FAQ" : "FAQs"}
         </Badge>
       </div>
       <p class="text-xs text-slate-500 dark:text-slate-400 mt-1">
@@ -62,15 +74,22 @@ const categories = await getFaqCategories();
     emptySubtitle="Create helpful question and answer pairs displayed on the public landing page."
     searchable={true}
     searchPlaceholder="Search questions or answers..."
+    searchAction="/admin/faqs"
+    searchParamName="q"
+    searchValue={searchQuery}
     filters={[
-      { label: "All Categories", value: "", href: "/admin/faqs", active: !selectedCategory },
+      { label: "All Categories", value: "", href: `/admin/faqs${searchQuery ? `?q=${encodeURIComponent(searchQuery)}` : ""}`, active: !selectedCategory },
       ...categories.map((c) => ({
         label: c,
         value: c,
-        href: `/admin/faqs?category=${encodeURIComponent(c)}`,
+        href: `/admin/faqs?category=${encodeURIComponent(c)}${searchQuery ? `&q=${encodeURIComponent(searchQuery)}` : ""}`,
         active: selectedCategory === c,
       })),
     ]}
+    currentPage={faqsData.page}
+    totalPages={faqsData.totalPages}
+    totalItems={faqsData.total}
+    pageSize={faqsData.pageSize}
     containerClass="my-6"
   >
     <div slot="empty-action" class="flex items-center justify-center gap-3">
