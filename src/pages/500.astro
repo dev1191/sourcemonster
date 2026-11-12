@@ -1,0 +1,54 @@
+---
+interface Props {
+  error: unknown;
+}
+
+const { error } = Astro.props;
+console.error("[Astro 500 Internal Server Error Caught]:", error);
+
+let errorMessage = "An unexpected server error occurred.";
+if (error instanceof Error) {
+  errorMessage = error.message;
+}
+---
+
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>500 Internal Server Error | SourceMonster</title>
+    <link rel="icon" type="image/png" href="/favicon.png" />
+  </head>
+  <body class="min-h-screen bg-slate-950 text-slate-100 flex items-center justify-center p-4 font-sans">
+    <div class="max-w-md w-full bg-slate-900 border border-slate-800 rounded-3xl p-8 text-center shadow-2xl">
+      <div class="w-16 h-16 rounded-2xl bg-rose-500/10 text-rose-500 flex items-center justify-center mx-auto mb-6 border border-rose-500/20 text-2xl font-black font-mono">
+        500
+      </div>
+      <h1 class="text-2xl font-black tracking-tight text-white mb-2">Internal Server Error</h1>
+      <p class="text-xs sm:text-sm text-slate-400 mb-6 leading-relaxed">
+        The server encountered an issue processing this request. The incident has been recorded in the application logs.
+      </p>
+      {import.meta.env.DEV && (
+        <pre class="mb-6 p-4 rounded-xl bg-slate-950 border border-slate-800 text-left text-[11px] text-rose-400 overflow-x-auto font-mono max-h-40">
+          {errorMessage}
+        </pre>
+      )}
+      <div class="flex items-center justify-center gap-3">
+        <a
+          href="/admin"
+          class="px-5 py-2.5 rounded-xl bg-primary hover:bg-orange-600 text-white text-xs font-bold transition shadow-md shadow-primary/20"
+        >
+          Return to Dashboard
+        </a>
+        <a
+          href="/"
+          class="px-5 py-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs font-semibold transition border border-slate-700"
+        >
+          Go Home
+        </a>
+      </div>
+    </div>
+  </body>
+</html>
+

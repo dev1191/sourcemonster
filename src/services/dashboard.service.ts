@@ -15,46 +15,61 @@ export interface DashboardMetrics {
 }
 
 export async function getDashboardMetrics(): Promise<DashboardMetrics> {
-  const [projectsCountRes] = await db.select({ value: count() }).from(projects);
-  const totalProjectsCount = projectsCountRes?.value ?? 0;
+  try {
+    const [projectsCountRes] = await db.select({ value: count() }).from(projects);
+    const totalProjectsCount = projectsCountRes?.value ?? 0;
 
-  const [publishedRes] = await db
-    .select({ value: count() })
-    .from(projects)
-    .where(eq(projects.status, "published"));
-  const publishedProjectsCount = publishedRes?.value ?? 0;
+    const [publishedRes] = await db
+      .select({ value: count() })
+      .from(projects)
+      .where(eq(projects.status, "published"));
+    const publishedProjectsCount = publishedRes?.value ?? 0;
 
-  const [leadsCountRes] = await db.select({ value: count() }).from(leads);
-  const totalLeadsCount = leadsCountRes?.value ?? 0;
+    const [leadsCountRes] = await db.select({ value: count() }).from(leads);
+    const totalLeadsCount = leadsCountRes?.value ?? 0;
 
-  const [newLeadsRes] = await db
-    .select({ value: count() })
-    .from(leads)
-    .where(eq(leads.status, "new"));
-  const newLeadsCount = newLeadsRes?.value ?? 0;
+    const [newLeadsRes] = await db
+      .select({ value: count() })
+      .from(leads)
+      .where(eq(leads.status, "new"));
+    const newLeadsCount = newLeadsRes?.value ?? 0;
 
-  const recentProjects = await db
-    .select()
-    .from(projects)
-    .orderBy(desc(projects.updatedAt))
-    .limit(5);
+    const recentProjects = await db
+      .select()
+      .from(projects)
+      .orderBy(desc(projects.updatedAt))
+      .limit(5);
 
-  const recentLeads = await db
-    .select()
-    .from(leads)
-    .orderBy(desc(leads.createdAt))
-    .limit(5);
+    const recentLeads = await db
+      .select()
+      .from(leads)
+      .orderBy(desc(leads.createdAt))
+      .limit(5);
 
-  return {
-    totalProjectsCount,
-    publishedProjectsCount,
-    totalProductsCount: totalProjectsCount,
-    publishedProductsCount,
-    totalLeadsCount,
-    newLeadsCount,
-    recentProjects,
-    recentProducts: recentProjects,
-    recentLeads,
-  };
+    return {
+      totalProjectsCount,
+      publishedProjectsCount,
+      totalProductsCount: totalProjectsCount,
+      publishedProductsCount,
+      totalLeadsCount,
+      newLeadsCount,
+      recentProjects,
+      recentProducts: recentProjects,
+      recentLeads,
+    };
+  } catch (error) {
+    console.error("[DashboardService] Failed to load dashboard metrics:", error);
+    return {
+      totalProjectsCount: 0,
+      publishedProjectsCount: 0,
+      totalProductsCount: 0,
+      publishedProductsCount: 0,
+      totalLeadsCount: 0,
+      newLeadsCount: 0,
+      recentProjects: [],
+      recentProducts: [],
+      recentLeads: [],
+    };
+  }
 }
 
