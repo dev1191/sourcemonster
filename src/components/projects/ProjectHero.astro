@@ -73,15 +73,15 @@ const formattedDate = new Date(lastUpdatedDate).toLocaleDateString("en-US", {
           </span>
 
           {product.version && (
-            <span class="px-3 py-1 rounded-full bg-slate-200/80 dark:bg-slate-900 border border-slate-300 dark:border-slate-800 text-slate-700 dark:text-slate-300 text-xs font-mono font-semibold">
-              {product.version}
+            <span class="px-3 py-1 rounded-full bg-white dark:bg-white/[0.04] border border-slate-200 dark:border-white/10 text-slate-700 dark:text-slate-300 text-xs font-mono font-semibold">
+              v{product.version}
             </span>
           )}
 
           {product.isFeatured && (
-            <span class="inline-flex items-center gap-1 px-3 py-1 rounded-full bg-amber-500/10 border border-amber-500/20 text-amber-600 dark:text-amber-400 text-xs font-bold uppercase tracking-wider">
+            <span class="inline-flex items-center gap-1 px-3 py-1 rounded-full bg-primary text-white text-xs font-bold uppercase tracking-wider shadow-sm shadow-primary/30">
               <i data-lucide="sparkles" class="w-3.5 h-3.5"></i>
-              Featured Architecture
+              Featured
             </span>
           )}
 
@@ -105,7 +105,7 @@ const formattedDate = new Date(lastUpdatedDate).toLocaleDateString("en-US", {
           <div class="flex flex-wrap items-center gap-2">
             <span class="text-xs uppercase tracking-wider text-slate-500 font-mono font-bold mr-1">Stack:</span>
             {product.technologies.map((t) => (
-              <span class="px-3 py-1 rounded-xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 text-xs font-semibold text-slate-700 dark:text-slate-300 font-mono shadow-xs hover:border-primary/40 transition">
+              <span class="px-3 py-1 rounded-full bg-white dark:bg-white/[0.04] border border-slate-200 dark:border-white/10 text-xs font-semibold text-slate-700 dark:text-slate-300 font-mono shadow-xs hover:border-primary/40 transition">
                 {t}
               </span>
             ))}
@@ -114,27 +114,27 @@ const formattedDate = new Date(lastUpdatedDate).toLocaleDateString("en-US", {
       </div>
 
       <!-- Quick Stat Card in Hero (Desktop) -->
-      <div class="lg:col-span-4 bg-white/70 dark:bg-slate-900/60 backdrop-blur-xl border border-slate-200 dark:border-slate-800 rounded-3xl p-5 shadow-lg">
+      <div class="lg:col-span-4 bg-white dark:bg-white/[0.02] backdrop-blur-xl border border-slate-200 dark:border-white/[0.08] rounded-3xl p-5 shadow-lg">
         <div class="grid grid-cols-2 gap-4 text-center">
-          <div class="p-3 bg-slate-50 dark:bg-slate-950/70 rounded-2xl border border-slate-200/80 dark:border-slate-800/80">
+          <div class="p-3 bg-slate-50 dark:bg-[#070913] rounded-2xl border border-slate-200/80 dark:border-white/[0.06]">
             <div class="text-[11px] font-mono uppercase tracking-wider text-slate-500 dark:text-slate-400">Add-ons</div>
             <div class="text-xl font-black text-slate-900 dark:text-white mt-1">
               {addonsCount} <span class="text-xs font-normal text-slate-500">modules</span>
             </div>
           </div>
-          <div class="p-3 bg-slate-50 dark:bg-slate-950/70 rounded-2xl border border-slate-200/80 dark:border-slate-800/80">
+          <div class="p-3 bg-slate-50 dark:bg-[#070913] rounded-2xl border border-slate-200/80 dark:border-white/[0.06]">
             <div class="text-[11px] font-mono uppercase tracking-wider text-slate-500 dark:text-slate-400">Updates</div>
             <div class="text-xl font-black text-primary mt-1">
               {changelogsCount} <span class="text-xs font-normal text-slate-500">releases</span>
             </div>
           </div>
-          <div class="p-3 bg-slate-50 dark:bg-slate-950/70 rounded-2xl border border-slate-200/80 dark:border-slate-800/80">
+          <div class="p-3 bg-slate-50 dark:bg-[#070913] rounded-2xl border border-slate-200/80 dark:border-white/[0.06]">
             <div class="text-[11px] font-mono uppercase tracking-wider text-slate-500 dark:text-slate-400">Last Release</div>
             <div class="text-xs font-bold text-slate-800 dark:text-slate-200 mt-1.5 truncate">
               {formattedDate}
             </div>
           </div>
-          <div class="p-3 bg-slate-50 dark:bg-slate-950/70 rounded-2xl border border-slate-200/80 dark:border-slate-800/80">
+          <div class="p-3 bg-slate-50 dark:bg-[#070913] rounded-2xl border border-slate-200/80 dark:border-white/[0.06]">
             <div class="text-[11px] font-mono uppercase tracking-wider text-slate-500 dark:text-slate-400">License</div>
             <div class="text-xs font-bold text-emerald-600 dark:text-emerald-400 mt-1.5">
               Commercial
