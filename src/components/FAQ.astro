@@ -1,0 +1,186 @@
+---
+import { getPublishedFaqs } from "../services";
+
+// Default fallback FAQs if none exist in the database yet
+const defaultFaqs = [
+  {
+    question: "What types of software projects does SourceMonster provide?",
+    answer: "We engineer production-grade commercial software products including complete multi-vendor SaaS boilerplates, delivery & logistics systems, AI management platforms, CRM solutions, and full-stack web applications. Each project comes with thoroughly documented source code, database schemas, and deployment guides.",
+    category: "Projects",
+  },
+  {
+    question: "Do I get full access to the source code?",
+    answer: "Yes, 100%. When you purchase our commercial projects or hire our custom development services, you receive full, unencrypted source code (frontend, backend, database migrations, and Docker configurations). There are no obfuscated modules or hidden dependencies.",
+    category: "Licensing",
+  },
+  {
+    question: "Can SourceMonster customize a project for my business requirements?",
+    answer: "Absolutely. In addition to our pre-built commercial software, our engineering team specializes in custom software development, third-party API integrations, payment gateway setups, design overhauls, and bespoke business features tailored to your specific workflows.",
+    category: "Customization",
+  },
+  {
+    question: "How do updates and support work for purchased projects?",
+    answer: "All our commercial projects receive ongoing maintenance, bug fixes, and security patches. You can review detailed version changelogs on each project's page. We also offer dedicated technical support, documentation assistance, and custom SLA agreements.",
+    category: "Support",
+  },
+  {
+    question: "What tech stack is used across your commercial platforms?",
+    answer: "We build with modern, high-performance technologies including Astro, Next.js, React, Node.js, TypeScript, PostgreSQL, Drizzle ORM, Docker, and Tailwind CSS. All platforms are architected for sub-second response times, rock-solid security, and scalable cloud deployments.",
+    category: "General",
+  },
+  {
+    question: "How quickly can a project be deployed to my production server?",
+    answer: "Because our projects include production-ready Docker Compose configurations and automated deployment scripts, typical deployment to a VPS (such as DigitalOcean, AWS, or Hetzner) takes under 30 minutes with our step-by-step documentation.",
+    category: "Projects",
+  },
+];
+
+let faqsList: Array<{
+  question: string;
+  answer: string;
+  category: string;
+}> = [];
+
+try {
+  const dbFaqs = await getPublishedFaqs();
+  if (dbFaqs && dbFaqs.length > 0) {
+    faqsList = dbFaqs.map((f) => ({
+      question: f.question,
+      answer: f.answer,
+      category: f.category || "General",
+    }));
+  } else {
+    faqsList = defaultFaqs;
+  }
+} catch {
+  faqsList = defaultFaqs;
+}
+
+// Extract distinct categories
+const categories = ["All", ...Array.from(new Set(faqsList.map((f) => f.category)))];
+---
+
+<section id="faq" class="py-20 sm:py-32 bg-slate-50 dark:bg-slate-950 relative overflow-hidden transition-colors border-t border-slate-200/80 dark:border-slate-800/80">
+  <!-- Subtle ambient background glow -->
+  <div class="absolute -top-40 right-1/4 w-96 h-96 bg-primary/5 rounded-full blur-3xl pointer-events-none"></div>
+  <div class="absolute -bottom-40 left-1/4 w-96 h-96 bg-primary/5 rounded-full blur-3xl pointer-events-none"></div>
+
+  <div class="max-w-5xl mx-auto px-4 sm:px-6 relative z-10">
+    <!-- Header -->
+    <div class="text-center mb-12 sm:mb-16">
+      <div class="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-primary/10 text-primary text-xs font-mono font-bold tracking-widest uppercase mb-4 border border-primary/20">
+        <span class="w-2 h-2 rounded-full bg-primary animate-pulse"></span>
+        <span>Got Questions?</span>
+      </div>
+      <h2 class="text-3xl xs:text-4xl sm:text-5xl font-black font-heading tracking-tight text-slate-900 dark:text-white">
+        FREQUENTLY ASKED <span class="text-gradient">QUESTIONS.</span>
+      </h2>
+      <p class="max-w-xl mx-auto text-sm sm:text-base text-slate-600 dark:text-slate-400 mt-4">
+        Clear answers about our commercial platforms, licensing terms, code access, and customization capabilities.
+      </p>
+    </div>
+
+    <!-- Category Filter Tabs -->
+    {categories.length > 2 && (
+      <div class="flex flex-wrap items-center justify-center gap-2 mb-10" id="faq-filter-container">
+        {categories.map((cat, idx) => (
+          <button
+            type="button"
+            data-category={cat}
+            class={`faq-filter-btn px-4 py-1.5 rounded-full text-xs font-semibold tracking-wide transition cursor-pointer ${
+              idx === 0
+                ? "bg-primary text-white shadow-md shadow-primary/20"
+                : "bg-white dark:bg-slate-900 text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white border border-slate-200 dark:border-slate-800"
+            }`}
+          >
+            {cat}
+          </button>
+        ))}
+      </div>
+    )}
+
+    <!-- FAQ Accordion List -->
+    <div class="space-y-4" id="faq-list">
+      {faqsList.map((faq, index) => (
+        <details
+          class="faq-item group bg-white dark:bg-slate-900/80 border border-slate-200 dark:border-slate-800/80 rounded-2xl overflow-hidden transition-all duration-300 hover:border-primary/50 shadow-sm hover:shadow-md"
+          data-category={faq.category}
+          open={index === 0}
+        >
+          <summary class="flex items-center justify-between p-5 sm:p-6 cursor-pointer list-none select-none">
+            <div class="flex items-center gap-3.5 pr-4">
+              <span class="w-7 h-7 rounded-lg bg-primary/10 text-primary flex items-center justify-center font-mono text-xs font-bold shrink-0">
+                {String(index + 1).padStart(2, "0")}
+              </span>
+              <h3 class="font-bold text-slate-900 dark:text-white text-base sm:text-lg group-open:text-primary transition-colors">
+                {faq.question}
+              </h3>
+            </div>
+            <div class="w-8 h-8 rounded-full bg-slate-100 dark:bg-slate-800 flex items-center justify-center text-slate-500 dark:text-slate-400 group-hover:text-primary transition shrink-0">
+              <i data-lucide="chevron-down" class="w-4 h-4 transition-transform duration-300 group-open:rotate-180"></i>
+            </div>
+          </summary>
+          <div class="px-5 sm:px-6 pb-6 pt-1 text-slate-600 dark:text-slate-300 text-sm sm:text-base leading-relaxed border-t border-slate-100 dark:border-slate-800/60 mt-1">
+            <p class="whitespace-pre-line">{faq.answer}</p>
+            <div class="mt-4 flex items-center gap-2">
+              <span class="text-[11px] font-mono font-medium px-2 py-0.5 rounded bg-slate-100 dark:bg-slate-800 text-slate-500 dark:text-slate-400 border border-slate-200 dark:border-slate-700/60">
+                #{faq.category}
+              </span>
+            </div>
+          </div>
+        </details>
+      ))}
+    </div>
+
+    <!-- Quick Question CTA card -->
+    <div class="mt-14 p-6 sm:p-8 rounded-3xl bg-linear-to-r from-primary/10 via-primary/5 to-transparent border border-primary/20 flex flex-col sm:flex-row items-center justify-between gap-6">
+      <div>
+        <h4 class="text-lg font-bold text-slate-900 dark:text-white">Have a specific question not covered here?</h4>
+        <p class="text-xs sm:text-sm text-slate-600 dark:text-slate-400 mt-1">
+          Our engineering leads are ready to answer your technical questions and discuss project timelines.
+        </p>
+      </div>
+      <div class="flex items-center gap-3 shrink-0">
+        <a
+          href="#contact"
+          class="px-5 py-2.5 rounded-xl bg-primary hover:bg-orange-600 text-white font-semibold text-xs transition shadow-md shadow-primary/20 flex items-center gap-2"
+        >
+          <i data-lucide="send" class="w-3.5 h-3.5"></i>
+          <span>Ask Us Directly</span>
+        </a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<script is:inline>
+  document.addEventListener("DOMContentLoaded", () => {
+    const filterButtons = document.querySelectorAll(".faq-filter-btn");
+    const faqItems = document.querySelectorAll(".faq-item");
+
+    filterButtons.forEach((btn) => {
+      btn.addEventListener("click", () => {
+        const category = btn.getAttribute("data-category");
+
+        // Update active button state
+        filterButtons.forEach((b) => {
+          b.classList.remove("bg-primary", "text-white", "shadow-md", "shadow-primary/20");
+          b.classList.add("bg-white", "dark:bg-slate-900", "text-slate-600", "dark:text-slate-400");
+        });
+        btn.classList.add("bg-primary", "text-white", "shadow-md", "shadow-primary/20");
+        btn.classList.remove("bg-white", "dark:bg-slate-900", "text-slate-600", "dark:text-slate-400");
+
+        // Filter accordion items
+        faqItems.forEach((item) => {
+          const itemCat = item.getAttribute("data-category");
+          if (category === "All" || itemCat === category) {
+            item.style.display = "block";
+          } else {
+            item.style.display = "none";
+          }
+        });
+      });
+    });
+  });
+</script>
+

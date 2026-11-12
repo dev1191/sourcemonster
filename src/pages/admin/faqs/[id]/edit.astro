@@ -1,0 +1,212 @@
+---
+import AdminLayout from "../../../../layouts/AdminLayout.astro";
+import { getFaqById, updateFaq, deleteFaq, getFaqCategories } from "../../../../services";
+import { Button, Toast, ConfirmDialog } from "../../../../components/ui";
+import { Card, CardHeader, CardTitle, CardContent } from "../../../../components/starwind/card";
+import { Input } from "../../../../components/starwind/input";
+import { Textarea } from "../../../../components/starwind/textarea";
+
+const { id } = Astro.params;
+
+if (!id) {
+  return Astro.redirect("/admin/faqs");
+}
+
+let errorMessage = "";
+let successMessage = "";
+
+const faq = await getFaqById(id);
+if (!faq) {
+  return Astro.redirect("/admin/faqs");
+}
+
+const existingCategories = await getFaqCategories();
+
+if (Astro.request.method === "POST") {
+  try {
+    const formData = await Astro.request.formData();
+    const action = formData.get("_action")?.toString();
+
+    if (action === "delete") {
+      await deleteFaq(id);
+      return Astro.redirect("/admin/faqs");
+    }
+
+    const question = formData.get("question")?.toString().trim() || "";
+    const answer = formData.get("answer")?.toString().trim() || "";
+    const category = formData.get("category")?.toString().trim() || "General";
+    const sortOrder = parseInt(formData.get("sortOrder")?.toString() || "0", 10);
+    const isPublished = formData.get("isPublished") === "on";
+
+    if (!question) {
+      throw new Error("Question is required.");
+    }
+    if (!answer) {
+      throw new Error("Answer is required.");
+    }
+
+    await updateFaq(id, {
+      question,
+      answer,
+      category,
+      sortOrder,
+      isPublished,
+    });
+
+    successMessage = "FAQ updated successfully!";
+    // Refresh faq state
+    const refreshed = await getFaqById(id);
+    if (refreshed) {
+      Object.assign(faq, refreshed);
+    }
+  } catch (err: any) {
+    console.error("Update FAQ failed:", err);
+    errorMessage = err?.message || "An unexpected error occurred while updating the FAQ.";
+  }
+}
+---
+
+<AdminLayout title={`Edit FAQ | SourceMonster Admin`} activeNav="faqs">
+  <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-6 border-b border-slate-200 dark:border-slate-800">
+    <div>
+      <div class="flex items-center gap-2 text-xs text-slate-500 dark:text-slate-400 mb-1">
+        <a href="/admin/faqs" class="hover:text-slate-900 dark:hover:text-white transition">FAQs</a>
+        <span>/</span>
+        <span class="text-slate-900 dark:text-white truncate max-w-xs">{faq.question}</span>
+      </div>
+      <div class="flex items-center gap-3">
+        <h1 class="text-2xl font-black text-slate-900 dark:text-white tracking-tight">Edit FAQ</h1>
+        {faq.isPublished ? (
+          <span class="px-2 py-0.5 rounded text-[11px] font-semibold bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20">
+            Published
+          </span>
+        ) : (
+          <span class="px-2 py-0.5 rounded text-[11px] font-semibold bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 border border-slate-200 dark:border-slate-700">
+            Draft
+          </span>
+        )}
+      </div>
+    </div>
+    <div class="flex items-center gap-3">
+      <Button href="/admin/faqs" variant="secondary" size="sm" icon="arrow-left">
+        Back to FAQs
+      </Button>
+      <ConfirmDialog
+        title="Delete FAQ"
+        description={`Are you sure you want to delete "${faq.question}"? This action cannot be undone.`}
+        confirmText="Delete FAQ"
+        confirmVariant="destructive"
+        confirmIcon="trash-2"
+        icon="trash-2"
+        formMethod="POST"
+      >
+        <input type="hidden" name="_action" value="delete" slot="form-fields" />
+        <Button slot="trigger" type="button" variant="destructive" size="sm" icon="trash-2">
+          Delete
+        </Button>
+      </ConfirmDialog>
+    </div>
+  </div>
+
+  <Toast variant="error" message={errorMessage} />
+  <Toast variant="success" message={successMessage} />
+
+  <form method="POST" class="my-6 space-y-6 max-w-3xl">
+    <Card class="bg-white dark:bg-slate-900/70 border border-slate-200 dark:border-slate-800/80 rounded-2xl p-6 shadow-sm dark:shadow-xl">
+      <CardHeader class="p-0 pb-4 mb-4 border-b border-slate-200 dark:border-slate-800">
+        <CardTitle class="text-sm font-bold text-primary uppercase tracking-wider flex items-center gap-2">
+          <i data-lucide="help-circle" class="w-4 h-4"></i>
+          <span>FAQ Content</span>
+        </CardTitle>
+      </CardHeader>
+      <CardContent class="p-0 space-y-5">
+        <!-- Question -->
+        <div>
+          <label class="block text-xs font-semibold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-1.5">
+            Question *
+          </label>
+          <Input
+            name="question"
+            type="text"
+            required
+            value={faq.question}
+            class="w-full bg-white dark:bg-slate-950 border-slate-300 dark:border-slate-700/80 text-slate-900 dark:text-white rounded-xl"
+          />
+        </div>
+
+        <!-- Category & Sort Order -->
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <div>
+            <label class="block text-xs font-semibold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-1.5">
+              Category
+            </label>
+            <input
+              name="category"
+              list="category-suggestions"
+              value={faq.category}
+              class="w-full px-4 py-2.5 bg-white dark:bg-slate-950 border border-slate-300 dark:border-slate-700/80 rounded-xl text-slate-900 dark:text-white text-sm focus:border-primary focus:outline-hidden"
+            />
+            <datalist id="category-suggestions">
+              {existingCategories.map((c) => (
+                <option value={c} />
+              ))}
+            </datalist>
+            <p class="text-[11px] text-slate-500 mt-1">Group similar questions together on the website.</p>
+          </div>
+
+          <div>
+            <label class="block text-xs font-semibold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-1.5">
+              Sort Order
+            </label>
+            <Input
+              name="sortOrder"
+              type="number"
+              value={faq.sortOrder.toString()}
+              class="w-full bg-white dark:bg-slate-950 border-slate-300 dark:border-slate-700/80 text-slate-900 dark:text-white font-mono rounded-xl"
+            />
+            <p class="text-[11px] text-slate-500 mt-1">Lower numbers appear first (e.g. 0, 1, 2).</p>
+          </div>
+        </div>
+
+        <!-- Answer -->
+        <div>
+          <label class="block text-xs font-semibold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-1.5">
+            Answer *
+          </label>
+          <Textarea
+            name="answer"
+            required
+            rows={5}
+            class="w-full bg-white dark:bg-slate-950 border-slate-300 dark:border-slate-700/80 text-slate-900 dark:text-white rounded-xl"
+          >{faq.answer}</Textarea>
+        </div>
+
+        <!-- Published status -->
+        <div class="pt-2">
+          <label class="flex items-center gap-3 cursor-pointer">
+            <input
+              type="checkbox"
+              name="isPublished"
+              checked={faq.isPublished}
+              class="w-4 h-4 rounded text-primary bg-white dark:bg-slate-950 border-slate-300 dark:border-slate-700 focus:ring-primary"
+            />
+            <div>
+              <span class="text-sm font-semibold text-slate-900 dark:text-white">Published</span>
+              <p class="text-[11px] text-slate-500 dark:text-slate-400">Make this question visible to visitors on the website.</p>
+            </div>
+          </label>
+        </div>
+      </CardContent>
+    </Card>
+
+    <div class="flex items-center justify-end gap-3 pt-4 border-t border-slate-200 dark:border-slate-800">
+      <Button href="/admin/faqs" variant="secondary" size="md">
+        Cancel
+      </Button>
+      <Button type="submit" variant="primary" size="md" icon="check">
+        Save Changes
+      </Button>
+    </div>
+  </form>
+</AdminLayout>
+

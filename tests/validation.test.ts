@@ -1,6 +1,7 @@
 import { describe, it, expect } from "vitest";
 import { leadSubmissionSchema, escapeHtml } from "../src/lib/validation/lead";
 import { projectSchema, productSchema } from "../src/lib/validation/project";
+import { faqSchema } from "../src/lib/validation/faq";
 
 describe("Validation Schemas & HTML Sanitization", () => {
   describe("Lead Submission Schema", () => {
@@ -68,6 +69,34 @@ describe("Validation Schemas & HTML Sanitization", () => {
       expect(result.success).toBe(false);
       if (!result.success) {
         expect(result.error.flatten().fieldErrors.slug).toBeDefined();
+      }
+    });
+  });
+
+  describe("FAQ Validation Schema", () => {
+    it("should accept valid FAQ inputs", () => {
+      const valid = {
+        question: "Can I use this product for commercial client work?",
+        answer: "Yes, all our commercial templates include commercial usage rights.",
+        category: "Licensing",
+        sortOrder: 1,
+        isPublished: true,
+      };
+      const result = faqSchema.safeParse(valid);
+      expect(result.success).toBe(true);
+    });
+
+    it("should reject questions or answers that are too short", () => {
+      const invalid = {
+        question: "Hi",
+        answer: "",
+      };
+      const result = faqSchema.safeParse(invalid);
+      expect(result.success).toBe(false);
+      if (!result.success) {
+        const errors = result.error.flatten().fieldErrors;
+        expect(errors.question).toBeDefined();
+        expect(errors.answer).toBeDefined();
       }
     });
   });

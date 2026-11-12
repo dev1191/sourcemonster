@@ -5,3 +5,4 @@ export * from "./services.service";
 export * from "./testimonials.service";
 export * from "./dashboard.service";
 export * from "./backup.service";
+export * from "./faqs.service";
