@@ -1,0 +1,779 @@
+---
+import AdminLayout from "../../../../../layouts/AdminLayout.astro";
+import {
+  getAddonById,
+  updateAddon,
+  deleteAddon,
+  deleteAddonGalleryImage,
+  removeAddonThumbnail,
+  getAllAdminProjects,
+  createAddonChangeLog,
+  updateAddonChangeLog,
+  deleteAddonChangeLog,
+} from "../../../../../services";
+import { Button, Dropzone, Toast, ConfirmDialog, HtmlEditor, DatePicker } from "../../../../../components/ui";
+import { Card, CardHeader, CardTitle, CardContent } from "../../../../../components/starwind/card";
+import { Input } from "../../../../../components/starwind/input";
+import { Textarea } from "../../../../../components/starwind/textarea";
+
+const { id } = Astro.params;
+
+if (!id) {
+  return Astro.redirect("/admin/projects/addons");
+}
+
+let errorMessage = "";
+let successMessage = "";
+
+// Initial Check
+const initialAddon = await getAddonById(id);
+if (!initialAddon) {
+  return Astro.redirect("/admin/projects/addons");
+}
+
+// Fetch all parent projects
+const allProjects = await getAllAdminProjects();
+
+// Handle POST actions
+if (Astro.request.method === "POST") {
+  try {
+    const formData = await Astro.request.formData();
+    const action = formData.get("_action")?.toString();
+
+    // 1. Delete entire add-on
+    if (action === "delete") {
+      await deleteAddon(id);
+      return Astro.redirect("/admin/projects/addons");
+    }
+
+    // 2. Delete single gallery screenshot
+    if (action === "delete_screenshot") {
+      const pamId = formData.get("addon_media_id")?.toString();
+      if (pamId) {
+        await deleteAddonGalleryImage(pamId);
+        return Astro.redirect(`/admin/projects/addons/${id}/edit`);
+      }
+    }
+
+    // 3. Remove thumbnail
+    if (action === "delete_thumbnail") {
+      await removeAddonThumbnail(id);
+      return Astro.redirect(`/admin/projects/addons/${id}/edit`);
+    }
+
+    // 4. Add standalone changelog entry
+    if (action === "add_changelog") {
+      const changelogVersion = formData.get("changelog_version")?.toString().trim() || null;
+      const changelogDateRaw = formData.get("changelog_date")?.toString().trim();
+      const changelogContent = formData.get("changelog_content")?.toString().trim() || "";
+      if (changelogContent) {
+        const clDate = changelogDateRaw ? new Date(changelogDateRaw) : new Date();
+        await createAddonChangeLog({
+          addonId: id,
+          version: changelogVersion,
+          content: changelogContent,
+          createdAt: !isNaN(clDate.getTime()) ? clDate : new Date(),
+        });
+        return Astro.redirect(`/admin/projects/addons/${id}/edit`);
+      }
+    }
+
+    // 5. Update changelog entry
+    if (action === "update_changelog") {
+      const changelogId = formData.get("changelog_id")?.toString();
+      const changelogVersion = formData.get("changelog_version")?.toString().trim() || null;
+      const changelogDateRaw = formData.get("changelog_date")?.toString().trim();
+      const changelogContent = formData.get("changelog_content")?.toString().trim() || "";
+      if (changelogId && changelogContent) {
+        const clDate = changelogDateRaw ? new Date(changelogDateRaw) : null;
+        await updateAddonChangeLog(changelogId, {
+          version: changelogVersion,
+          content: changelogContent,
+          createdAt: clDate && !isNaN(clDate.getTime()) ? clDate : undefined,
+        });
+        return Astro.redirect(`/admin/projects/addons/${id}/edit`);
+      }
+    }
+
+    // 6. Delete changelog entry
+    if (action === "delete_changelog") {
+      const clId = formData.get("changelog_id")?.toString();
+      if (clId) {
+        await deleteAddonChangeLog(clId);
+        return Astro.redirect(`/admin/projects/addons/${id}/edit`);
+      }
+    }
+
+    // 4. Update Add-on details
+    const projectId = formData.get("projectId")?.toString().trim() || formData.get("productId")?.toString().trim() || "";
+    const title = formData.get("title")?.toString().trim() || "";
+    const description = formData.get("description")?.toString().trim() || null;
+    const isFree = formData.get("isFree") === "on";
+    const priceRaw = formData.get("price")?.toString().trim();
+    const buyUrl = formData.get("buyUrl")?.toString().trim() || null;
+    const demoUrl = formData.get("demoUrl")?.toString().trim() || null;
+    const sortOrder = parseInt(formData.get("sortOrder")?.toString() || "0", 10);
+
+    const thumbnailFile = formData.get("thumbnail") as File | null;
+    const galleryFiles = formData.getAll("screenshots") as File[];
+
+    await updateAddon(
+      id,
+      {
+        projectId,
+        title,
+        description,
+        isFree,
+        price: priceRaw,
+        buyUrl,
+        demoUrl,
+        sortOrder,
+      },
+      thumbnailFile,
+      galleryFiles
+    );
+
+    const newChangelog = formData.get("new_changelog_content")?.toString().trim();
+    const newChangelogDateRaw = formData.get("new_changelog_date")?.toString().trim();
+    if (newChangelog) {
+      const clDate = newChangelogDateRaw ? new Date(newChangelogDateRaw) : new Date();
+      await createAddonChangeLog({
+        addonId: id,
+        version: formData.get("changelog_version")?.toString().trim() || null,
+        content: newChangelog,
+        createdAt: !isNaN(clDate.getTime()) ? clDate : new Date(),
+      });
+    }
+
+    successMessage = "Add-on updated successfully!";
+  } catch (err: any) {
+    console.error("Update project addon failed:", err);
+    errorMessage = err?.message || "An unexpected error occurred while updating the add-on.";
+  }
+}
+
+// Re-fetch current addon state
+const addonDetail = await getAddonById(id);
+if (!addonDetail) {
+  return Astro.redirect("/admin/projects/addons");
+}
+
+const addonData = addonDetail;
+const currentThumbnailUrl = addonDetail.thumbnailUrl;
+const galleryList = addonDetail.galleryScreenshots;
+const currentParentProject = allProjects.find((p) => p.id === (addonData.projectId || addonData.productId));
+---
+
+<AdminLayout title={`Edit ${addonData.title} | SourceMonster Admin`} activeNav="addons">
+  <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-6 border-b border-slate-200 dark:border-slate-800">
+    <div>
+      <div class="flex items-center gap-2 text-xs text-slate-500 dark:text-slate-400 mb-1">
+        <a href="/admin/projects" class="hover:text-slate-900 dark:hover:text-white transition">Projects</a>
+        <span>/</span>
+        <a href="/admin/projects/addons" class="hover:text-slate-900 dark:hover:text-white transition">Add-ons</a>
+        <span>/</span>
+        <span class="text-slate-900 dark:text-white truncate max-w-xs">{addonData.title}</span>
+      </div>
+      <div class="flex items-center gap-3">
+        <h1 class="text-2xl font-black text-slate-900 dark:text-white tracking-tight">Edit Add-on</h1>
+        {addonData.isActive ? (
+          <span class="px-2 py-0.5 rounded text-[11px] font-semibold bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20">
+            Active
+          </span>
+        ) : (
+          <span class="px-2 py-0.5 rounded text-[11px] font-semibold bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 border border-slate-200 dark:border-slate-700">
+            Inactive
+          </span>
+        )}
+      </div>
+    </div>
+    <div class="flex items-center gap-3">
+      {currentParentProject && (
+        <Button
+          href={`/admin/projects/${currentParentProject.id}/edit`}
+          variant="secondary"
+          size="sm"
+          icon="package"
+        >
+          View Parent Project
+        </Button>
+      )}
+      <Button href="/admin/projects/addons" variant="secondary" size="sm" icon="arrow-left">
+        Back to Add-ons
+      </Button>
+      <ConfirmDialog
+        title="Delete Add-on"
+        description="Are you sure you want to permanently delete this add-on? All associated screenshots and media links will be removed."
+        confirmText="Delete Add-on"
+        confirmVariant="destructive"
+        confirmIcon="trash-2"
+        icon="trash-2"
+        formMethod="POST"
+      >
+        <input type="hidden" name="_action" value="delete" slot="form-fields" />
+        <Button slot="trigger" type="button" variant="destructive" size="sm" icon="trash-2">
+          Delete
+        </Button>
+      </ConfirmDialog>
+    </div>
+  </div>
+
+  <Toast variant="error" message={errorMessage} />
+  <Toast variant="success" message={successMessage} />
+
+  <form method="POST" enctype="multipart/form-data" class="my-6 space-y-8 max-w-4xl">
+    <!-- Parent Project & Basic Info -->
+    <Card class="bg-white dark:bg-slate-900/70 border border-slate-200 dark:border-slate-800/80 rounded-2xl p-6 shadow-sm dark:shadow-xl">
+      <CardHeader class="p-0 pb-4 mb-4 border-b border-slate-200 dark:border-slate-800">
+        <CardTitle class="text-sm font-bold text-primary uppercase tracking-wider flex items-center gap-2">
+          <i data-lucide="package" class="w-4 h-4"></i>
+          <span>Parent Project &amp; Identity</span>
+        </CardTitle>
+      </CardHeader>
+      <CardContent class="p-0 space-y-4">
+        <div>
+          <label class="block text-xs font-semibold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-1.5">
+            Parent Project *
+          </label>
+          <select
+            name="projectId"
+            required
+            class="w-full px-4 py-2.5 bg-white dark:bg-slate-950 border border-slate-300 dark:border-slate-700/80 rounded-xl text-slate-900 dark:text-white text-sm focus:border-primary focus:outline-hidden"
+          >
+            {allProjects.map((p) => (
+              <option value={p.id} selected={p.id === (addonData.projectId || addonData.productId)}>
+                {p.title}
+              </option>
+            ))}
+          </select>
+          <p class="text-[11px] text-slate-500 mt-1">Reassigning this changes which project page displays this add-on.</p>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div>
+            <label class="block text-xs font-semibold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-1.5">
+              Add-on Title *
+            </label>
+            <Input
+              name="title"
+              type="text"
+              required
+              value={addonData.title}
+              placeholder="e.g. Multi-Vendor Marketplace Add-on"
+              class="w-full bg-white dark:bg-slate-950 border-slate-300 dark:border-slate-700/80 text-slate-900 dark:text-white rounded-xl"
+            />
+          </div>
+          <div>
+            <label class="block text-xs font-semibold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-1.5">
+              Slug *
+            </label>
+            <Input
+              name="slug"
+              type="text"
+              required
+              value={addonData.slug}
+              placeholder="e.g. multi-vendor-marketplace"
+              class="w-full bg-white dark:bg-slate-950 border-slate-300 dark:border-slate-700/80 text-slate-900 dark:text-white font-mono rounded-xl"
+            />
+          </div>
+        </div>
+
+        <div>
+          <label class="block text-xs font-semibold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-1.5">
+            Description
+          </label>
+          <Textarea
+            name="description"
+            rows={3}
+            value={addonData.description || ""}
+            placeholder="Brief overview of features, compatibilities, and benefits..."
+            class="w-full bg-white dark:bg-slate-950 border-slate-300 dark:border-slate-700/80 text-slate-900 dark:text-white rounded-xl"
+          />
+        </div>
+      </CardContent>
+    </Card>
+
+    <!-- Pricing & Links -->
+    <Card class="bg-white dark:bg-slate-900/70 border border-slate-200 dark:border-slate-800/80 rounded-2xl p-6 shadow-sm dark:shadow-xl">
+      <CardHeader class="p-0 pb-4 mb-4 border-b border-slate-200 dark:border-slate-800">
+        <CardTitle class="text-sm font-bold text-primary uppercase tracking-wider flex items-center gap-2">
+          <i data-lucide="tag" class="w-4 h-4"></i>
+          <span>Pricing &amp; External Links</span>
+        </CardTitle>
+      </CardHeader>
+      <CardContent class="p-0 space-y-4">
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4 items-center">
+          <div>
+            <label class="block text-xs font-semibold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-1.5">
+              Price (USD)
+            </label>
+            <div class="relative">
+              <span class="absolute left-3.5 top-2.5 text-slate-500 text-sm">$</span>
+              <Input
+                name="price"
+                type="number"
+                step="0.01"
+                min="0"
+                value={addonData.price ? Number(addonData.price).toFixed(2) : ""}
+                placeholder="29.00"
+                class="w-full pl-8 bg-white dark:bg-slate-950 border-slate-300 dark:border-slate-700/80 text-slate-900 dark:text-white font-mono rounded-xl"
+              />
+            </div>
+          </div>
+          <div class="pt-6">
+            <label class="flex items-center gap-3 cursor-pointer">
+              <input
+                type="checkbox"
+                name="isFree"
+                checked={addonData.isFree}
+                class="w-4 h-4 rounded text-primary bg-white dark:bg-slate-950 border-slate-300 dark:border-slate-700 focus:ring-primary"
+              />
+              <div>
+                <span class="text-sm font-semibold text-slate-900 dark:text-white">Free Module</span>
+                <p class="text-[11px] text-slate-500 dark:text-slate-400">Mark as a free or bundled companion module.</p>
+              </div>
+            </label>
+          </div>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <div>
+            <label class="block text-xs font-semibold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-1.5">
+              Buy / Marketplace URL
+            </label>
+            <Input
+              name="buyUrl"
+              type="url"
+              value={addonData.buyUrl || ""}
+              placeholder="https://codecanyon.net/item/..."
+              class="w-full bg-white dark:bg-slate-950 border-slate-300 dark:border-slate-700/80 text-slate-900 dark:text-white font-mono text-xs rounded-xl"
+            />
+          </div>
+          <div>
+            <label class="block text-xs font-semibold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-1.5">
+              Live Demo URL
+            </label>
+            <Input
+              name="demoUrl"
+              type="url"
+              value={addonData.demoUrl || ""}
+              placeholder="https://demo.sourcemonster.in/..."
+              class="w-full bg-white dark:bg-slate-950 border-slate-300 dark:border-slate-700/80 text-slate-900 dark:text-white font-mono text-xs rounded-xl"
+            />
+          </div>
+          <div>
+            <label class="block text-xs font-semibold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-1.5">
+              Documentation URL
+            </label>
+            <Input
+              name="documentationUrl"
+              type="url"
+              value={addonData.documentationUrl || ""}
+              placeholder="https://docs.sourcemonster.in/..."
+              class="w-full bg-white dark:bg-slate-950 border-slate-300 dark:border-slate-700/80 text-slate-900 dark:text-white font-mono text-xs rounded-xl"
+            />
+          </div>
+        </div>
+      </CardContent>
+    </Card>
+
+    <!-- Visuals: Cover Thumbnail & Gallery Screenshots -->
+    <Card class="bg-white dark:bg-slate-900/70 border border-slate-200 dark:border-slate-800/80 rounded-2xl p-6 shadow-sm dark:shadow-xl">
+      <CardHeader class="p-0 pb-4 mb-4 border-b border-slate-200 dark:border-slate-800">
+        <CardTitle class="text-sm font-bold text-primary uppercase tracking-wider flex items-center gap-2">
+          <i data-lucide="image" class="w-4 h-4"></i>
+          <span>Cover Thumbnail &amp; Screenshots</span>
+        </CardTitle>
+      </CardHeader>
+      <CardContent class="p-0 space-y-6">
+        <!-- Current Thumbnail Preview -->
+        <div>
+          <label class="block text-xs font-semibold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-1.5">
+            Module Cover Thumbnail
+          </label>
+          {currentThumbnailUrl ? (
+            <div class="mb-3 flex items-center gap-4 p-3 bg-slate-50 dark:bg-slate-950/80 border border-slate-200 dark:border-slate-800 rounded-xl">
+              <img
+                src={currentThumbnailUrl}
+                alt={addonData.title}
+                class="w-20 h-14 rounded-lg object-cover bg-slate-100 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 shrink-0"
+              />
+              <div class="flex-1 overflow-hidden">
+                <span class="text-xs text-slate-800 dark:text-slate-300 font-medium truncate block">Current Thumbnail Active</span>
+                <span class="text-[11px] text-slate-500">Upload a new file below to replace it.</span>
+              </div>
+              <button
+                type="submit"
+                formaction={`/admin/projects/addons/${id}/edit`}
+                name="_action"
+                value="delete_thumbnail"
+                class="px-2.5 py-1 text-xs text-rose-500 hover:text-rose-600 dark:text-rose-400 dark:hover:text-rose-300 hover:bg-rose-500/10 rounded-lg border border-rose-500/20 transition cursor-pointer"
+              >
+                Remove
+              </button>
+            </div>
+          ) : null}
+          <Dropzone
+            name="thumbnail"
+            label={currentThumbnailUrl ? "Replace Cover Thumbnail" : "Upload Add-on Thumbnail"}
+            description="Recommended: 600x400 PNG or WebP"
+            accept="image/*"
+          />
+        </div>
+
+        <!-- Current Gallery Screenshots -->
+        <div>
+          <label class="block text-xs font-semibold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-2">
+            Gallery Screenshots ({galleryList.length})
+          </label>
+
+          {galleryList.length > 0 && (
+            <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3 mb-4">
+              {galleryList.map((g) => (
+                <div class="relative group rounded-xl overflow-hidden border border-slate-200 dark:border-slate-800 bg-slate-100 dark:bg-slate-950 aspect-video">
+                  <img src={g.url} alt="Screenshot" class="w-full h-full object-cover" />
+                  <div class="absolute inset-0 bg-slate-950/70 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center p-2">
+                    <button
+                      type="submit"
+                      formaction={`/admin/projects/addons/${id}/edit`}
+                      name="_action"
+                      value="delete_screenshot"
+                      class="p-1.5 text-rose-400 bg-rose-500/20 hover:bg-rose-500/30 rounded-lg transition"
+                      title="Delete screenshot"
+                    >
+                      <input type="hidden" name="addon_media_id" value={g.id} />
+                      <i data-lucide="trash-2" class="w-4 h-4"></i>
+                    </button>
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
+
+          <Dropzone
+            name="screenshots"
+            label="Upload Additional Screenshots"
+            description="Add more preview screenshots for this add-on"
+            accept="image/*"
+            multiple={true}
+          />
+        </div>
+      </CardContent>
+    </Card>
+
+    <!-- Settings & Sorting -->
+    <Card class="bg-white dark:bg-slate-900/70 border border-slate-200 dark:border-slate-800/80 rounded-2xl p-6 shadow-sm dark:shadow-xl">
+      <CardHeader class="p-0 pb-4 mb-4 border-b border-slate-200 dark:border-slate-800">
+        <CardTitle class="text-sm font-bold text-primary uppercase tracking-wider flex items-center gap-2">
+          <i data-lucide="sliders" class="w-4 h-4"></i>
+          <span>Settings &amp; Sorting</span>
+        </CardTitle>
+      </CardHeader>
+      <CardContent class="p-0">
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4 items-center">
+          <div>
+            <label class="block text-xs font-semibold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-1.5">
+              Display Sort Order
+            </label>
+            <Input
+              name="sortOrder"
+              type="number"
+              value={addonData.sortOrder}
+              class="w-full bg-white dark:bg-slate-950 border-slate-300 dark:border-slate-700/80 text-slate-900 dark:text-white font-mono rounded-xl"
+            />
+            <p class="text-[11px] text-slate-500 mt-1">Lower numbers appear first.</p>
+          </div>
+          <div class="pt-6">
+            <label class="flex items-center gap-3 cursor-pointer">
+              <input
+                type="checkbox"
+                name="isActive"
+                checked={addonData.isActive}
+                class="w-4 h-4 rounded text-primary bg-white dark:bg-slate-950 border-slate-300 dark:border-slate-700 focus:ring-primary"
+              />
+              <div>
+                <span class="text-sm font-semibold text-slate-900 dark:text-white">Active &amp; Published</span>
+                <p class="text-[11px] text-slate-500 dark:text-slate-400">Make this add-on visible on the public website.</p>
+              </div>
+            </label>
+          </div>
+        </div>
+
+        <!-- Add Changelog for this update -->
+        <div class="pt-4 border-t border-slate-200 dark:border-slate-800/80 mt-4">
+          <div class="flex items-center justify-between mb-2">
+            <label class="block text-xs font-semibold text-primary uppercase tracking-wider flex items-center gap-1.5">
+              <i data-lucide="git-commit" class="w-3.5 h-3.5"></i>
+              Add Changelog / Release Notes for this Update (Optional)
+            </label>
+            <span class="text-[11px] text-slate-500 font-mono">Appends to add-on history</span>
+          </div>
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-3">
+            <div>
+              <label class="block text-[11px] font-semibold text-slate-700 dark:text-slate-400 uppercase tracking-wider mb-1">
+                Version Label (Optional)
+              </label>
+              <Input
+                name="changelog_version"
+                type="text"
+                placeholder="e.g. v1.1.0"
+                class="w-full bg-white dark:bg-slate-950 border-slate-300 dark:border-slate-700/80 text-slate-900 dark:text-white rounded-xl text-xs"
+              />
+            </div>
+            <div>
+              <DatePicker
+                name="new_changelog_date"
+                label="Release Date"
+                placeholder="Select release date..."
+                defaultDate={new Date().toISOString().split("T")[0]}
+              />
+            </div>
+          </div>
+          <HtmlEditor
+            name="new_changelog_content"
+            minHeight="140px"
+            placeholder="<p><strong>What's new in this add-on release:</strong></p><ul><li>Added multi-currency support</li><li>Improved response caching</li></ul>"
+            helperText="Write notes about new features, bug fixes, or improvements for this add-on release."
+          />
+        </div>
+      </CardContent>
+    </Card>
+
+    <!-- Save button footer -->
+    <div class="flex items-center justify-end gap-3 pt-4 border-t border-slate-200 dark:border-slate-800">
+      <Button href="/admin/projects/addons" variant="secondary" size="md">
+        Cancel
+      </Button>
+      <Button type="submit" variant="primary" size="md" icon="check">
+        Save Changes
+      </Button>
+    </div>
+  </form>
+
+  <!-- Add-on Changelog & Version History Card -->
+  <Card class="my-8 bg-white dark:bg-slate-900/70 border border-slate-200 dark:border-slate-800/80 rounded-2xl p-6 shadow-sm dark:shadow-xl">
+    <div class="flex items-center justify-between pb-4 mb-4 border-b border-slate-200 dark:border-slate-800">
+      <div class="flex items-center gap-2">
+        <i data-lucide="history" class="w-4 h-4 text-primary"></i>
+        <h2 class="text-sm font-bold text-slate-900 dark:text-white uppercase tracking-wider">
+          Add-on Changelog &amp; Version History
+        </h2>
+        <span class="text-[10px] font-mono bg-primary/10 text-primary border border-primary/20 px-2 py-0.5 rounded-full">
+          {addonData.changelogs ? addonData.changelogs.length : 0} {addonData.changelogs && addonData.changelogs.length === 1 ? "release" : "releases"}
+        </span>
+      </div>
+      <button
+        type="button"
+        id="toggle-addon-changelog-btn"
+        class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-primary hover:bg-primary/90 text-white text-xs font-semibold transition cursor-pointer"
+      >
+        <i data-lucide="plus" class="w-3.5 h-3.5"></i>
+        <span>Add Changelog Entry</span>
+      </button>
+    </div>
+
+    {/* Form to directly add a standalone changelog entry */}
+    <div id="addon-quick-changelog-box" class="hidden mb-6 p-4 rounded-xl bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800">
+      <div class="flex items-center justify-between mb-3">
+        <h3 class="text-xs font-bold text-slate-800 dark:text-slate-200 uppercase tracking-wider flex items-center gap-2">
+          <i data-lucide="file-plus-2" class="w-4 h-4 text-primary"></i>
+          Create New Add-on Changelog Entry
+        </h3>
+        <span class="text-[11px] text-slate-500 font-mono">Standalone entry</span>
+      </div>
+      <form method="POST" class="space-y-3">
+        <input type="hidden" name="_action" value="add_changelog" />
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <div>
+            <label class="block text-xs font-semibold text-slate-700 dark:text-slate-400 uppercase tracking-wider mb-1">
+              Version Label
+            </label>
+            <Input
+              name="changelog_version"
+              type="text"
+              placeholder="e.g. v1.1.0"
+              class="bg-white dark:bg-slate-900 border-slate-300 dark:border-slate-700 text-slate-900 dark:text-white rounded-lg text-xs"
+            />
+          </div>
+          <div>
+            <DatePicker
+              name="changelog_date"
+              label="Release Date"
+              placeholder="Select release date..."
+              defaultDate={new Date().toISOString().split("T")[0]}
+            />
+          </div>
+        </div>
+        <HtmlEditor
+          name="changelog_content"
+          label="Changelog Release Notes"
+          minHeight="140px"
+          placeholder="<ul><li>Added new webhook integration</li><li>Resolved currency conversion rounding</li></ul>"
+          required
+        />
+        <div class="flex items-center justify-end gap-2 pt-2">
+          <button
+            type="button"
+            id="cancel-addon-changelog-btn"
+            class="px-3 py-1.5 rounded-lg bg-slate-200 dark:bg-slate-800 hover:bg-slate-300 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 text-xs font-semibold transition cursor-pointer"
+          >
+            Cancel
+          </button>
+          <Button type="submit" variant="primary" size="sm" icon="check">
+            Publish Changelog
+          </Button>
+        </div>
+      </form>
+    </div>
+
+    {!addonData.changelogs || addonData.changelogs.length === 0 ? (
+      <div class="py-8 text-center text-slate-500 text-xs">
+        <i data-lucide="scroll-text" class="w-8 h-8 mx-auto mb-2 opacity-40"></i>
+        <p>No changelog records published for this add-on yet.</p>
+        <p class="text-[11px] text-slate-500 dark:text-slate-600 mt-1">
+          When you release updates for this module, publish release notes here.
+        </p>
+      </div>
+    ) : (
+      <div class="space-y-4">
+        {addonData.changelogs.map((log) => (
+          <div class="p-4 rounded-xl bg-slate-50/80 dark:bg-slate-950/60 border border-slate-200 dark:border-slate-800/80 hover:border-slate-300 dark:hover:border-slate-700/80 transition">
+            <div class="flex items-center justify-between pb-2 mb-2 border-b border-slate-200 dark:border-slate-800/50">
+              <div class="flex items-center gap-2">
+                <span class="px-2 py-0.5 rounded-md bg-primary/20 text-primary border border-primary/30 text-xs font-mono font-bold">
+                  {log.version || "Release"}
+                </span>
+                <span class="text-xs text-slate-500 dark:text-slate-400">
+                  {new Date(log.createdAt).toLocaleDateString("en-US", {
+                    year: "numeric",
+                    month: "short",
+                    day: "numeric",
+                  })}
+                </span>
+              </div>
+              <div class="flex items-center gap-1">
+                <button
+                  type="button"
+                  data-edit-addon-log-btn={log.id}
+                  class="text-xs text-slate-400 hover:text-primary dark:text-slate-500 dark:hover:text-primary transition p-1 cursor-pointer"
+                  title="Edit entry"
+                >
+                  <i data-lucide="pencil" class="w-3.5 h-3.5"></i>
+                </button>
+                <form method="POST" onsubmit="return confirm('Delete this changelog entry?');" class="inline">
+                  <input type="hidden" name="_action" value="delete_changelog" />
+                  <input type="hidden" name="changelog_id" value={log.id} />
+                  <button
+                    type="submit"
+                    class="text-xs text-slate-400 hover:text-rose-500 dark:text-slate-500 dark:hover:text-rose-400 transition p-1 cursor-pointer"
+                    title="Delete entry"
+                  >
+                    <i data-lucide="trash-2" class="w-3.5 h-3.5"></i>
+                  </button>
+                </form>
+              </div>
+            </div>
+
+            <div id={`view-addon-log-${log.id}`} class="prose dark:prose-invert prose-xs max-w-none text-slate-700 dark:text-slate-300" set:html={log.content}></div>
+
+            <div id={`edit-addon-log-box-${log.id}`} class="hidden mt-3 pt-3 border-t border-slate-200 dark:border-slate-800">
+              <form method="POST" class="space-y-3">
+                <input type="hidden" name="_action" value="update_changelog" />
+                <input type="hidden" name="changelog_id" value={log.id} />
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  <div>
+                    <label class="block text-xs font-semibold text-slate-700 dark:text-slate-400 uppercase tracking-wider mb-1">
+                      Version Label
+                    </label>
+                    <Input
+                      name="changelog_version"
+                      type="text"
+                      value={log.version || ""}
+                      placeholder="e.g. v1.1.0"
+                      class="bg-white dark:bg-slate-900 border-slate-300 dark:border-slate-700 text-slate-900 dark:text-white rounded-lg text-xs"
+                    />
+                  </div>
+                  <div>
+                    <DatePicker
+                      name="changelog_date"
+                      label="Release Date"
+                      value={new Date(log.createdAt).toISOString().split("T")[0]}
+                      defaultDate={new Date(log.createdAt).toISOString().split("T")[0]}
+                    />
+                  </div>
+                </div>
+                <HtmlEditor
+                  id={`edit-addon-log-editor-${log.id}`}
+                  name="changelog_content"
+                  label="Changelog Release Notes"
+                  value={log.content}
+                  minHeight="140px"
+                  required
+                />
+                <div class="flex items-center justify-end gap-2 pt-2">
+                  <button
+                    type="button"
+                    data-cancel-addon-log-btn={log.id}
+                    class="px-3 py-1.5 rounded-lg bg-slate-200 dark:bg-slate-800 hover:bg-slate-300 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 text-xs font-semibold transition cursor-pointer"
+                  >
+                    Cancel
+                  </button>
+                  <Button type="submit" variant="primary" size="sm" icon="check">
+                    Save Changes
+                  </Button>
+                </div>
+              </form>
+            </div>
+          </div>
+        ))}
+      </div>
+    )}
+  </Card>
+
+  <script>
+    const toggleAddonBtn = document.getElementById("toggle-addon-changelog-btn");
+    const cancelAddonBtn = document.getElementById("cancel-addon-changelog-btn");
+    const addonBox = document.getElementById("addon-quick-changelog-box");
+
+    if (toggleAddonBtn && addonBox) {
+      toggleAddonBtn.addEventListener("click", () => {
+        addonBox.classList.toggle("hidden");
+      });
+    }
+
+    if (cancelAddonBtn && addonBox) {
+      cancelAddonBtn.addEventListener("click", () => {
+        addonBox.classList.add("hidden");
+      });
+    }
+
+    document.querySelectorAll("[data-edit-addon-log-btn]").forEach((btn) => {
+      btn.addEventListener("click", () => {
+        const id = btn.getAttribute("data-edit-addon-log-btn");
+        const editBox = document.getElementById(`edit-addon-log-box-${id}`);
+        const viewEl = document.getElementById(`view-addon-log-${id}`);
+        if (editBox) {
+          editBox.classList.toggle("hidden");
+        }
+        if (viewEl) {
+          viewEl.classList.toggle("hidden");
+        }
+      });
+    });
+
+    document.querySelectorAll("[data-cancel-addon-log-btn]").forEach((btn) => {
+      btn.addEventListener("click", () => {
+        const id = btn.getAttribute("data-cancel-addon-log-btn");
+        const editBox = document.getElementById(`edit-addon-log-box-${id}`);
+        const viewEl = document.getElementById(`view-addon-log-${id}`);
+        if (editBox) {
+          editBox.classList.add("hidden");
+        }
+        if (viewEl) {
+          viewEl.classList.remove("hidden");
+        }
+      });
+    });
+  </script>
+</AdminLayout>
+

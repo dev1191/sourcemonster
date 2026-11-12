@@ -3,8 +3,8 @@ import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { eq } from "drizzle-orm";
 import { db } from "../../src/lib/db";
-import { products, services, testimonials } from "../../src/lib/db/schema";
-import { productSchema } from "../../src/lib/validation/product";
+import { projects, services, testimonials } from "../../src/lib/db/schema";
+import { projectSchema } from "../../src/lib/validation/project";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -12,8 +12,8 @@ const __dirname = path.dirname(__filename);
 export async function seedStaticContent(options: { force?: boolean } = {}) {
   console.log("📦 Starting static content migration to database...");
 
-  // 1. Seed Products
-  await seedProducts(options);
+  // 1. Seed Projects
+  await seedProjects(options);
 
   // 2. Seed Services from src/content/services/
   await seedServices(options);
@@ -24,28 +24,33 @@ export async function seedStaticContent(options: { force?: boolean } = {}) {
   console.log("🎉 All static content migration finished!");
 }
 
-async function seedProducts(options: { force?: boolean }) {
-  const dataPath = path.join(__dirname, "data", "products.json");
+async function seedProjects(options: { force?: boolean }) {
+  let dataPath = path.join(__dirname, "data", "projects.json");
+  try {
+    await fs.access(dataPath);
+  } catch {
+    dataPath = path.join(__dirname, "data", "products.json");
+  }
 
   try {
     const rawData = await fs.readFile(dataPath, "utf-8");
-    const rawProducts = JSON.parse(rawData);
+    const rawProjects = JSON.parse(rawData);
 
-    if (!Array.isArray(rawProducts)) return;
-    console.log(`\n📦 Checking ${rawProducts.length} default products...`);
+    if (!Array.isArray(rawProjects)) return;
+    console.log(`\n📦 Checking ${rawProjects.length} default projects...`);
 
     let createdCount = 0;
     let skippedCount = 0;
 
-    for (const rawProduct of rawProducts) {
-      const parseResult = productSchema.safeParse(rawProduct);
+    for (const rawProject of rawProjects) {
+      const parseResult = projectSchema.safeParse(rawProject);
       if (!parseResult.success) continue;
 
       const valid = parseResult.data;
       const [existing] = await db
         .select()
-        .from(products)
-        .where(eq(products.slug, valid.slug))
+        .from(projects)
+        .where(eq(projects.slug, valid.slug))
         .limit(1);
 
       if (existing) {
@@ -54,7 +59,7 @@ async function seedProducts(options: { force?: boolean }) {
           continue;
         }
         await db
-          .update(products)
+          .update(projects)
           .set({
             title: valid.title,
             shortDescription: valid.shortDescription,
@@ -73,12 +78,12 @@ async function seedProducts(options: { force?: boolean }) {
             publishedAt: valid.status === "published" ? new Date() : null,
             updatedAt: new Date(),
           })
-          .where(eq(products.id, existing.id));
+          .where(eq(projects.id, existing.id));
         createdCount++;
         continue;
       }
 
-      await db.insert(products).values({
+      await db.insert(projects).values({
         title: valid.title,
         slug: valid.slug,
         shortDescription: valid.shortDescription,
@@ -99,9 +104,9 @@ async function seedProducts(options: { force?: boolean }) {
       createdCount++;
     }
 
-    console.log(`✅ Products: ${createdCount} upserted, ${skippedCount} skipped.`);
+    console.log(`✅ Projects: ${createdCount} upserted, ${skippedCount} skipped.`);
   } catch (error) {
-    console.error("❌ Failed to seed products:", error);
+    console.error("❌ Failed to seed projects:", error);
   }
 }
 

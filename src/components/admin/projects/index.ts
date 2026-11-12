@@ -1,0 +1,11 @@
+export { default as ProjectGeneralInfo } from "./ProjectGeneralInfo.astro";
+export { default as ProjectFeaturesTech } from "./ProjectFeaturesTech.astro";
+export { default as ProjectMediaUpload } from "./ProjectMediaUpload.astro";
+export { default as ProjectSidebarStatus } from "./ProjectSidebarStatus.astro";
+export { default as ProjectLinksVersion } from "./ProjectLinksVersion.astro";
+export { default as ProjectSeoSection } from "./ProjectSeoSection.astro";
+export { default as ProjectChangelogsManager } from "./ProjectChangelogsManager.astro";
+export { default as ProjectAddonsManager } from "./ProjectAddonsManager.astro";
+export { default as ProjectDangerZone } from "./ProjectDangerZone.astro";
+export { default as ProjectInitialChangelog } from "./ProjectInitialChangelog.astro";
+export { default as ProjectQuickReleaseChangelog } from "./ProjectQuickReleaseChangelog.astro";

@@ -30,7 +30,7 @@ interface Props {
 
 const { activeNav = "dashboard", user } = Astro.props;
 const currentPath = Astro.url.pathname;
-const isProductActive = activeNav === "products" || activeNav === "addons" || currentPath.startsWith("/admin/products");
+const isProjectActive = activeNav === "projects" || activeNav === "products" || activeNav === "addons" || currentPath.startsWith("/admin/projects") || currentPath.startsWith("/admin/products");
 ---
 
 <Sidebar collapsible="icon" class="border-r border-slate-200 dark:border-slate-800/80 bg-white dark:bg-slate-900/95 transition-colors duration-200">
@@ -66,21 +66,21 @@ const isProductActive = activeNav === "products" || activeNav === "addons" || cu
             </SidebarMenuButton>
           </SidebarMenuItem>
 
-          <!-- Products & Add-ons Dropdown Menu -->
+          <!-- Projects & Add-ons Dropdown Menu -->
           <SidebarMenuItem>
-            <details open={isProductActive} class="group/prod w-full">
+            <details open={isProjectActive} class="group/prod w-full">
               <summary
                 class={`flex w-full items-center justify-between gap-3 overflow-hidden rounded-md p-2.5 text-left text-sm font-medium transition-all cursor-pointer list-none select-none [&::-webkit-details-marker]:hidden ring-sidebar-outline outline-hidden focus-visible:ring-2 ${
-                  isProductActive
+                  isProjectActive
                     ? "bg-slate-100 dark:bg-slate-800 text-slate-900 dark:text-white font-semibold"
                     : "text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 hover:text-slate-900 dark:hover:text-white"
                 }`}
                 data-sidebar="menu-button"
-                data-active={isProductActive}
+                data-active={isProjectActive}
               >
                 <span class="flex items-center gap-3 min-w-0">
-                  <i data-lucide="package" class="w-4 h-4 shrink-0 text-slate-400 group-hover/prod:text-slate-900 dark:group-hover/prod:text-white"></i>
-                  <span class="truncate group-data-[collapsible=icon]:hidden">Products</span>
+                  <i data-lucide="folder-kanban" class="w-4 h-4 shrink-0 text-slate-400 group-hover/prod:text-slate-900 dark:group-hover/prod:text-white"></i>
+                  <span class="truncate group-data-[collapsible=icon]:hidden">Projects</span>
                 </span>
                 <i
                   data-lucide="chevron-down"
@@ -91,31 +91,31 @@ const isProductActive = activeNav === "products" || activeNav === "addons" || cu
               <SidebarMenuSub class="mt-1 space-y-1">
                 <SidebarMenuSubItem>
                   <SidebarMenuSubButton
-                    href="/admin/products"
-                    isActive={currentPath === "/admin/products"}
+                    href="/admin/projects"
+                    isActive={currentPath === "/admin/projects" || currentPath === "/admin/products"}
                   >
                     <i data-lucide="list" class="w-3.5 h-3.5 shrink-0"></i>
-                    <span>All Products</span>
+                    <span>All Projects</span>
                   </SidebarMenuSubButton>
                 </SidebarMenuSubItem>
 
                 <SidebarMenuSubItem>
                   <SidebarMenuSubButton
-                    href="/admin/products/new"
-                    isActive={currentPath === "/admin/products/new"}
+                    href="/admin/projects/new"
+                    isActive={currentPath === "/admin/projects/new" || currentPath === "/admin/products/new"}
                   >
                     <i data-lucide="plus-circle" class="w-3.5 h-3.5 shrink-0"></i>
-                    <span>Add New Product</span>
+                    <span>Add New Project</span>
                   </SidebarMenuSubButton>
                 </SidebarMenuSubItem>
 
                 <SidebarMenuSubItem>
                   <SidebarMenuSubButton
-                    href="/admin/products/addons"
-                    isActive={currentPath.startsWith("/admin/products/addons") || activeNav === "addons"}
+                    href="/admin/projects/addons"
+                    isActive={currentPath.startsWith("/admin/projects/addons") || currentPath.startsWith("/admin/products/addons") || activeNav === "addons"}
                   >
                     <i data-lucide="puzzle" class="w-3.5 h-3.5 shrink-0"></i>
-                    <span>Product Add-ons</span>
+                    <span>Project Add-ons</span>
                   </SidebarMenuSubButton>
                 </SidebarMenuSubItem>
               </SidebarMenuSub>

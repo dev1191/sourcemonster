@@ -1,0 +1,187 @@
+---
+import BaseLayout from "../../layouts/BaseLayout.astro";
+import Navbar from "../../components/Navbar.astro";
+import Footer from "../../components/Footer.astro";
+import { getProjectBySlug } from "../../services";
+import { Prose } from "../../components/starwind/prose";
+import {
+  ProjectHero,
+  ProjectCover,
+  ProjectGallery,
+  ProjectNavTabs,
+  ProjectAddons,
+  ProjectChangelogs,
+  ProjectSidebar,
+} from "../../components/projects";
+
+const { slug } = Astro.params;
+
+if (!slug) {
+  return new Response(null, { status: 404, statusText: "Not Found" });
+}
+
+const isAdmin = !!Astro.locals.adminUser;
+const data = await getProjectBySlug(slug, { allowDraft: isAdmin });
+
+if (!data) {
+  return new Response(null, { status: 404, statusText: "Not Found" });
+}
+
+const { project, thumbnailUrl, galleryItems, addons, changelogs = [] } = data;
+const pageTitle = project.seoTitle?.trim() || `${project.title} | SourceMonster`;
+const pageDescription = project.seoDescription?.trim() || project.shortDescription?.trim() || "";
+
+// Determine latest update timestamp
+const latestChangelog = changelogs.length > 0 ? changelogs[0] : null;
+const lastUpdatedDate = latestChangelog?.createdAt || project.updatedAt;
+
+// Direct WhatsApp link for instant customization request
+const whatsappMessage = encodeURIComponent(`Hello SourceMonster, I am interested in customizing "${project.title}".`);
+const whatsappUrl = `https://wa.me/918607248802?text=${whatsappMessage}`;
+
+// JSON-LD structured data for Google Search rich snippets
+const structuredData = {
+  "@context": "https://schema.org",
+  "@type": "SoftwareApplication",
+  "name": project.title,
+  "description": pageDescription,
+  "applicationCategory": "DeveloperApplication",
+  "operatingSystem": "All",
+  "url": Astro.url.href,
+  ...(thumbnailUrl ? { "image": thumbnailUrl } : {}),
+  ...(project.version ? { "softwareVersion": project.version } : {}),
+  ...(project.codecanyonUrl ? {
+    "offers": {
+      "@type": "Offer",
+      "url": project.codecanyonUrl,
+      "priceCurrency": "USD",
+      "availability": "https://schema.org/InStock",
+    }
+  } : {}),
+};
+---
+
+<BaseLayout
+  title={pageTitle}
+  description={pageDescription}
+  image={thumbnailUrl}
+  type="project"
+>
+  <!-- Schema.org Product / Software Rich Snippet -->
+  <script type="application/ld+json" set:html={JSON.stringify(structuredData)} />
+
+  <Navbar />
+
+  <main class="pt-28 pb-24 min-h-screen bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-slate-100 transition-colors duration-200">
+    <!-- Hero Header & Stats Section -->
+    <ProjectHero
+      product={project}
+      addonsCount={addons.length}
+      changelogsCount={changelogs.length}
+      lastUpdatedDate={lastUpdatedDate}
+    />
+
+    <!-- Main Content & Sticky Conversion Dock -->
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
+      <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12 items-start">
+        
+        <!-- Left Column: Media Showcase & Rich Details (8 cols) -->
+        <div class="lg:col-span-8 space-y-10">
+          <!-- Focused Top Showcase / Project Cover Preview -->
+          <ProjectCover
+            product={project}
+            thumbnailUrl={thumbnailUrl}
+            galleryItems={galleryItems}
+          />
+
+          <!-- Floating Section Navigation Bar -->
+          <ProjectNavTabs
+            hasGallery={galleryItems.length > 0}
+            galleryCount={galleryItems.filter((g) => Boolean(g.url)).length}
+            hasFeatures={Boolean(project.features)}
+            addonsCount={addons.length}
+            changelogsCount={changelogs.length}
+            whatsappUrl={whatsappUrl}
+          />
+
+          <!-- Section: Architectural Overview -->
+          <section id="overview" class="bg-white dark:bg-slate-900/70 border border-slate-200 dark:border-slate-800 rounded-3xl p-6 sm:p-10 shadow-xl">
+            <div class="flex items-center gap-3 pb-5 mb-6 border-b border-slate-200 dark:border-slate-800">
+              <span class="p-2.5 rounded-2xl bg-primary/10 text-primary">
+                <i data-lucide="layers" class="w-6 h-6"></i>
+              </span>
+              <div>
+                <h2 class="text-2xl font-black font-heading text-slate-900 dark:text-white tracking-tight">
+                  Architectural Overview
+                </h2>
+                <p class="text-xs text-slate-500 font-mono">System breakdown &amp; core capabilities</p>
+              </div>
+            </div>
+
+            <Prose class="max-w-none text-slate-700 dark:text-slate-300 leading-relaxed text-sm sm:text-base">
+              <div set:html={project.description} />
+            </Prose>
+          </section>
+
+          <!-- Section: Key Capabilities -->
+          {project.features && (
+            <section id="features" class="bg-white dark:bg-slate-900/70 border border-slate-200 dark:border-slate-800 rounded-3xl p-6 sm:p-10 shadow-xl">
+              <div class="flex items-center gap-3 pb-5 mb-6 border-b border-slate-200 dark:border-slate-800">
+                <span class="p-2.5 rounded-2xl bg-emerald-500/10 text-emerald-600 dark:text-emerald-400">
+                  <i data-lucide="check-circle-2" class="w-6 h-6"></i>
+                </span>
+                <div>
+                  <h2 class="text-2xl font-black font-heading text-slate-900 dark:text-white tracking-tight">
+                    Key Capabilities &amp; Features
+                  </h2>
+                  <p class="text-xs text-slate-500 font-mono">Highlights &amp; performance specs</p>
+                </div>
+              </div>
+
+              {typeof project.features === "string" ? (
+                <Prose class="text-sm sm:text-base text-slate-700 dark:text-slate-300 max-w-none" set:html={project.features} />
+              ) : Array.isArray(project.features) ? (
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  {project.features.map((feature: any) => (
+                    <div class="flex items-start gap-3 p-4 rounded-2xl bg-slate-50 dark:bg-slate-950/70 border border-slate-200 dark:border-slate-800/80">
+                      <div class="p-1 rounded-full bg-primary/10 text-primary shrink-0 mt-0.5">
+                        <i data-lucide="check" class="w-4 h-4"></i>
+                      </div>
+                      <span class="text-sm text-slate-800 dark:text-slate-200 leading-relaxed font-medium" set:html={feature} />
+                    </div>
+                  ))}
+                </div>
+              ) : null}
+            </section>
+          )}
+
+          <!-- Section: Companion Modules & Add-ons -->
+          <ProjectAddons addons={addons} />
+
+          <!-- Section: Visual Gallery & Screenshots (after Companion Add-ons) -->
+          <ProjectGallery
+            product={project}
+            thumbnailUrl={thumbnailUrl}
+            galleryItems={galleryItems}
+          />
+
+          <!-- Section: Version History & Changelogs -->
+          <ProjectChangelogs productVersion={project.version} changelogs={changelogs} />
+        </div>
+
+        <!-- Right Column: Sticky Conversion Dock (4 cols) -->
+        <div class="lg:col-span-4">
+          <ProjectSidebar
+            product={project}
+            addonsCount={addons.length}
+            lastUpdatedDate={lastUpdatedDate}
+            whatsappUrl={whatsappUrl}
+          />
+        </div>
+
+      </div>
+    </div>
+  </main>
+
+  <Footer />
+</BaseLayout>

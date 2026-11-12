@@ -8,6 +8,7 @@ export const leadSubmissionSchema = z.object({
   company: z.string().trim().optional(),
   budget: z.string().trim().optional(),
   sourcePage: z.string().trim().optional(),
+  projectId: z.string().uuid().optional().nullable(),
   productId: z.string().uuid().optional().nullable(),
   honeypot: z.string().optional(),
 });

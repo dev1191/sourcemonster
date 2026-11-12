@@ -1,0 +1,324 @@
+---
+import { Card, InputLabel, HtmlEditor, DatePicker } from "../../ui";
+import { Input } from "../../starwind/input";
+import type { ProductChangeLog } from "../../../lib/db/schema";
+
+interface Props {
+  productId: string;
+  defaultVersion?: string | null;
+  changelogs: ProductChangeLog[];
+}
+
+const { productId, defaultVersion = "", changelogs = [] } = Astro.props;
+---
+
+<Card
+  title={"Version History & Release Changelogs"}
+  subtitle="Manage product update notes, version milestones, and public changelogs"
+  icon="history"
+>
+  <div slot="action">
+    <button
+      type="button"
+      id="toggle-changelog-btn"
+      class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-primary/10 hover:bg-primary/20 text-primary text-xs font-bold transition cursor-pointer"
+    >
+      <i data-lucide="plus" class="w-3.5 h-3.5"></i>
+      <span>Add Changelog</span>
+    </button>
+  </div>
+
+  <div class="space-y-4 pt-2">
+    {/* Form to directly add a standalone changelog entry */}
+    <div
+      id="quick-changelog-box"
+      class="hidden p-4 rounded-xl bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 space-y-3"
+    >
+      <div class="flex items-center justify-between">
+        <div class="flex items-center gap-2 text-xs font-bold text-slate-900 dark:text-slate-200 uppercase tracking-wider">
+          <i data-lucide="file-plus-2" class="w-4 h-4 text-primary"></i>
+          <span>Publish New Changelog Entry</span>
+        </div>
+        <span class="text-[11px] text-slate-500 font-mono">Instant save</span>
+      </div>
+
+      <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+        <div>
+          <InputLabel label="Version Tag" optional subtext="e.g. v1.2.0" />
+          <Input
+            id="new-cl-version-input"
+            type="text"
+            value={defaultVersion || ""}
+            placeholder="e.g. v1.2.0"
+            class="bg-white dark:bg-slate-900 border-slate-300 dark:border-slate-700 text-slate-900 dark:text-white rounded-lg text-xs"
+          />
+        </div>
+        <div>
+          <DatePicker
+            id="new-cl-date-picker"
+            name="quick_cl_date"
+            label="Release Date"
+            placeholder="Select release date..."
+            defaultDate={new Date().toISOString().split("T")[0]}
+          />
+        </div>
+      </div>
+      <HtmlEditor
+        id="new-changelog-editor"
+        name="quick_cl_content"
+        label={"Release Notes & Changes"}
+        minHeight="140px"
+        placeholder="<ul><li>Added new authentication provider</li><li>Optimized database queries</li></ul>"
+      />
+      <div class="flex items-center justify-end gap-2 pt-2">
+        <button
+          type="button"
+          id="cancel-changelog-btn"
+          class="px-3.5 py-1.5 rounded-lg bg-slate-200 dark:bg-slate-800 hover:bg-slate-300 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 text-xs font-semibold transition cursor-pointer"
+        >
+          Cancel
+        </button>
+        <button
+          type="button"
+          id="submit-standalone-changelog-btn"
+          class="inline-flex items-center gap-1.5 px-4 py-1.5 rounded-lg bg-primary hover:bg-orange-600 text-white text-xs font-bold transition shadow-sm cursor-pointer"
+        >
+          <i data-lucide="check" class="w-3.5 h-3.5"></i>
+          <span>Publish Changelog</span>
+        </button>
+      </div>
+    </div>
+
+    {changelogs.length === 0 ? (
+      <div class="py-8 text-center text-slate-500 dark:text-slate-400 text-xs">
+        <i data-lucide="scroll-text" class="w-8 h-8 mx-auto mb-2 opacity-30"></i>
+        <p>No changelog records published for this product yet.</p>
+        <p class="text-[11px] text-slate-400 dark:text-slate-500 mt-1">
+          Release notes keep customers informed about updates, security patches, and new features.
+        </p>
+      </div>
+    ) : (
+      <div class="space-y-3.5">
+        {changelogs.map((log) => (
+          <div class="p-4 rounded-xl bg-slate-50/70 dark:bg-slate-950/60 border border-slate-200 dark:border-slate-800/80 hover:border-slate-300 dark:hover:border-slate-700/80 transition">
+            <div class="flex items-center justify-between pb-2.5 mb-2.5 border-b border-slate-200 dark:border-slate-800/50">
+              <div class="flex items-center gap-2.5">
+                <span class="px-2.5 py-0.5 rounded-md bg-primary/10 text-primary border border-primary/20 text-xs font-mono font-bold">
+                  {log.version || defaultVersion || "Release"}
+                </span>
+                <span class="text-xs text-slate-500 dark:text-slate-400">
+                  {new Date(log.createdAt).toLocaleDateString("en-US", {
+                    year: "numeric",
+                    month: "short",
+                    day: "numeric",
+                  })}
+                </span>
+              </div>
+              <div class="flex items-center gap-1">
+                <button
+                  type="button"
+                  data-edit-changelog-btn={log.id}
+                  class="p-1 rounded text-slate-400 hover:text-primary dark:text-slate-500 dark:hover:text-primary transition cursor-pointer"
+                  title="Edit changelog"
+                >
+                  <i data-lucide="pencil" class="w-3.5 h-3.5"></i>
+                </button>
+                <button
+                  type="button"
+                  data-delete-changelog-btn={log.id}
+                  class="p-1 rounded text-slate-400 hover:text-rose-500 dark:text-slate-500 dark:hover:text-rose-400 transition cursor-pointer"
+                  title="Delete changelog"
+                >
+                  <i data-lucide="trash-2" class="w-3.5 h-3.5"></i>
+                </button>
+              </div>
+            </div>
+
+            <div
+              id={`view-changelog-${log.id}`}
+              class="prose dark:prose-invert prose-xs max-w-none text-slate-700 dark:text-slate-300"
+              set:html={log.content}
+            ></div>
+
+            <!-- Inline Edit Container for this Changelog Entry -->
+            <div id={`edit-changelog-box-${log.id}`} class="hidden mt-3 pt-3 border-t border-slate-200 dark:border-slate-800">
+              <div class="space-y-3">
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  <div>
+                    <InputLabel label="Version Label" optional />
+                    <Input
+                      id={`edit-cl-version-${log.id}`}
+                      type="text"
+                      value={log.version || ""}
+                      placeholder="e.g. v1.2.0"
+                      class="bg-white dark:bg-slate-900 border-slate-300 dark:border-slate-700 text-slate-900 dark:text-white rounded-lg text-xs"
+                    />
+                  </div>
+                  <div>
+                    <DatePicker
+                      id={`edit-cl-date-${log.id}`}
+                      name={`edit_date_${log.id}`}
+                      label="Release Date"
+                      value={new Date(log.createdAt).toISOString().split("T")[0]}
+                      defaultDate={new Date(log.createdAt).toISOString().split("T")[0]}
+                    />
+                  </div>
+                </div>
+                <HtmlEditor
+                  id={`edit-changelog-editor-${log.id}`}
+                  name={`edit_content_${log.id}`}
+                  label="Changelog Release Notes"
+                  value={log.content}
+                  minHeight="140px"
+                />
+                <div class="flex items-center justify-end gap-2 pt-2">
+                  <button
+                    type="button"
+                    data-cancel-edit-btn={log.id}
+                    class="px-3 py-1.5 rounded-lg bg-slate-200 dark:bg-slate-800 hover:bg-slate-300 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 text-xs font-semibold transition cursor-pointer"
+                  >
+                    Cancel
+                  </button>
+                  <button
+                    type="button"
+                    data-save-changelog-btn={log.id}
+                    class="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-lg bg-primary hover:bg-orange-600 text-white text-xs font-bold transition shadow-sm cursor-pointer"
+                  >
+                    <i data-lucide="check" class="w-3.5 h-3.5"></i>
+                    <span>Save Changes</span>
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        ))}
+      </div>
+    )}
+  </div>
+</Card>
+
+<script>
+  function submitAction(fields: Record<string, string>) {
+    const form = document.createElement("form");
+    form.method = "POST";
+    form.style.display = "none";
+    for (const [key, value] of Object.entries(fields)) {
+      const input = document.createElement("input");
+      input.type = "hidden";
+      input.name = key;
+      input.value = value;
+      form.appendChild(input);
+    }
+    document.body.appendChild(form);
+    form.submit();
+  }
+
+  // Toggle Standalone Add Changelog Box
+  const toggleBtn = document.getElementById("toggle-changelog-btn");
+  const cancelBtn = document.getElementById("cancel-changelog-btn");
+  const box = document.getElementById("quick-changelog-box");
+
+  if (toggleBtn && box) {
+    toggleBtn.addEventListener("click", () => {
+      box.classList.toggle("hidden");
+      if (!box.classList.contains("hidden")) {
+        box.scrollIntoView({ behavior: "smooth", block: "center" });
+      }
+    });
+  }
+
+  if (cancelBtn && box) {
+    cancelBtn.addEventListener("click", () => {
+      box.classList.add("hidden");
+    });
+  }
+
+  // Submit Standalone Add Changelog
+  const submitAddChangelogBtn = document.getElementById("submit-standalone-changelog-btn");
+  if (submitAddChangelogBtn) {
+    submitAddChangelogBtn.addEventListener("click", () => {
+      const boxContainer = document.getElementById("quick-changelog-box");
+      if (!boxContainer) return;
+
+      const versionInput = boxContainer.querySelector("#new-cl-version-input") as HTMLInputElement | null;
+      const dateInput = boxContainer.querySelector("input[name='quick_cl_date']") as HTMLInputElement | null;
+      const editorTextarea = boxContainer.querySelector("textarea[name='quick_cl_content']") as HTMLTextAreaElement | null;
+
+      const content = editorTextarea?.value.trim() || "";
+      if (!content) {
+        alert("Please enter release notes for this changelog entry.");
+        return;
+      }
+
+      submitAction({
+        _action: "add_changelog",
+        changelog_version: versionInput?.value || "",
+        changelog_date: dateInput?.value || "",
+        changelog_content: content,
+      });
+    });
+  }
+
+  // Toggle Inline Edit Changelog Entries
+  document.querySelectorAll("[data-edit-changelog-btn]").forEach((btn) => {
+    btn.addEventListener("click", () => {
+      const id = btn.getAttribute("data-edit-changelog-btn");
+      const editBox = document.getElementById(`edit-changelog-box-${id}`);
+      const viewEl = document.getElementById(`view-changelog-${id}`);
+      if (editBox) editBox.classList.toggle("hidden");
+      if (viewEl) viewEl.classList.toggle("hidden");
+    });
+  });
+
+  document.querySelectorAll("[data-cancel-edit-btn]").forEach((btn) => {
+    btn.addEventListener("click", () => {
+      const id = btn.getAttribute("data-cancel-edit-btn");
+      const editBox = document.getElementById(`edit-changelog-box-${id}`);
+      const viewEl = document.getElementById(`view-changelog-${id}`);
+      if (editBox) editBox.classList.add("hidden");
+      if (viewEl) viewEl.classList.remove("hidden");
+    });
+  });
+
+  // Save Updated Changelog Entry
+  document.querySelectorAll("[data-save-changelog-btn]").forEach((btn) => {
+    btn.addEventListener("click", () => {
+      const id = btn.getAttribute("data-save-changelog-btn");
+      if (!id) return;
+
+      const editBox = document.getElementById(`edit-changelog-box-${id}`);
+      if (!editBox) return;
+
+      const versionInput = editBox.querySelector(`#edit-cl-version-${id}`) as HTMLInputElement | null;
+      const dateInput = editBox.querySelector(`input[name="edit_date_${id}"]`) as HTMLInputElement | null;
+      const contentTextarea = editBox.querySelector(`textarea[name="edit_content_${id}"]`) as HTMLTextAreaElement | null;
+
+      const content = contentTextarea?.value.trim() || "";
+      if (!content) {
+        alert("Release notes cannot be empty.");
+        return;
+      }
+
+      submitAction({
+        _action: "update_changelog",
+        changelog_id: id,
+        changelog_version: versionInput?.value || "",
+        changelog_date: dateInput?.value || "",
+        changelog_content: content,
+      });
+    });
+  });
+
+  // Delete Changelog Entry
+  document.querySelectorAll("[data-delete-changelog-btn]").forEach((btn) => {
+    btn.addEventListener("click", () => {
+      const id = btn.getAttribute("data-delete-changelog-btn");
+      if (id && confirm("Delete this changelog entry permanently?")) {
+        submitAction({
+          _action: "delete_changelog",
+          changelog_id: id,
+        });
+      }
+    });
+  });
+</script>

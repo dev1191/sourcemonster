@@ -1,0 +1,193 @@
+---
+import type { Product } from "../../lib/db/schema/products";
+
+interface Props {
+  product: Product;
+  addonsCount?: number;
+  lastUpdatedDate?: Date | string;
+  whatsappUrl: string;
+}
+
+const {
+  product,
+  addonsCount = 0,
+  lastUpdatedDate = product.updatedAt,
+  whatsappUrl,
+} = Astro.props;
+
+const formattedDate = new Date(lastUpdatedDate).toLocaleDateString("en-US", {
+  month: "short",
+  day: "numeric",
+  year: "numeric",
+});
+---
+
+<div class="space-y-6 lg:sticky lg:top-28">
+  <!-- Main Purchase / Download Card -->
+  <div class="bg-white dark:bg-slate-900/90 backdrop-blur-xl border-2 border-primary/30 dark:border-primary/40 rounded-3xl p-6 sm:p-7 shadow-2xl relative overflow-hidden">
+    <!-- Glow Accent -->
+    <div class="absolute -top-16 -right-16 w-36 h-36 bg-primary/20 rounded-full blur-3xl pointer-events-none"></div>
+
+    <div class="flex items-center justify-between gap-2 mb-4">
+      <span class="inline-flex items-center gap-1 text-[11px] font-mono font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">
+        <i data-lucide="shield-check" class="w-4 h-4 text-emerald-500"></i>
+        <span>Official Release</span>
+      </span>
+      <span class="px-2.5 py-0.5 rounded-full bg-primary/10 text-primary border border-primary/20 text-[10px] font-mono font-bold">
+        Commercial
+      </span>
+    </div>
+
+    <div class="mb-6">
+      <div class="text-2xl font-black font-heading text-slate-900 dark:text-white tracking-tight">
+        Get Instant Access
+      </div>
+      <p class="text-xs text-slate-600 dark:text-slate-400 mt-1 leading-relaxed">
+        Full production source code, lifetime updates, and comprehensive setup documentation.
+      </p>
+    </div>
+
+    <!-- Primary Action Buttons -->
+    <div class="space-y-3 mb-6">
+      {product.codecanyonUrl ? (
+        <a
+          href={product.codecanyonUrl}
+          target="_blank"
+          rel="noopener noreferrer"
+          class="w-full py-4 px-5 bg-gradient-to-r from-primary to-orange-500 hover:from-orange-500 hover:to-primary text-white font-black rounded-2xl text-center text-sm shadow-xl shadow-primary/30 hover:shadow-primary/50 transition-all transform hover:-translate-y-0.5 flex items-center justify-center gap-2 group cursor-pointer"
+        >
+          <i data-lucide="shopping-bag" class="w-4 h-4 group-hover:scale-110 transition-transform"></i>
+          <span>Buy on CodeCanyon</span>
+          <i data-lucide="arrow-right" class="w-4 h-4 ml-1"></i>
+        </a>
+      ) : (
+        <a
+          href={whatsappUrl}
+          target="_blank"
+          rel="noopener noreferrer"
+          class="w-full py-4 px-5 bg-[#25D366] hover:bg-[#20ba59] text-white font-black rounded-2xl text-center text-sm shadow-xl shadow-green-500/30 hover:shadow-green-500/50 transition-all flex items-center justify-center gap-2"
+        >
+          <i data-lucide="message-circle" class="w-4 h-4"></i>
+          <span>Chat on WhatsApp</span>
+        </a>
+      )}
+
+      {product.demoUrl && (
+        <a
+          href={product.demoUrl}
+          target="_blank"
+          rel="noopener noreferrer"
+          class="w-full py-3 px-4 bg-slate-100 dark:bg-slate-800/90 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-800 dark:text-slate-200 font-bold rounded-2xl text-center text-xs border border-slate-200 dark:border-slate-700 transition flex items-center justify-center gap-2 group"
+        >
+          <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
+          <span>Explore Live Demo Sandbox</span>
+          <i data-lucide="external-link" class="w-3.5 h-3.5 opacity-60 group-hover:opacity-100 transition-opacity"></i>
+        </a>
+      )}
+
+      {product.documentationUrl && (
+        <a
+          href={product.documentationUrl}
+          target="_blank"
+          rel="noopener noreferrer"
+          class="w-full py-2.5 px-4 bg-transparent hover:bg-slate-100 dark:hover:bg-slate-800/50 text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white font-medium rounded-xl text-center text-xs transition flex items-center justify-center gap-1.5"
+        >
+          <i data-lucide="file-code-2" class="w-3.5 h-3.5"></i>
+          <span>Browse Documentation</span>
+        </a>
+      )}
+    </div>
+
+    <!-- Specs Sheet Table -->
+    <div class="pt-5 border-t border-slate-200 dark:border-slate-800/80 space-y-2.5 text-xs">
+      <div class="flex items-center justify-between text-slate-600 dark:text-slate-400">
+        <span class="flex items-center gap-1.5">
+          <i data-lucide="git-branch" class="w-3.5 h-3.5 text-primary"></i>
+          <span>Version</span>
+        </span>
+        <span class="font-mono font-bold text-slate-900 dark:text-white">{product.version || "v1.0.0"}</span>
+      </div>
+
+      <div class="flex items-center justify-between text-slate-600 dark:text-slate-400">
+        <span class="flex items-center gap-1.5">
+          <i data-lucide="calendar" class="w-3.5 h-3.5 text-primary"></i>
+          <span>Last Updated</span>
+        </span>
+        <span class="font-mono text-slate-900 dark:text-white">
+          {formattedDate}
+        </span>
+      </div>
+
+      <div class="flex items-center justify-between text-slate-600 dark:text-slate-400">
+        <span class="flex items-center gap-1.5">
+          <i data-lucide="code-2" class="w-3.5 h-3.5 text-primary"></i>
+          <span>Architecture</span>
+        </span>
+        <span class="font-mono font-semibold text-slate-900 dark:text-white">Full-Stack SaaS</span>
+      </div>
+
+      <div class="flex items-center justify-between text-slate-600 dark:text-slate-400">
+        <span class="flex items-center gap-1.5">
+          <i data-lucide="puzzle" class="w-3.5 h-3.5 text-primary"></i>
+          <span>Add-on Modules</span>
+        </span>
+        <span class="font-mono text-slate-900 dark:text-white">{addonsCount} available</span>
+      </div>
+
+      <div class="flex items-center justify-between text-slate-600 dark:text-slate-400">
+        <span class="flex items-center gap-1.5">
+          <i data-lucide="headphones" class="w-3.5 h-3.5 text-primary"></i>
+          <span>Support</span>
+        </span>
+        <span class="text-emerald-600 dark:text-emerald-400 font-semibold">Dedicated Team</span>
+      </div>
+    </div>
+
+    <!-- Assurance Checklist -->
+    <div class="mt-6 pt-5 border-t border-slate-200 dark:border-slate-800 space-y-2">
+      <div class="flex items-center gap-2 text-[11px] text-slate-600 dark:text-slate-400">
+        <i data-lucide="check" class="w-3.5 h-3.5 text-emerald-500 shrink-0"></i>
+        <span>100% Full Source Code &amp; Database Schemas</span>
+      </div>
+      <div class="flex items-center gap-2 text-[11px] text-slate-600 dark:text-slate-400">
+        <i data-lucide="check" class="w-3.5 h-3.5 text-emerald-500 shrink-0"></i>
+        <span>Free Lifetime Updates &amp; Security Patches</span>
+      </div>
+      <div class="flex items-center gap-2 text-[11px] text-slate-600 dark:text-slate-400">
+        <i data-lucide="check" class="w-3.5 h-3.5 text-emerald-500 shrink-0"></i>
+        <span>Clean Architecture, Easy to Brand &amp; Deploy</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Bespoke Customization Hunt Box -->
+  <div id="inquire" class="bg-gradient-to-br from-slate-900 to-black text-white rounded-3xl p-6 sm:p-7 shadow-xl border border-slate-800 relative overflow-hidden">
+    <div class="absolute -bottom-10 -right-10 w-28 h-28 bg-primary/30 rounded-full blur-2xl pointer-events-none"></div>
+
+    <div class="flex items-center gap-2 text-primary font-mono text-xs font-bold uppercase tracking-wider mb-2">
+      <i data-lucide="hammer" class="w-4 h-4"></i>
+      <span>Engineering Services</span>
+    </div>
+
+    <h3 class="text-xl font-black font-heading tracking-tight mb-2">
+      Need Tailored Features?
+    </h3>
+
+    <p class="text-xs text-slate-400 leading-relaxed mb-5">
+      The SourceMonster team can deploy, configure, customize, and build bespoke extensions for <strong>{product.title}</strong> directly on your cloud infrastructure.
+    </p>
+
+    <a
+      href={whatsappUrl}
+      target="_blank"
+      rel="noopener noreferrer"
+      class="w-full py-3.5 px-4 bg-[#25D366] hover:bg-[#20ba59] text-white font-bold rounded-xl text-center text-xs shadow-lg shadow-green-500/25 hover:shadow-green-500/40 transition-all flex items-center justify-center gap-2 cursor-pointer group"
+    >
+      <svg class="w-4 h-4 fill-current group-hover:scale-110 transition-transform" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+        <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z" />
+      </svg>
+      <span>Chat on WhatsApp &rarr;</span>
+    </a>
+  </div>
+</div>
+

@@ -1,0 +1,122 @@
+---
+import BaseLayout from "../../layouts/BaseLayout.astro";
+import Navbar from "../../components/Navbar.astro";
+import Footer from "../../components/Footer.astro";
+import { getPublishedProjects } from "../../services";
+
+const publishedProjects = await getPublishedProjects();
+---
+
+<BaseLayout title="Projects & Solutions | SourceMonster">
+  <Navbar />
+
+  <main class="pt-32 pb-24 min-h-screen bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-slate-100 transition-colors duration-200">
+    <!-- Header Banner -->
+    <section class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mb-16 text-center">
+      <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-primary/10 border border-primary/20 text-primary text-xs font-bold tracking-widest uppercase mb-4">
+        <span class="w-2 h-2 rounded-full bg-primary animate-pulse"></span>
+        Elite Commercial Projects
+      </div>
+      <h1 class="text-4xl sm:text-5xl lg:text-6xl font-black font-heading tracking-tight text-slate-900 dark:text-white mb-6">
+        Architected for <span class="text-primary">Performance</span> & Scale
+      </h1>
+      <p class="max-w-2xl mx-auto text-base sm:text-lg text-slate-600 dark:text-slate-400">
+        Production-tested web applications, full-stack SaaS boilerplates, and automated toolkits ready for immediate deployment.
+      </p>
+    </section>
+
+    <!-- Projects Grid -->
+    <section class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      {publishedProjects.length === 0 ? (
+        <div class="py-20 text-center text-slate-500 dark:text-slate-400">
+          <p class="text-lg">Our project catalog is currently being updated. Check back shortly!</p>
+        </div>
+      ) : (
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+          {publishedProjects.map((p) => (
+            <article class="bg-white dark:bg-slate-900/80 border border-slate-200 dark:border-slate-800 rounded-3xl overflow-hidden hover:border-primary/50 dark:hover:border-slate-700 transition duration-300 flex flex-col group shadow-xl shadow-slate-200/50 dark:shadow-black/50">
+              <!-- Thumbnail -->
+              <div class="relative h-60 bg-slate-100 dark:bg-slate-950 overflow-hidden border-b border-slate-200 dark:border-slate-800/80">
+                {p.thumbnailUrl ? (
+                  <img
+                    src={p.thumbnailUrl}
+                    alt={p.title}
+                    class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                  />
+                ) : (
+                  <div class="w-full h-full flex flex-col items-center justify-center text-slate-400 dark:text-slate-700">
+                    <i data-lucide="package" class="w-12 h-12 mb-2 text-slate-400 dark:text-slate-700"></i>
+                    <span class="text-xs uppercase tracking-wider text-slate-500 dark:text-slate-600 font-mono">SourceMonster Project</span>
+                  </div>
+                )}
+
+                <div class="absolute top-4 left-4 flex gap-2">
+                  {p.isFeatured && (
+                    <span class="px-3 py-1 rounded-full bg-primary text-white text-[11px] font-black uppercase tracking-wider shadow-lg shadow-primary/40">
+                      Featured
+                    </span>
+                  )}
+                  {p.version && (
+                    <span class="px-2.5 py-1 rounded-full bg-white/90 dark:bg-slate-900/90 backdrop-blur-md text-slate-700 dark:text-slate-300 border border-slate-200 dark:border-slate-700 text-[11px] font-mono font-medium shadow-xs">
+                      {p.version}
+                    </span>
+                  )}
+                </div>
+              </div>
+
+              <!-- Content Body -->
+              <div class="p-6 sm:p-8 flex-1 flex flex-col justify-between">
+                <div>
+                  <h2 class="text-2xl font-black font-heading text-slate-900 dark:text-white group-hover:text-primary transition-colors tracking-tight mb-3">
+                    <a href={`/projects/${p.slug}`} class="text-slate-900 dark:text-white group-hover:text-primary transition-colors">{p.title}</a>
+                  </h2>
+
+                  <p class="text-slate-600 dark:text-slate-400 text-sm leading-relaxed mb-6 line-clamp-3">
+                    {p.shortDescription}
+                  </p>
+
+                  <!-- Technologies -->
+                  {p.technologies && p.technologies.length > 0 && (
+                    <div class="flex flex-wrap gap-1.5 mb-6">
+                      {p.technologies.map((t) => (
+                        <span class="px-2.5 py-1 rounded-lg bg-slate-100 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 text-[11px] font-medium text-slate-700 dark:text-slate-300 font-mono">
+                          {t}
+                        </span>
+                      ))}
+                    </div>
+                  )}
+                </div>
+
+                <!-- Action Buttons -->
+                <div class="pt-6 border-t border-slate-200 dark:border-slate-800/80 flex flex-wrap items-center justify-between gap-3">
+                  <a
+                    href={`/projects/${p.slug}`}
+                    class="inline-flex items-center gap-2 text-sm font-bold text-slate-800 dark:text-white hover:text-primary dark:hover:text-primary transition"
+                  >
+                    <span>View Details & Specs</span>
+                    <i data-lucide="arrow-right" class="w-4 h-4 text-primary"></i>
+                  </a>
+
+                  {p.codecanyonUrl && (
+                    <a
+                      href={p.codecanyonUrl}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      class="px-5 py-2.5 bg-primary hover:bg-orange-600 text-white rounded-xl text-xs font-bold shadow-lg shadow-primary/25 hover:shadow-primary/40 transition flex items-center gap-2"
+                    >
+                      <i data-lucide="shopping-cart" class="w-3.5 h-3.5"></i>
+                      Buy on CodeCanyon
+                    </a>
+                  )}
+                </div>
+              </div>
+            </article>
+          ))}
+        </div>
+      )}
+    </section>
+  </main>
+
+  <Footer />
+</BaseLayout>
+

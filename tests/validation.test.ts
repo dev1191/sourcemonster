@@ -1,6 +1,6 @@
 import { describe, it, expect } from "vitest";
 import { leadSubmissionSchema, escapeHtml } from "../src/lib/validation/lead";
-import { productSchema } from "../src/lib/validation/product";
+import { projectSchema, productSchema } from "../src/lib/validation/project";
 
 describe("Validation Schemas & HTML Sanitization", () => {
   describe("Lead Submission Schema", () => {

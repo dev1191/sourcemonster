@@ -1,0 +1,319 @@
+---
+import AdminLayout from "../../../../layouts/AdminLayout.astro";
+import {
+  createAddon,
+  getAllAdminProjects,
+} from "../../../../services";
+import { Button, Dropzone, Toast } from "../../../../components/ui";
+import { Card, CardHeader, CardTitle, CardContent } from "../../../../components/starwind/card";
+import { Input } from "../../../../components/starwind/input";
+import { Textarea } from "../../../../components/starwind/textarea";
+
+let errorMessage = "";
+const preselectedProductId = Astro.url.searchParams.get("projectId") || Astro.url.searchParams.get("productId") || "";
+
+// Fetch all parent projects for selection
+const allProjects = await getAllAdminProjects();
+
+if (Astro.request.method === "POST") {
+  try {
+    const formData = await Astro.request.formData();
+    const projectId = formData.get("projectId")?.toString().trim() || formData.get("productId")?.toString().trim() || "";
+    const title = formData.get("title")?.toString().trim() || "";
+    const description = formData.get("description")?.toString().trim() || null;
+    const isFree = formData.get("isFree") === "on";
+    const priceRaw = formData.get("price")?.toString().trim();
+    const buyUrl = formData.get("buyUrl")?.toString().trim() || null;
+    const demoUrl = formData.get("demoUrl")?.toString().trim() || null;
+    const sortOrder = parseInt(formData.get("sortOrder")?.toString() || "0", 10);
+
+    const thumbnailFile = formData.get("thumbnail") as File | null;
+    const galleryFiles = formData.getAll("screenshots") as File[];
+
+    await createAddon(
+      {
+        projectId,
+        title,
+        description,
+        isFree,
+        price: priceRaw,
+        buyUrl,
+        demoUrl,
+        sortOrder,
+      },
+      thumbnailFile,
+      galleryFiles
+    );
+
+    return Astro.redirect(`/admin/projects/addons${projectId ? `?project=${projectId}` : ""}`);
+  } catch (err: any) {
+    console.error("Create project addon failed:", err);
+    errorMessage = err?.message || "An unexpected error occurred while creating the add-on.";
+  }
+}
+---
+
+<AdminLayout title="New Add-on | SourceMonster Admin" activeNav="addons">
+  <div class="flex items-center justify-between pb-6 border-b border-slate-200 dark:border-slate-800">
+    <div>
+      <div class="flex items-center gap-2 text-xs text-slate-500 dark:text-slate-400 mb-1">
+        <a href="/admin/projects" class="hover:text-slate-900 dark:hover:text-white transition">Projects</a>
+        <span>/</span>
+        <a href="/admin/projects/addons" class="hover:text-slate-900 dark:hover:text-white transition">Add-ons</a>
+        <span>/</span>
+        <span class="text-slate-900 dark:text-white">New</span>
+      </div>
+      <h1 class="text-2xl font-black text-slate-900 dark:text-white tracking-tight">Create Project Add-on</h1>
+      <p class="text-xs text-slate-500 dark:text-slate-400 mt-1">
+        Add a companion module, extension, or plugin tied to one of your projects.
+      </p>
+    </div>
+    <div class="flex items-center gap-3">
+      <Button href="/admin/projects/addons" variant="secondary" size="sm" icon="arrow-left">
+        Back to Add-ons
+      </Button>
+    </div>
+  </div>
+
+  <Toast variant="error" message={errorMessage} />
+
+  <form method="POST" enctype="multipart/form-data" class="my-6 space-y-8 max-w-4xl">
+    <!-- Parent Project & Basic Info -->
+    <Card class="bg-white dark:bg-slate-900/70 border border-slate-200 dark:border-slate-800/80 rounded-2xl p-6 shadow-sm dark:shadow-xl">
+      <CardHeader class="p-0 pb-4 mb-4 border-b border-slate-200 dark:border-slate-800">
+        <CardTitle class="text-sm font-bold text-primary uppercase tracking-wider flex items-center gap-2">
+          <i data-lucide="package" class="w-4 h-4"></i>
+          <span>Parent Project &amp; Identity</span>
+        </CardTitle>
+      </CardHeader>
+      <CardContent class="p-0 space-y-4">
+        <!-- Parent Project Dropdown -->
+        <div>
+          <label class="block text-xs font-semibold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-1.5">
+            Parent Project *
+          </label>
+          <select
+            name="projectId"
+            required
+            class="w-full px-4 py-2.5 bg-white dark:bg-slate-950 border border-slate-300 dark:border-slate-700/80 rounded-xl text-slate-900 dark:text-white text-sm focus:border-primary focus:outline-hidden"
+          >
+            <option value="">-- Select Parent Project --</option>
+            {allProjects.map((p) => (
+              <option value={p.id} selected={p.id === preselectedProductId}>
+                {p.title}
+              </option>
+            ))}
+          </select>
+          <p class="text-[11px] text-slate-500 mt-1">The primary software project this add-on or module extends.</p>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div>
+            <label class="block text-xs font-semibold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-1.5">
+              Add-on Title *
+            </label>
+            <Input
+              name="title"
+              type="text"
+              required
+              placeholder="e.g. Multi-Vendor Marketplace Add-on"
+              class="w-full bg-white dark:bg-slate-950 border-slate-300 dark:border-slate-700/80 text-slate-900 dark:text-white rounded-xl"
+            />
+          </div>
+          <div>
+            <label class="block text-xs font-semibold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-1.5">
+              Slug *
+            </label>
+            <Input
+              name="slug"
+              type="text"
+              required
+              placeholder="e.g. multi-vendor-marketplace"
+              class="w-full bg-white dark:bg-slate-950 border-slate-300 dark:border-slate-700/80 text-slate-900 dark:text-white font-mono rounded-xl"
+            />
+          </div>
+        </div>
+
+        <div>
+          <label class="block text-xs font-semibold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-1.5">
+            Description
+          </label>
+          <Textarea
+            name="description"
+            rows={3}
+            placeholder="Brief overview of features, compatibilities, and benefits..."
+            class="w-full bg-white dark:bg-slate-950 border-slate-300 dark:border-slate-700/80 text-slate-900 dark:text-white rounded-xl"
+          />
+        </div>
+      </CardContent>
+    </Card>
+
+    <!-- Pricing & Links -->
+    <Card class="bg-white dark:bg-slate-900/70 border border-slate-200 dark:border-slate-800/80 rounded-2xl p-6 shadow-sm dark:shadow-xl">
+      <CardHeader class="p-0 pb-4 mb-4 border-b border-slate-200 dark:border-slate-800">
+        <CardTitle class="text-sm font-bold text-primary uppercase tracking-wider flex items-center gap-2">
+          <i data-lucide="tag" class="w-4 h-4"></i>
+          <span>Pricing &amp; External Links</span>
+        </CardTitle>
+      </CardHeader>
+      <CardContent class="p-0 space-y-4">
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4 items-center">
+          <div>
+            <label class="block text-xs font-semibold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-1.5">
+              Price (USD)
+            </label>
+            <div class="relative">
+              <span class="absolute left-3.5 top-2.5 text-slate-500 text-sm">$</span>
+              <Input
+                name="price"
+                type="number"
+                step="0.01"
+                min="0"
+                placeholder="29.00"
+                class="w-full pl-8 bg-white dark:bg-slate-950 border-slate-300 dark:border-slate-700/80 text-slate-900 dark:text-white font-mono rounded-xl"
+              />
+            </div>
+          </div>
+          <div class="pt-6">
+            <label class="flex items-center gap-3 cursor-pointer">
+              <input
+                type="checkbox"
+                name="isFree"
+                class="w-4 h-4 rounded text-primary bg-white dark:bg-slate-950 border-slate-300 dark:border-slate-700 focus:ring-primary"
+              />
+              <div>
+                <span class="text-sm font-semibold text-slate-900 dark:text-white">Free Module</span>
+                <p class="text-[11px] text-slate-500 dark:text-slate-400">Check if this add-on is included for free or open source.</p>
+              </div>
+            </label>
+          </div>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <div>
+            <label class="block text-xs font-semibold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-1.5">
+              Buy / Marketplace URL
+            </label>
+            <Input
+              name="buyUrl"
+              type="url"
+              placeholder="https://codecanyon.net/item/..."
+              class="w-full bg-white dark:bg-slate-950 border-slate-300 dark:border-slate-700/80 text-slate-900 dark:text-white font-mono text-xs rounded-xl"
+            />
+          </div>
+          <div>
+            <label class="block text-xs font-semibold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-1.5">
+              Live Demo URL
+            </label>
+            <Input
+              name="demoUrl"
+              type="url"
+              placeholder="https://demo.sourcemonster.in/..."
+              class="w-full bg-white dark:bg-slate-950 border-slate-300 dark:border-slate-700/80 text-slate-900 dark:text-white font-mono text-xs rounded-xl"
+            />
+          </div>
+          <div>
+            <label class="block text-xs font-semibold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-1.5">
+              Documentation URL
+            </label>
+            <Input
+              name="documentationUrl"
+              type="url"
+              placeholder="https://docs.sourcemonster.in/..."
+              class="w-full bg-white dark:bg-slate-950 border-slate-300 dark:border-slate-700/80 text-slate-900 dark:text-white font-mono text-xs rounded-xl"
+            />
+          </div>
+        </div>
+      </CardContent>
+    </Card>
+
+    <!-- Media (Thumbnail & Gallery) -->
+    <Card class="bg-white dark:bg-slate-900/70 border border-slate-200 dark:border-slate-800/80 rounded-2xl p-6 shadow-sm dark:shadow-xl">
+      <CardHeader class="p-0 pb-4 mb-4 border-b border-slate-200 dark:border-slate-800">
+        <CardTitle class="text-sm font-bold text-primary uppercase tracking-wider flex items-center gap-2">
+          <i data-lucide="image" class="w-4 h-4"></i>
+          <span>Add-on Visuals &amp; Media</span>
+        </CardTitle>
+      </CardHeader>
+      <CardContent class="p-0 space-y-6">
+        <!-- Thumbnail Upload -->
+        <div>
+          <label class="block text-xs font-semibold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-1.5">
+            Module Cover / Thumbnail
+          </label>
+          <Dropzone
+            name="thumbnail"
+            label="Upload Add-on Thumbnail"
+            description="Recommended: 600x400 PNG or WebP"
+            accept="image/*"
+          />
+        </div>
+
+        <!-- Screenshots Upload -->
+        <div>
+          <label class="block text-xs font-semibold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-1.5">
+            Gallery Screenshots (Optional)
+          </label>
+          <Dropzone
+            name="screenshots"
+            label="Upload Screenshots"
+            description="Upload multiple screenshots showcasing add-on features"
+            accept="image/*"
+            multiple={true}
+          />
+        </div>
+      </CardContent>
+    </Card>
+
+    <!-- Settings & Visibility -->
+    <Card class="bg-white dark:bg-slate-900/70 border border-slate-200 dark:border-slate-800/80 rounded-2xl p-6 shadow-sm dark:shadow-xl">
+      <CardHeader class="p-0 pb-4 mb-4 border-b border-slate-200 dark:border-slate-800">
+        <CardTitle class="text-sm font-bold text-primary uppercase tracking-wider flex items-center gap-2">
+          <i data-lucide="sliders" class="w-4 h-4"></i>
+          <span>Settings &amp; Sorting</span>
+        </CardTitle>
+      </CardHeader>
+      <CardContent class="p-0">
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4 items-center">
+          <div>
+            <label class="block text-xs font-semibold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-1.5">
+              Display Sort Order
+            </label>
+            <Input
+              name="sortOrder"
+              type="number"
+              value="0"
+              class="w-full bg-white dark:bg-slate-950 border-slate-300 dark:border-slate-700/80 text-slate-900 dark:text-white font-mono rounded-xl"
+            />
+            <p class="text-[11px] text-slate-500 mt-1">Lower numbers appear first.</p>
+          </div>
+          <div class="pt-6">
+            <label class="flex items-center gap-3 cursor-pointer">
+              <input
+                type="checkbox"
+                name="isActive"
+                checked
+                class="w-4 h-4 rounded text-primary bg-white dark:bg-slate-950 border-slate-300 dark:border-slate-700 focus:ring-primary"
+              />
+              <div>
+                <span class="text-sm font-semibold text-slate-900 dark:text-white">Active &amp; Published</span>
+                <p class="text-[11px] text-slate-500 dark:text-slate-400">Make this add-on visible on the public website.</p>
+              </div>
+            </label>
+          </div>
+        </div>
+      </CardContent>
+    </Card>
+
+    <!-- Submit buttons -->
+    <div class="flex items-center justify-end gap-3 pt-4 border-t border-slate-200 dark:border-slate-800">
+      <Button href="/admin/projects/addons" variant="secondary" size="md">
+        Cancel
+      </Button>
+      <Button type="submit" variant="primary" size="md" icon="check">
+        Save Add-on
+      </Button>
+    </div>
+  </form>
+</AdminLayout>
+

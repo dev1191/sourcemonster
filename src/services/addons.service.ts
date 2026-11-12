@@ -13,6 +13,7 @@ import { uploadFile, getPublicUrl } from "../lib/storage";
 
 export interface AddonItem {
   id: string;
+  projectId: string;
   productId: string;
   title: string;
   name: string;
@@ -24,6 +25,8 @@ export interface AddonItem {
   sortOrder: number;
   thumbnailMediaId: string | null;
   thumbnailUrl: string | null;
+  projectTitle: string | null;
+  projectSlug: string | null;
   productTitle: string | null;
   productSlug: string | null;
   createdAt: Date;
@@ -40,7 +43,8 @@ export interface AddonDetail extends AddonItem {
 }
 
 export interface CreateAddonInput {
-  productId: string;
+  projectId?: string;
+  productId?: string;
   title: string;
   description?: string | null;
   price?: string | null;
@@ -72,7 +76,8 @@ export async function getAllAdminAddons(selectedProductId?: string): Promise<Add
     .filter((r) => (!selectedProductId ? true : r.addon.productId === selectedProductId))
     .map(({ addon, product, mediaRecord }) => ({
       id: addon.id,
-      productId: addon.productId,
+      projectId: addon.projectId,
+      productId: addon.projectId,
       title: addon.name,
       name: addon.name,
       description: addon.description,
@@ -83,6 +88,8 @@ export async function getAllAdminAddons(selectedProductId?: string): Promise<Add
       sortOrder: addon.sortOrder,
       thumbnailMediaId: addon.thumbnailMediaId,
       thumbnailUrl: mediaRecord ? getPublicUrl(mediaRecord.objectKey, mediaRecord.disk) : null,
+      projectTitle: product?.title || null,
+      projectSlug: product?.slug || null,
       productTitle: product?.title || null,
       productSlug: product?.slug || null,
       createdAt: addon.createdAt,
@@ -156,8 +163,9 @@ export async function createAddon(
   thumbnailFile?: File | null,
   galleryFiles?: File[]
 ): Promise<ProductAddon> {
-  if (!input.productId) {
-    throw new Error("Please select a parent product.");
+  const parentId = input.projectId || input.productId;
+  if (!parentId) {
+    throw new Error("Please select a parent project.");
   }
   if (!input.title || input.title.trim() === "") {
     throw new Error("Add-on title is required.");
@@ -184,7 +192,7 @@ export async function createAddon(
   const [createdAddon] = await db
     .insert(productAddons)
     .values({
-      productId: input.productId,
+      projectId: parentId,
       name: input.title.trim(),
       description: input.description?.trim() || "",
       price: input.isFree ? "0.00" : input.price?.trim() || null,
@@ -260,10 +268,11 @@ export async function updateAddon(
     }
   }
 
-  const [updated] = await db
+    const newParentId = input.projectId !== undefined ? input.projectId : input.productId;
+    const [updated] = await db
     .update(productAddons)
     .set({
-      productId: input.productId !== undefined ? input.productId : existing.productId,
+      projectId: newParentId !== undefined ? newParentId : existing.projectId,
       name: input.title !== undefined ? input.title.trim() : existing.name,
       description: input.description !== undefined ? (input.description?.trim() || "") : existing.description,
       price: input.isFree ? "0.00" : input.price !== undefined ? (input.price?.trim() || null) : existing.price,

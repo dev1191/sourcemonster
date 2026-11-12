@@ -1,4 +1,4 @@
-export * from "./products.service";
+export * from "./projects.service";
 export * from "./addons.service";
 export * from "./leads.service";
 export * from "./services.service";

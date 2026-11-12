@@ -1,0 +1,176 @@
+---
+import { Card, InputLabel } from "../../ui";
+import { Input } from "../../starwind/input";
+import { Textarea } from "../../starwind/textarea";
+import type { Product } from "../../../lib/db/schema";
+
+interface Props {
+  product?: Partial<Product>;
+}
+
+const { product } = Astro.props;
+const activeSlug = product?.slug || "product-slug";
+const activeTitle = product?.seoTitle || product?.title || "Product Title";
+const activeDesc =
+  product?.seoDescription ||
+  product?.shortDescription ||
+  "High-performance turnkey source code, boilerplate, and developer assets.";
+---
+
+<Card
+  title="Search Engine Optimization"
+  subtitle="Manage search ranking metadata and social tags"
+  icon="search"
+>
+  <div class="space-y-4 pt-1">
+    <div>
+      <InputLabel
+        for="seo-title-input"
+        label="SEO Title"
+        optional
+        subtext="Recommended: ~60 chars"
+      />
+      <Input
+        id="seo-title-input"
+        name="seoTitle"
+        type="text"
+        value={product?.seoTitle || ""}
+        placeholder="Defaults to product title..."
+        class="bg-white dark:bg-slate-950/80 border-slate-300 dark:border-slate-700/80 text-slate-900 dark:text-white placeholder:text-slate-400 rounded-xl text-xs"
+      />
+      <div
+        class="text-right text-[10px] font-mono text-slate-400 mt-1"
+        id="seo-title-counter"
+      >
+        {(product?.seoTitle || "").length} / 60
+      </div>
+    </div>
+
+    <div>
+      <InputLabel
+        for="seo-desc-input"
+        label="SEO Meta Description"
+        optional
+        subtext="Recommended: ~160 chars"
+      />
+      <Textarea
+        id="seo-desc-input"
+        name="seoDescription"
+        rows={5}
+        value={product?.seoDescription || ""}
+        placeholder="Defaults to short description..."
+        class="bg-white dark:bg-slate-950/80 border-slate-300 dark:border-slate-700/80 text-slate-900 dark:text-white placeholder:text-slate-400 rounded-xl text-xs"
+      />
+      <div
+        class="text-right text-[10px] font-mono text-slate-400 mt-1"
+        id="seo-desc-counter"
+      >
+        {(product?.seoDescription || "").length} / 160
+      </div>
+    </div>
+
+    <!-- Real-Time Google Search SERP Preview Box -->
+    <div
+      class="p-3.5 rounded-xl bg-slate-50 dark:bg-slate-950/80 border border-slate-200 dark:border-slate-800 space-y-1"
+    >
+      <div
+        class="text-[10px] font-bold uppercase tracking-wider text-slate-400 dark:text-slate-500 mb-1.5 flex items-center gap-1.5"
+      >
+        <i data-lucide="eye" class="w-3 h-3 text-primary"></i>
+        <span>Google Search Preview</span>
+      </div>
+      <div
+        class="text-[11px] text-emerald-600 dark:text-emerald-400 font-mono truncate"
+      >
+        sourcemonster.in &rsaquo; products &rsaquo; <span id="serp-slug-preview"
+          >{activeSlug}</span
+        >
+      </div>
+      <div
+        id="serp-title-preview"
+        class="text-sm font-semibold text-blue-600 dark:text-blue-400 hover:underline cursor-pointer truncate"
+      >
+        {activeTitle} | SourceMonster
+      </div>
+      <div
+        id="serp-desc-preview"
+        class="text-xs text-slate-600 dark:text-slate-400 line-clamp-2 leading-relaxed"
+      >
+        {activeDesc}
+      </div>
+    </div>
+  </div>
+</Card>
+
+<script>
+  import { slugify } from "../../../lib/utils";
+
+  const titleInput = document.getElementById(
+    "title-input",
+  ) as HTMLInputElement | null;
+  const slugInput = document.getElementById(
+    "slug-input",
+  ) as HTMLInputElement | null;
+  const shortDescInput = document.getElementById(
+    "short-desc-input",
+  ) as HTMLTextAreaElement | null;
+  const seoTitleInput = document.getElementById(
+    "seo-title-input",
+  ) as HTMLInputElement | null;
+  const seoDescInput = document.getElementById(
+    "seo-desc-input",
+  ) as HTMLTextAreaElement | null;
+
+  const serpSlug = document.getElementById("serp-slug-preview");
+  const serpTitle = document.getElementById("serp-title-preview");
+  const serpDesc = document.getElementById("serp-desc-preview");
+  const seoTitleCounter = document.getElementById("seo-title-counter");
+  const seoDescCounter = document.getElementById("seo-desc-counter");
+
+  // Slug auto-generation on create
+  if (titleInput && slugInput) {
+    titleInput.addEventListener("input", () => {
+      if (!slugInput.dataset.touched) {
+        slugInput.value = slugify(titleInput.value);
+        updateSerpPreview();
+      }
+    });
+    slugInput.addEventListener("input", () => {
+      slugInput.dataset.touched = "true";
+    });
+  }
+
+  function updateSerpPreview() {
+    const sSlug = slugInput?.value.trim() || "product-slug";
+    const sTitle =
+      seoTitleInput?.value.trim() ||
+      titleInput?.value.trim() ||
+      "Product Title";
+    const sDesc =
+      seoDescInput?.value.trim() ||
+      shortDescInput?.value.trim() ||
+      "High-performance turnkey source code, boilerplate, and developer assets.";
+
+    if (serpSlug) serpSlug.textContent = sSlug;
+    if (serpTitle) serpTitle.textContent = `${sTitle} | SourceMonster`;
+    if (serpDesc) serpDesc.textContent = sDesc;
+
+    if (seoTitleCounter && seoTitleInput) {
+      const len = seoTitleInput.value.length;
+      seoTitleCounter.textContent = `${len} / 60`;
+      seoTitleCounter.classList.toggle("text-rose-500", len > 60);
+    }
+
+    if (seoDescCounter && seoDescInput) {
+      const len = seoDescInput.value.length;
+      seoDescCounter.textContent = `${len} / 160`;
+      seoDescCounter.classList.toggle("text-rose-500", len > 160);
+    }
+  }
+
+  [titleInput, slugInput, shortDescInput, seoTitleInput, seoDescInput].forEach(
+    (el) => {
+      el?.addEventListener("input", updateSerpPreview);
+    },
+  );
+</script>

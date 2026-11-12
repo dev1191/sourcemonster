@@ -3,11 +3,11 @@ import AdminLayout from "../../layouts/AdminLayout.astro";
 import { getDashboardMetrics } from "../../services";
 
 const {
-  totalProductsCount,
-  publishedProductsCount,
+  totalProjectsCount,
+  publishedProjectsCount,
   totalLeadsCount,
   newLeadsCount,
-  recentProducts,
+  recentProjects,
   recentLeads,
 } = await getDashboardMetrics();
 
@@ -25,11 +25,11 @@ const user = Astro.locals.adminUser;
     </div>
     <div class="flex items-center gap-2">
       <a
-        href="/admin/products/new"
+        href="/admin/projects/new"
         class="inline-flex items-center gap-2 px-4 py-2 bg-primary hover:bg-orange-600 text-white rounded-xl text-xs font-semibold shadow-md shadow-primary/20 transition"
       >
         <i data-lucide="plus" class="w-4 h-4"></i>
-        New Product
+        New Project
       </a>
       <a
         href="/admin/leads"
@@ -43,19 +43,19 @@ const user = Astro.locals.adminUser;
 
   <!-- Metric Cards Grid -->
   <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 my-6">
-    <!-- Products Metric -->
+    <!-- Projects Metric -->
     <div class="bg-white dark:bg-slate-900/60 border border-slate-200 dark:border-slate-800/80 rounded-2xl p-5 relative overflow-hidden shadow-xs dark:shadow-md">
       <div class="flex items-center justify-between text-slate-500 dark:text-slate-400 mb-2">
-        <span class="text-xs font-semibold uppercase tracking-wider">Total Products</span>
+        <span class="text-xs font-semibold uppercase tracking-wider">Total Projects</span>
         <div class="p-2 bg-primary/10 text-primary rounded-lg">
-          <i data-lucide="package" class="w-4 h-4"></i>
+          <i data-lucide="folder-kanban" class="w-4 h-4"></i>
         </div>
       </div>
-      <div class="text-3xl font-black text-slate-900 dark:text-white tracking-tight">{totalProductsCount}</div>
+      <div class="text-3xl font-black text-slate-900 dark:text-white tracking-tight">{totalProjectsCount}</div>
       <div class="mt-2 text-xs text-emerald-600 dark:text-emerald-400 flex items-center gap-1">
-        <span>{publishedProductsCount} published</span>
+        <span>{publishedProjectsCount} published</span>
         <span class="text-slate-300 dark:text-slate-600">•</span>
-        <span class="text-slate-500 dark:text-slate-400">{totalProductsCount - publishedProductsCount} drafts</span>
+        <span class="text-slate-500 dark:text-slate-400">{totalProjectsCount - publishedProjectsCount} drafts</span>
       </div>
     </div>
 
@@ -111,26 +111,26 @@ const user = Astro.locals.adminUser;
 
   <!-- Content Tables Grid -->
   <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mt-6">
-    <!-- Recent Products Card -->
+    <!-- Recent Projects Card -->
     <div class="bg-white dark:bg-slate-900/70 border border-slate-200 dark:border-slate-800/80 rounded-2xl p-5 shadow-sm dark:shadow-md">
       <div class="flex items-center justify-between mb-4">
         <h2 class="text-sm font-bold text-slate-900 dark:text-white flex items-center gap-2">
-          <i data-lucide="package" class="w-4 h-4 text-primary"></i>
+          <i data-lucide="folder-kanban" class="w-4 h-4 text-primary"></i>
           Catalog Highlights
         </h2>
-        <a href="/admin/products" class="text-xs text-primary hover:underline font-semibold">View all &rarr;</a>
+        <a href="/admin/projects" class="text-xs text-primary hover:underline font-semibold">View all &rarr;</a>
       </div>
 
-      {recentProducts.length === 0 ? (
+      {recentProjects.length === 0 ? (
         <div class="py-10 text-center text-slate-500 text-xs">
-          No products in database yet. Click "New Product" or run seeder.
+          No projects in database yet. Click "New Project" or run seeder.
         </div>
       ) : (
         <div class="divide-y divide-slate-200 dark:divide-slate-800/80">
-          {recentProducts.map((p) => (
+          {recentProjects.map((p) => (
             <div class="py-3 flex items-center justify-between gap-3">
               <div class="overflow-hidden">
-                <a href={`/admin/products/${p.id}/edit`} class="text-xs font-semibold text-slate-900 dark:text-white hover:text-primary transition truncate block">
+                <a href={`/admin/projects/${p.id}/edit`} class="text-xs font-semibold text-slate-900 dark:text-white hover:text-primary transition truncate block">
                   {p.title}
                 </a>
                 <span class="text-[11px] text-slate-500 dark:text-slate-400 truncate block">/{p.slug}</span>
@@ -144,7 +144,7 @@ const user = Astro.locals.adminUser;
                   {p.status}
                 </span>
                 <a
-                  href={`/admin/products/${p.id}/edit`}
+                  href={`/admin/projects/${p.id}/edit`}
                   class="p-1.5 text-slate-400 hover:text-slate-900 dark:hover:text-white rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800 transition"
                   title="Edit"
                 >

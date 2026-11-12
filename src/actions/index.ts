@@ -25,7 +25,7 @@ export const server = {
         return { success: true, id: "filtered" };
       }
 
-      const { name, email, service, message, company, budget, sourcePage, productId } = input;
+      const { name, email, service, message, company, budget, sourcePage, projectId, productId } = input;
 
       let savedLeadId = "";
 
@@ -36,7 +36,8 @@ export const server = {
           email,
           company,
           service,
-          productId,
+          projectId: projectId || productId,
+          productId: projectId || productId,
           budget,
           message,
           sourcePage,

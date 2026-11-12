@@ -1,0 +1,77 @@
+---
+import { Card, InputLabel, HtmlEditor } from "../../ui";
+import { Input } from "../../starwind/input";
+import { Textarea } from "../../starwind/textarea";
+import type { Product } from "../../../lib/db/schema";
+
+interface Props {
+  product?: Partial<Product>;
+}
+
+const { product } = Astro.props;
+---
+
+<Card
+  title="General Information"
+  subtitle="Primary identity, URL slug, and architectural narrative"
+  icon="package"
+>
+  <div class="space-y-5 pt-2">
+    <div class="grid grid-cols-1 sm:grid-cols-2 gap-5">
+      <div>
+        <InputLabel for="title-input" label="Product Title" required />
+        <Input
+          id="title-input"
+          name="title"
+          type="text"
+          required
+          value={product?.title || ""}
+          placeholder="e.g. MonsterSaaS Boilerplate"
+          class="bg-white dark:bg-slate-950/80 border-slate-300 dark:border-slate-700/80 text-slate-900 dark:text-white placeholder:text-slate-400 dark:placeholder:text-slate-500 rounded-xl"
+        />
+      </div>
+
+      <div>
+        <InputLabel for="slug-input" label="URL Slug" required subtext="/products/[slug]" />
+        <Input
+          id="slug-input"
+          name="slug"
+          type="text"
+          required
+          value={product?.slug || ""}
+          placeholder="e.g. monstersaas-boilerplate"
+          class="bg-white dark:bg-slate-950/80 border-slate-300 dark:border-slate-700/80 text-slate-900 dark:text-white font-mono placeholder:text-slate-400 dark:placeholder:text-slate-500 rounded-xl"
+        />
+      </div>
+    </div>
+
+    <div>
+      <InputLabel
+        for="short-desc-input"
+        label="Short Description (Card Summary)"
+        required
+        subtext={"Used in catalog cards & listings"}
+      />
+      <Textarea
+        id="short-desc-input"
+        name="shortDescription"
+        rows={2}
+        required
+        value={product?.shortDescription || ""}
+        placeholder="Brief 1-2 sentence pitch for catalog cards and search highlights..."
+        class="bg-white dark:bg-slate-950/80 border-slate-300 dark:border-slate-700/80 text-slate-900 dark:text-white placeholder:text-slate-400 dark:placeholder:text-slate-500 rounded-xl"
+      />
+    </div>
+
+    <div>
+      <InputLabel label="Full Architectural Description" required subtext="Rich HTML / Visual" />
+      <HtmlEditor
+        name="description"
+        required
+        value={product?.description || ""}
+        placeholder="Detailed product overview, architectural capabilities, value proposition, and technical specs..."
+        helperText="Format your architecture overview using rich text, headings, lists, code blocks, or raw HTML."
+      />
+    </div>
+  </div>
+</Card>

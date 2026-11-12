@@ -1,25 +1,28 @@
 import { db } from "../lib/db";
-import { products, leads } from "../lib/db/schema";
+import { projects, leads } from "../lib/db/schema";
 import { desc, eq, count } from "drizzle-orm";
 
 export interface DashboardMetrics {
+  totalProjectsCount: number;
+  publishedProjectsCount: number;
   totalProductsCount: number;
   publishedProductsCount: number;
   totalLeadsCount: number;
   newLeadsCount: number;
-  recentProducts: Array<typeof products.$inferSelect>;
+  recentProjects: Array<typeof projects.$inferSelect>;
+  recentProducts: Array<typeof projects.$inferSelect>;
   recentLeads: Array<typeof leads.$inferSelect>;
 }
 
 export async function getDashboardMetrics(): Promise<DashboardMetrics> {
-  const [productsCountRes] = await db.select({ value: count() }).from(products);
-  const totalProductsCount = productsCountRes?.value ?? 0;
+  const [projectsCountRes] = await db.select({ value: count() }).from(projects);
+  const totalProjectsCount = projectsCountRes?.value ?? 0;
 
   const [publishedRes] = await db
     .select({ value: count() })
-    .from(products)
-    .where(eq(products.status, "published"));
-  const publishedProductsCount = publishedRes?.value ?? 0;
+    .from(projects)
+    .where(eq(projects.status, "published"));
+  const publishedProjectsCount = publishedRes?.value ?? 0;
 
   const [leadsCountRes] = await db.select({ value: count() }).from(leads);
   const totalLeadsCount = leadsCountRes?.value ?? 0;
@@ -30,10 +33,10 @@ export async function getDashboardMetrics(): Promise<DashboardMetrics> {
     .where(eq(leads.status, "new"));
   const newLeadsCount = newLeadsRes?.value ?? 0;
 
-  const recentProducts = await db
+  const recentProjects = await db
     .select()
-    .from(products)
-    .orderBy(desc(products.updatedAt))
+    .from(projects)
+    .orderBy(desc(projects.updatedAt))
     .limit(5);
 
   const recentLeads = await db
@@ -43,11 +46,14 @@ export async function getDashboardMetrics(): Promise<DashboardMetrics> {
     .limit(5);
 
   return {
-    totalProductsCount,
+    totalProjectsCount,
+    publishedProjectsCount,
+    totalProductsCount: totalProjectsCount,
     publishedProductsCount,
     totalLeadsCount,
     newLeadsCount,
-    recentProducts,
+    recentProjects,
+    recentProducts: recentProjects,
     recentLeads,
   };
 }
