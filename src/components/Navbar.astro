@@ -8,116 +8,141 @@ interface Props {
 const pathname = Astro.url.pathname;
 const isProjectsActive = pathname.startsWith("/projects") || pathname.startsWith("/products");
 ---
-<!-- Navigation -->
-<nav class="fixed w-full z-50 transition-all duration-500 top-0 left-0" id="navbar">
-  <div class="max-w-7xl mx-auto px-4 sm:px-6 py-4 transition-all duration-500" id="nav-container">
-	<div
-	  class="flex justify-between items-center px-4 sm:px-8 py-3 sm:py-4 rounded-2xl sm:rounded-3xl transition-all duration-500 bg-white/80 dark:bg-slate-900/90 backdrop-blur-xl border border-slate-200/80 dark:border-slate-800/80 shadow-xl dark:shadow-2xl dark:shadow-black/50 text-slate-800 dark:text-white"
-	  id="nav-content"
-	>
-	  <a href="/" class="flex items-center group cursor-pointer" title="Source Monster Home">
-		<img
-		  src="/assets/images/logo.png"
-		  alt="Source Monster"
-		  class="h-10 sm:h-12 w-auto group-hover:scale-105 transition-transform dark:hidden"
-		/>
-		<img
-		  src="/assets/images/logo-2.png"
-		  alt="Source Monster"
-		  class="h-10 sm:h-12 w-auto group-hover:scale-105 transition-transform hidden dark:block"
-		/>
-	  </a>
 
-	  <div class="hidden lg:flex items-center space-x-8 text-[11px] font-bold uppercase tracking-[0.2em] text-slate-600 dark:text-slate-300">
-		<a href="/#home" class="hover:text-primary transition-colors">Home</a>
-		<a
-		  href="/projects"
-		  class:list={[
-		    "hover:text-primary transition-colors",
-		    isProjectsActive
-		      ? "text-primary font-black"
-		      : "font-semibold"
-		  ]}
-		>
-		  Projects
-		</a>
-		<a href="/#about" class="hover:text-primary transition-colors">About</a>
-		<a href="/#services" class="hover:text-primary transition-colors">Solutions</a>
-		<a href="/#team" class="hover:text-primary transition-colors">Team</a>
-		<a href="/#workflow" class="hover:text-primary transition-colors">Tactics</a>
-		<a href="/#faq" class="hover:text-primary transition-colors">FAQ</a>
-	  </div>
+<!-- Floating Pill Navigation (Lume Agency Inspired) -->
+<header class="fixed top-0 left-0 right-0 z-50 transition-all duration-300 pointer-events-none" id="navbar">
+  <div class="max-w-6xl mx-auto px-4 sm:px-6 pt-3 sm:pt-4 transition-all duration-300" id="nav-container">
+    <div
+      class="pointer-events-auto flex items-center justify-between px-4 sm:px-6 py-2.5 sm:py-3 rounded-full transition-all duration-300 bg-white/80 dark:bg-[#0c101d]/85 backdrop-blur-xl border border-slate-200/80 dark:border-white/[0.09] shadow-xl dark:shadow-2xl dark:shadow-black/70 text-slate-800 dark:text-slate-100"
+      id="nav-content"
+    >
+      <!-- Brand Logo / Wordmark -->
+      <a href="/" class="flex items-center gap-2 group cursor-pointer" title="SourceMonster Home">
+        <img
+          src="/assets/images/logo.png"
+          alt="Source Monster"
+          class="h-7 sm:h-8 w-auto group-hover:scale-105 transition-transform dark:hidden"
+        />
+        <img
+          src="/assets/images/logo-2.png"
+          alt="Source Monster"
+          class="h-7 sm:h-8 w-auto group-hover:scale-105 transition-transform hidden dark:block"
+        />
+      </a>
 
-	  <div class="flex items-center space-x-2 sm:space-x-3">
-		<!-- Starwind Theme Toggle -->
-		<ThemeToggle
-		  size="sm"
-		  class="border-slate-200 dark:border-slate-800 bg-white/60 dark:bg-slate-950/60 text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800/80 rounded-xl shadow-xs transition"
-		/>
+      <!-- Center Desktop Navigation Links -->
+      <nav class="hidden md:flex items-center gap-1 lg:gap-2 text-[13px] font-medium text-slate-600 dark:text-slate-300">
+        <a
+          href="/#about"
+          class="px-3.5 py-1.5 rounded-full hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-white/[0.06] transition-colors"
+        >
+          About
+        </a>
+        <a
+          href="/#services"
+          class="px-3.5 py-1.5 rounded-full hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-white/[0.06] transition-colors"
+        >
+          Services
+        </a>
+        <a
+          href="/projects"
+          class:list={[
+            "px-3.5 py-1.5 rounded-full transition-colors",
+            isProjectsActive
+              ? "text-primary dark:text-primary font-semibold bg-primary/10"
+              : "hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-white/[0.06]"
+          ]}
+        >
+          Projects
+        </a>
+        <a
+          href="/#workflow"
+          class="px-3.5 py-1.5 rounded-full hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-white/[0.06] transition-colors"
+        >
+          How It Works
+        </a>
+        <a
+          href="/#faq"
+          class="px-3.5 py-1.5 rounded-full hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-white/[0.06] transition-colors"
+        >
+          FAQ
+        </a>
+      </nav>
 
-		<a
-		  href="/#contact"
-		  class="hidden xs:block px-4 sm:px-6 py-2 sm:py-3 rounded-xl sm:rounded-2xl text-xs sm:text-base font-bold transition-all transform active:scale-95 shadow-xl bg-slate-900 text-white hover:bg-primary hover:text-white dark:bg-primary dark:hover:bg-orange-600 shadow-primary/10 hover:-translate-y-0.5"
-		>
-		  Get A Quote
-		</a>
+      <!-- Right Action CTAs -->
+      <div class="flex items-center gap-2 sm:gap-2.5">
+        <!-- Appearance Toggle -->
+        <ThemeToggle
+          size="sm"
+          class="border-slate-200 dark:border-white/10 bg-slate-100/80 dark:bg-white/[0.05] text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white rounded-full transition"
+        />
 
-		<button
-		  id="menu-toggle"
-		  class="lg:hidden p-2 transition-colors relative cursor-pointer text-slate-600 dark:text-slate-300 hover:text-primary"
-		  aria-label="Toggle Navigation Menu"
-		>
-		  <i
-			data-lucide="menu"
-			class="menu-icon w-6 h-6 sm:w-8 sm:h-8 transition-all"
-		  ></i>
-		  <i
-			data-lucide="x"
-			class="close-icon hidden w-6 h-6 sm:w-8 sm:h-8 transition-all"
-		  ></i>
-		</button>
-	  </div>
-	</div>
+        <!-- Start Your Project / Book a Call Pill -->
+        <a
+          href="/#contact"
+          class="hidden sm:inline-flex items-center gap-1.5 px-4 sm:px-5 py-2 rounded-full text-xs sm:text-sm font-semibold transition-all transform active:scale-95 bg-primary hover:bg-orange-600 text-white shadow-md shadow-primary/25 hover:shadow-primary/40 hover:-translate-y-0.5"
+        >
+          <span>Book a Call</span>
+          <i data-lucide="arrow-up-right" class="w-3.5 h-3.5"></i>
+        </a>
+
+        <!-- Mobile Menu Toggle Button -->
+        <button
+          id="menu-toggle"
+          class="md:hidden p-2 rounded-full transition-colors relative cursor-pointer text-slate-700 dark:text-slate-300 hover:text-primary dark:hover:text-primary hover:bg-slate-100 dark:hover:bg-white/10"
+          aria-label="Toggle Navigation Menu"
+        >
+          <i
+            data-lucide="menu"
+            class="menu-icon w-5 h-5 transition-all"
+          ></i>
+          <i
+            data-lucide="x"
+            class="close-icon hidden w-5 h-5 transition-all"
+          ></i>
+        </button>
+      </div>
+    </div>
   </div>
 
-  <div id="mobile-menu" class="hidden absolute top-full left-0 w-full mt-2 px-4 sm:px-6 lg:hidden">
-	<div
-	  class="rounded-[2rem] sm:rounded-[2.5rem] p-6 sm:p-8 space-y-4 shadow-2xl border bg-white/95 dark:bg-slate-900/95 backdrop-blur-2xl border-slate-200 dark:border-slate-800 text-slate-900 dark:text-white"
-	>
-	  <a href="/#home" class="flex items-center justify-between text-lg font-black hover:text-primary transition-colors group">Home
-		<i data-lucide="chevron-right" class="w-5 h-5 opacity-0 group-hover:opacity-100 transition-all"></i>
-	  </a>
-	  <a href="/projects" class="flex items-center justify-between text-lg font-black hover:text-primary transition-colors group text-primary">Projects
-		<i data-lucide="chevron-right" class="w-5 h-5 opacity-0 group-hover:opacity-100 transition-all"></i>
-	  </a>
-	  <a href="/#about" class="flex items-center justify-between text-lg font-black hover:text-primary transition-colors group">About
-		<i data-lucide="chevron-right" class="w-5 h-5 opacity-0 group-hover:opacity-100 transition-all"></i>
-	  </a>
-	  <a href="/#services" class="flex items-center justify-between text-lg font-black hover:text-primary transition-colors group">Solutions
-		<i data-lucide="chevron-right" class="w-5 h-5 opacity-0 group-hover:opacity-100 transition-all"></i>
-	  </a>
-	  <a href="/#team" class="flex items-center justify-between text-lg font-black hover:text-primary transition-colors group">Team
-		<i data-lucide="chevron-right" class="w-5 h-5 opacity-0 group-hover:opacity-100 transition-all"></i>
-	  </a>
-	  <a href="/#workflow" class="flex items-center justify-between text-lg font-black hover:text-primary transition-colors group">Tactics
-		<i data-lucide="chevron-right" class="w-5 h-5 opacity-0 group-hover:opacity-100 transition-all"></i>
-	  </a>
-	  <a href="/#faq" class="flex items-center justify-between text-lg font-black hover:text-primary transition-colors group">FAQ
-		<i data-lucide="chevron-right" class="w-5 h-5 opacity-0 group-hover:opacity-100 transition-all"></i>
-	  </a>
-	  <div class="pt-4 border-t border-slate-200 dark:border-slate-800 flex items-center justify-between">
-		<span class="text-sm font-bold text-slate-600 dark:text-slate-400">Appearance</span>
-		<ThemeToggle
-		  size="sm"
-		  class="border-slate-200 dark:border-slate-800 bg-slate-100 dark:bg-slate-800/80 rounded-xl"
-		/>
-	  </div>
-	  <div class="pt-2">
-		<a href="/#contact" class="block w-full bg-primary text-white text-center py-4 rounded-2xl font-bold hover:bg-slate-900 dark:hover:bg-orange-600 transition-all shadow-lg shadow-primary/20">Get A Quote</a>
-	  </div>
-	</div>
+  <!-- Mobile Dropdown Drawer -->
+  <div id="mobile-menu" class="hidden pointer-events-auto max-w-6xl mx-auto px-4 sm:px-6 pt-2 md:hidden">
+    <div
+      class="rounded-3xl p-5 sm:p-6 space-y-3 shadow-2xl border bg-white/95 dark:bg-[#0c101d]/95 backdrop-blur-2xl border-slate-200/90 dark:border-white/10 text-slate-900 dark:text-slate-100"
+    >
+      <a href="/#about" class="flex items-center justify-between py-2 text-base font-semibold hover:text-primary transition-colors group">
+        <span>About</span>
+        <i data-lucide="chevron-right" class="w-4 h-4 text-slate-400 group-hover:text-primary group-hover:translate-x-1 transition-all"></i>
+      </a>
+      <a href="/#services" class="flex items-center justify-between py-2 text-base font-semibold hover:text-primary transition-colors group">
+        <span>Services</span>
+        <i data-lucide="chevron-right" class="w-4 h-4 text-slate-400 group-hover:text-primary group-hover:translate-x-1 transition-all"></i>
+      </a>
+      <a href="/projects" class="flex items-center justify-between py-2 text-base font-semibold hover:text-primary transition-colors group text-primary">
+        <span>Projects</span>
+        <i data-lucide="chevron-right" class="w-4 h-4 text-primary group-hover:translate-x-1 transition-all"></i>
+      </a>
+      <a href="/#workflow" class="flex items-center justify-between py-2 text-base font-semibold hover:text-primary transition-colors group">
+        <span>How It Works</span>
+        <i data-lucide="chevron-right" class="w-4 h-4 text-slate-400 group-hover:text-primary group-hover:translate-x-1 transition-all"></i>
+      </a>
+      <a href="/#faq" class="flex items-center justify-between py-2 text-base font-semibold hover:text-primary transition-colors group">
+        <span>FAQ</span>
+        <i data-lucide="chevron-right" class="w-4 h-4 text-slate-400 group-hover:text-primary group-hover:translate-x-1 transition-all"></i>
+      </a>
+
+      <div class="pt-3 border-t border-slate-100 dark:border-white/10">
+        <a
+          href="/#contact"
+          class="flex items-center justify-center gap-2 w-full bg-primary text-white text-center py-3 rounded-full font-semibold text-sm hover:bg-orange-600 transition-all shadow-lg shadow-primary/20"
+        >
+          <span>Start Your Project</span>
+          <i data-lucide="arrow-right" class="w-4 h-4"></i>
+        </a>
+      </div>
+    </div>
   </div>
-</nav>
+</header>
 
 <script is:inline>
   const menuToggle = document.getElementById('menu-toggle');
@@ -131,22 +156,31 @@ const isProjectsActive = pathname.startsWith("/projects") || pathname.startsWith
       menuIcon.classList.toggle('hidden');
       closeIcon.classList.toggle('hidden');
     });
+
+    // Close menu when clicking link
+    const mobileLinks = mobileMenu.querySelectorAll('a');
+    mobileLinks.forEach(link => {
+      link.addEventListener('click', () => {
+        mobileMenu.classList.add('hidden');
+        menuIcon.classList.remove('hidden');
+        closeIcon.classList.add('hidden');
+      });
+    });
   }
 
-  // Navbar scroll effect
-  const navbar = document.getElementById('navbar');
+  // Header scroll appearance
   const navContainer = document.getElementById('nav-container');
   const navContent = document.getElementById('nav-content');
 
   window.addEventListener('scroll', () => {
-    if (window.scrollY > 50) {
-      navContainer.classList.remove('py-4');
-      navContainer.classList.add('py-2');
-      navContent.classList.add('shadow-2xl');
+    if (window.scrollY > 40) {
+      navContainer?.classList.remove('pt-3', 'sm:pt-4');
+      navContainer?.classList.add('pt-2');
+      navContent?.classList.add('dark:bg-[#070913]/95', 'shadow-2xl');
     } else {
-      navContainer.classList.add('py-4');
-      navContainer.classList.remove('py-2');
-      navContent.classList.remove('shadow-2xl');
+      navContainer?.classList.add('pt-3', 'sm:pt-4');
+      navContainer?.classList.remove('pt-2');
+      navContent?.classList.remove('dark:bg-[#070913]/95');
     }
   });
 </script>

@@ -3,44 +3,121 @@ import { getSiteSettings } from "../lib/settings";
 
 const settings = await getSiteSettings();
 ---
-<footer class="pb-16 overflow-hidden relative border-t transition-colors bg-white dark:bg-slate-950 border-slate-200 dark:border-slate-800 text-slate-600 dark:text-slate-400">
-  <div class="max-w-7xl mx-auto px-6 relative z-10">
-	<div class="pt-16 flex flex-col md:flex-row justify-between items-center">
-	  <div class="flex items-center space-x-3 mb-8 md:mb-0">
-		<img
-		  src="/assets/images/logo.png"
-		  alt={settings.site_name}
-		  class="h-6 w-auto opacity-70 dark:hidden"
-		/>
-		<img
-		  src="/assets/images/logo-2.png"
-		  alt={settings.site_name}
-		  class="h-6 w-auto opacity-90 hidden dark:block"
-		/>
-		<span class="text-[10px] font-bold mt-1 uppercase tracking-widest text-slate-400 dark:text-slate-500">V2.0</span>
-	  </div>
 
-	  <p class="text-sm font-semibold uppercase text-slate-600 dark:text-slate-400">
-		{settings.footer_copyright}
-	  </p>
+<!-- Footer (Lume Agency Inspired) -->
+<footer class="pt-20 pb-14 bg-slate-100/80 dark:bg-[#05070e] text-slate-600 dark:text-slate-400 border-t border-slate-200 dark:border-white/[0.08] transition-colors relative overflow-hidden">
+  <div class="max-w-6xl mx-auto px-4 sm:px-6 relative z-10">
+    <div class="grid grid-cols-1 md:grid-cols-12 gap-10 lg:gap-14 pb-14 border-b border-slate-200/80 dark:border-white/[0.06]">
+      <!-- Brand & Mission Column (5 cols) -->
+      <div class="md:col-span-5 space-y-4">
+        <a href="/" class="inline-block" title="Source Monster Home">
+          <img
+            src="/assets/images/logo.png"
+            alt={settings.site_name}
+            class="h-8 w-auto dark:hidden"
+          />
+          <img
+            src="/assets/images/logo-2.png"
+            alt={settings.site_name}
+            class="h-8 w-auto hidden dark:block"
+          />
+        </a>
 
-	  <div class="flex space-x-6 mt-8 md:mt-0">
-		{settings.social_twitter && (
-		  <a href={settings.social_twitter} target="_blank" rel="noopener noreferrer" class="hover:text-primary transition-colors text-slate-500 dark:text-slate-400" title="Twitter / X">
-			<i data-lucide="twitter"></i>
-		  </a>
-		)}
-		{settings.social_github && (
-		  <a href={settings.social_github} target="_blank" rel="noopener noreferrer" class="hover:text-primary transition-colors text-slate-500 dark:text-slate-400" title="GitHub">
-			<i data-lucide="github"></i>
-		  </a>
-		)}
-		{settings.social_linkedin && (
-		  <a href={settings.social_linkedin} target="_blank" rel="noopener noreferrer" class="hover:text-primary transition-colors text-slate-500 dark:text-slate-400" title="LinkedIn">
-			<i data-lucide="linkedin"></i>
-		  </a>
-		)}
-	  </div>
-	</div>
+        <p class="text-sm text-slate-600 dark:text-slate-400 max-w-sm leading-relaxed">
+          Building digital products that shine. We're a specialized software engineering collective crafting web, mobile, and AI experiences that move businesses forward.
+        </p>
+
+        <div class="pt-2">
+          <a
+            href="mailto:contact@sourcemonster.in"
+            class="text-xs font-mono font-medium text-slate-800 dark:text-slate-200 hover:text-primary transition-colors flex items-center gap-2"
+          >
+            <i data-lucide="mail" class="w-3.5 h-3.5 text-primary"></i>
+            <span>contact@sourcemonster.in</span>
+          </a>
+        </div>
+      </div>
+
+      <!-- Quick Links (3 cols) -->
+      <div class="md:col-span-3 space-y-3">
+        <div class="text-xs font-mono uppercase tracking-widest font-bold text-slate-900 dark:text-white">
+          Navigation
+        </div>
+        <ul class="space-y-2 text-sm">
+          <li>
+            <a href="/#about" class="hover:text-primary transition-colors">About Us</a>
+          </li>
+          <li>
+            <a href="/#services" class="hover:text-primary transition-colors">Services</a>
+          </li>
+          <li>
+            <a href="/projects" class="hover:text-primary transition-colors">Projects &amp; Solutions</a>
+          </li>
+          <li>
+            <a href="/#workflow" class="hover:text-primary transition-colors">How It Works</a>
+          </li>
+          <li>
+            <a href="/#faq" class="hover:text-primary transition-colors">FAQ</a>
+          </li>
+        </ul>
+      </div>
+
+      <!-- Capabilities (4 cols) -->
+      <div class="md:col-span-4 space-y-3">
+        <div class="text-xs font-mono uppercase tracking-widest font-bold text-slate-900 dark:text-white">
+          Capabilities
+        </div>
+        <ul class="space-y-2 text-sm">
+          <li>Custom Web &amp; Mobile App Development</li>
+          <li>Full-Stack SaaS Architecture</li>
+          <li>AI &amp; Automation Integration</li>
+          <li>Turnkey Commercial Boilerplates</li>
+          <li>DevOps &amp; Cloud Infrastructure</li>
+        </ul>
+      </div>
+    </div>
+
+    <!-- Bottom Bar -->
+    <div class="pt-8 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs font-mono">
+      <p class="text-slate-500 dark:text-slate-400">
+        {settings.footer_copyright}
+      </p>
+
+      <div class="flex items-center space-x-5 text-slate-500 dark:text-slate-400">
+        {settings.social_twitter && (
+          <a
+            href={settings.social_twitter}
+            target="_blank"
+            rel="noopener noreferrer"
+            class="hover:text-primary transition-colors"
+            title="Twitter / X"
+          >
+            <i data-lucide="twitter" class="w-4 h-4"></i>
+          </a>
+        )}
+        {settings.social_github && (
+          <a
+            href={settings.social_github}
+            target="_blank"
+            rel="noopener noreferrer"
+            class="hover:text-primary transition-colors"
+            title="GitHub"
+          >
+            <i data-lucide="github" class="w-4 h-4"></i>
+          </a>
+        )}
+        {settings.social_linkedin && (
+          <a
+            href={settings.social_linkedin}
+            target="_blank"
+            rel="noopener noreferrer"
+            class="hover:text-primary transition-colors"
+            title="LinkedIn"
+          >
+            <i data-lucide="linkedin" class="w-4 h-4"></i>
+          </a>
+        )}
+      </div>
+    </div>
   </div>
 </footer>

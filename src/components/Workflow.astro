@@ -1,61 +1,106 @@
 ---
-import { getCollection } from 'astro:content';
-const steps = await getCollection('workflow');
-const sortedSteps = steps.sort((a, b) => parseInt(a.data.step) - parseInt(b.data.step));
+const workflowSteps = [
+  {
+    step: "01",
+    title: "Tell Us About Your Product",
+    description: "Share your idea, target audience, and business goals. We analyze your requirements and help shape the technical roadmap.",
+    icon: "message-square-code",
+  },
+  {
+    step: "02",
+    title: "Plan the Roadmap",
+    description: "We define the complete architectural blueprint, data schema, technical stack, milestone deliverables, and rapid timeline.",
+    icon: "git-commit",
+  },
+  {
+    step: "03",
+    title: "We Design & Build",
+    description: "Our design and engineering teams craft your application iteratively with bi-weekly sprint demos and clean, production-grade code.",
+    icon: "code-2",
+  },
+  {
+    step: "04",
+    title: "Launch & Grow",
+    description: "We deploy to your live infrastructure, provide full documentation and source code handover, and support your ongoing scale.",
+    icon: "rocket",
+  },
+];
 ---
-<!-- Workflow Section -->
-<section id="workflow" class="py-20 sm:py-32 bg-slate-50 dark:bg-slate-900/90 relative overflow-hidden transition-colors">
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 relative z-10">
-        <div class="text-center mb-16 sm:mb-24" data-aos="fade-up">
-            <div class="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-primary/10 text-primary text-xs font-mono font-bold tracking-widest uppercase mb-4">
-                <span class="w-2 h-2 rounded-full bg-primary"></span>
-                <span>The Predator Process</span>
-            </div>
-            <h2 class="text-3xl xs:text-4xl sm:text-5xl font-black font-heading tracking-tight text-slate-900 dark:text-white">
-                THE <span class="text-gradient">TACTICAL PATH.</span>
-            </h2>
-            <p class="mt-4 text-slate-600 dark:text-slate-400 max-w-xl mx-auto text-sm sm:text-base">
-                How our engineering collective moves from initial brief to battle-tested production deployment.
-            </p>
-        </div>
 
-        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 sm:gap-8">
-            {sortedSteps.map((item, index) => (
-                <div class="relative group" data-aos="fade-up" data-aos-delay={item.data.delay || index * 100}>
-                    <div class="bg-white dark:bg-slate-950/70 border border-slate-200/90 dark:border-slate-800/90 p-6 sm:p-8 rounded-3xl h-full transition-all duration-300 hover:shadow-2xl hover:border-primary/50 hover:-translate-y-1.5 flex flex-col justify-between shadow-sm">
-                        <div>
-                            <div class="flex justify-between items-start mb-6">
-                                <div class="w-14 h-14 rounded-2xl bg-primary/10 text-primary flex items-center justify-center transition-transform group-hover:scale-110 shadow-xs">
-                                    <i data-lucide={item.data.icon} class="w-7 h-7"></i>
-                                </div>
-                                <span class="text-4xl sm:text-5xl font-black text-slate-200 dark:text-slate-800 transition-colors group-hover:text-primary/20 font-heading">
-                                    {item.data.step}
-                                </span>
-                            </div>
-                            <h4 class="text-xl font-black mb-3 font-heading text-slate-900 dark:text-white tracking-tight">
-                                {item.data.title}
-                            </h4>
-                            <p class="text-slate-600 dark:text-slate-400 leading-relaxed text-xs sm:text-sm">
-                                {item.data.description}
-                            </p>
-                        </div>
-                    </div>
-
-                    {index < sortedSteps.length - 1 && (
-                        <div class="hidden lg:block absolute top-1/2 -right-4 -translate-y-1/2 z-20 text-slate-300 dark:text-slate-700 pointer-events-none">
-                            <i data-lucide="chevron-right" class="w-7 h-7"></i>
-                        </div>
-                    )}
-                </div>
-            ))}
-        </div>
+<!-- How It Works Section (Lume Agency Inspired) -->
+<section id="workflow" class="py-20 sm:py-32 bg-slate-50 dark:bg-[#070913] relative overflow-hidden transition-colors border-t border-slate-200/80 dark:border-white/[0.08]">
+  <div class="max-w-6xl mx-auto px-4 sm:px-6 relative z-10">
+    <!-- Header -->
+    <div class="text-center max-w-2xl mx-auto mb-16 sm:mb-24" data-aos="fade-up">
+      <div class="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-white dark:bg-white/[0.04] border border-slate-200 dark:border-white/[0.1] text-xs font-mono uppercase tracking-widest text-primary font-bold mb-4">
+        <span class="w-1.5 h-1.5 rounded-full bg-primary"></span>
+        <span>Process</span>
+      </div>
+      <h2 class="text-3xl xs:text-4xl sm:text-5xl lg:text-6xl font-black font-heading tracking-tight text-slate-900 dark:text-white leading-tight">
+        How It Works.
+      </h2>
+      <p class="mt-4 text-slate-600 dark:text-slate-400 text-base sm:text-lg leading-relaxed">
+        Working with SourceMonster is simple. We handle the heavy lifting, you focus on the vision.
+      </p>
     </div>
-</section>
 
-<style>
-	.text-gradient {
-		background: linear-gradient(135deg, #FF4D1C 0%, #FF8E6E 100%);
-		-webkit-background-clip: text;
-		-webkit-text-fill-color: transparent;
-	}
-</style>
+    <!-- 4-Step Grid -->
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 sm:gap-8">
+      {workflowSteps.map((item, idx) => (
+        <div
+          class="p-7 sm:p-8 rounded-3xl bg-white dark:bg-white/[0.02] border border-slate-200 dark:border-white/[0.08] hover:border-primary/40 dark:hover:border-primary/40 transition-all duration-300 flex flex-col justify-between group shadow-sm hover:shadow-xl hover:-translate-y-1.5"
+          data-aos="fade-up"
+          data-aos-delay={idx * 100}
+        >
+          <div>
+            <!-- Step Number & Icon -->
+            <div class="flex items-center justify-between mb-8">
+              <span class="text-3xl sm:text-4xl font-black font-heading text-slate-300 dark:text-white/20 group-hover:text-primary transition-colors">
+                {item.step}
+              </span>
+              <div class="w-12 h-12 rounded-2xl bg-slate-100 dark:bg-white/[0.05] text-slate-800 dark:text-slate-200 flex items-center justify-center group-hover:bg-primary group-hover:text-white transition-all">
+                <i data-lucide={item.icon} class="w-5 h-5"></i>
+              </div>
+            </div>
+
+            <h3 class="text-lg sm:text-xl font-bold font-heading text-slate-900 dark:text-white mb-3 tracking-tight">
+              {item.title}
+            </h3>
+
+            <p class="text-xs sm:text-sm text-slate-600 dark:text-slate-400 leading-relaxed">
+              {item.description}
+            </p>
+          </div>
+
+          <div class="pt-6 mt-6 border-t border-slate-100 dark:border-white/[0.06] flex items-center gap-2 text-xs font-mono text-slate-400">
+            <span class="w-1.5 h-1.5 rounded-full bg-primary"></span>
+            <span>PHASE {item.step}</span>
+          </div>
+        </div>
+      ))}
+    </div>
+
+    <!-- Quick Callout Banner -->
+    <div
+      class="mt-14 p-6 sm:p-8 rounded-3xl bg-gradient-to-r from-primary/10 via-indigo-500/5 to-transparent border border-primary/20 flex flex-col sm:flex-row items-center justify-between gap-6"
+      data-aos="fade-up"
+    >
+      <div>
+        <h4 class="text-lg sm:text-xl font-bold font-heading text-slate-900 dark:text-white mb-1">
+          Have a Project in Mind?
+        </h4>
+        <p class="text-xs sm:text-sm text-slate-600 dark:text-slate-400">
+          Book a 15-minute consultation to review your technical scope with our lead architect.
+        </p>
+      </div>
+
+      <a
+        href="#contact"
+        class="inline-flex items-center gap-2 px-6 py-3 rounded-full font-semibold text-xs sm:text-sm bg-primary hover:bg-orange-600 text-white shadow-md shadow-primary/25 hover:shadow-primary/40 transition-all shrink-0 hover:scale-105 active:scale-95"
+      >
+        <span>Book a Call</span>
+        <i data-lucide="arrow-right" class="w-4 h-4"></i>
+      </a>
+    </div>
+  </div>
+</section>

@@ -1,43 +1,94 @@
 ---
-const technologies = [
-  { name: "Astro 5", icon: "rocket", category: "Core Framework" },
-  { name: "TypeScript", icon: "file-code-2", category: "Type Safe" },
-  { name: "Next.js", icon: "layers", category: "Fullstack" },
-  { name: "Tailwind CSS", icon: "palette", category: "Modern UI" },
-  { name: "PostgreSQL", icon: "database", category: "Data Layer" },
-  { name: "Docker", icon: "container", category: "DevOps" },
-  { name: "Flutter", icon: "smartphone", category: "Mobile Apps" },
-  { name: "AWS Cloud", icon: "cloud", category: "Infrastructure" },
-  { name: "Node.js", icon: "server", category: "Backend Runtime" },
-  { name: "Redis", icon: "zap", category: "In-Memory Cache" },
+const categories = [
+  {
+    name: "Frontend & Mobile",
+    items: [
+      { name: "Flutter", icon: "smartphone" },
+      { name: "Next.js", icon: "layers" },
+      { name: "Astro", icon: "rocket" },
+      { name: "Tailwind CSS", icon: "palette" },
+      { name: "TypeScript", icon: "file-code" },
+    ],
+  },
+  {
+    name: "Backend & Systems",
+    items: [
+      { name: "Node.js", icon: "server" },
+      { name: "PostgreSQL", icon: "database" },
+      { name: "Redis", icon: "zap" },
+      { name: "GraphQL", icon: "network" },
+      { name: "WebSockets", icon: "radio" },
+    ],
+  },
+  {
+    name: "DevOps & Cloud",
+    items: [
+      { name: "Docker", icon: "container" },
+      { name: "AWS Cloud", icon: "cloud" },
+      { name: "CI/CD Pipelines", icon: "git-merge" },
+      { name: "Linux VPS", icon: "terminal" },
+      { name: "Cloudflare", icon: "shield" },
+    ],
+  },
+  {
+    name: "AI & Intelligence",
+    items: [
+      { name: "OpenAI API", icon: "sparkles" },
+      { name: "LangChain", icon: "cpu" },
+      { name: "Vector Embeddings", icon: "binary" },
+      { name: "Custom LLMs", icon: "bot" },
+      { name: "Automation", icon: "workflow" },
+    ],
+  },
 ];
 ---
 
-<div class="py-10 border-y border-slate-200/80 dark:border-slate-800/80 bg-white/50 dark:bg-slate-900/40 backdrop-blur-md overflow-hidden relative">
-  <div class="max-w-7xl mx-auto px-4 sm:px-6 mb-4 flex items-center justify-between">
-    <div class="flex items-center gap-2 text-xs font-mono font-bold uppercase tracking-widest text-slate-500 dark:text-slate-400">
-      <span class="w-2 h-2 rounded-full bg-primary inline-block"></span>
-      <span>Enterprise Engineering Stack</span>
+<!-- Tech Stack Section (Lume Agency Inspired) -->
+<section class="py-16 sm:py-24 border-y border-slate-200 dark:border-white/[0.08] bg-slate-100/50 dark:bg-[#070913] relative overflow-hidden">
+  <div class="max-w-6xl mx-auto px-4 sm:px-6 relative z-10">
+    <!-- Header -->
+    <div class="text-center max-w-2xl mx-auto mb-12 sm:mb-16" data-aos="fade-up">
+      <div class="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-white dark:bg-white/[0.04] border border-slate-200 dark:border-white/[0.1] text-xs font-mono uppercase tracking-widest text-primary font-bold mb-4">
+        <span class="w-1.5 h-1.5 rounded-full bg-primary"></span>
+        <span>Technologies</span>
+      </div>
+      <h2 class="text-3xl sm:text-4xl lg:text-5xl font-black font-heading tracking-tight text-slate-900 dark:text-white mb-4">
+        The Stack That Adapts to Your Product
+      </h2>
+      <p class="text-sm sm:text-base text-slate-600 dark:text-slate-400">
+        Every layer is optimized for speed, stability, and scale — from front-end design to AI-driven backend services.
+      </p>
     </div>
-    <span class="text-[11px] text-slate-500 font-mono hidden sm:inline">Built for high concurrency &amp; low latency</span>
-  </div>
 
-  <!-- Horizontal Scroll / Flex Row -->
-  <div class="max-w-7xl mx-auto px-4 sm:px-6">
-    <div class="flex items-center gap-3 sm:gap-4 overflow-x-auto pb-2 scrollbar-none sm:grid sm:grid-cols-5 lg:grid-cols-10">
-      {technologies.map((tech) => (
-        <div class="shrink-0 flex flex-col items-center justify-center p-3 sm:p-3.5 rounded-2xl bg-white dark:bg-slate-950/70 border border-slate-200/90 dark:border-slate-800/90 hover:border-primary/50 transition-all group shadow-xs hover:shadow-md">
-          <div class="w-8 h-8 rounded-xl bg-slate-100 dark:bg-slate-900 flex items-center justify-center text-slate-700 dark:text-slate-300 group-hover:text-primary transition-colors mb-2">
-            <i data-lucide={tech.icon} class="w-4 h-4"></i>
+    <!-- Category Grid -->
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5 sm:gap-6">
+      {categories.map((cat, idx) => (
+        <div
+          class="p-6 rounded-2xl bg-white dark:bg-white/[0.02] border border-slate-200 dark:border-white/[0.07] hover:border-primary/40 dark:hover:border-primary/40 transition-all duration-300 flex flex-col justify-between group shadow-sm hover:shadow-md"
+          data-aos="fade-up"
+          data-aos-delay={idx * 100}
+        >
+          <div>
+            <div class="text-xs font-mono uppercase tracking-wider font-semibold text-primary mb-4 pb-3 border-b border-slate-100 dark:border-white/[0.06] flex items-center justify-between">
+              <span>{cat.name}</span>
+              <span class="text-[10px] text-slate-400 font-mono">0{idx + 1}</span>
+            </div>
+
+            <div class="space-y-2.5">
+              {cat.items.map((item) => (
+                <div class="flex items-center gap-3 p-2 rounded-xl group-hover:bg-slate-50 dark:group-hover:bg-white/[0.03] transition-colors">
+                  <div class="w-7 h-7 rounded-lg bg-slate-100 dark:bg-white/[0.05] text-slate-700 dark:text-slate-300 flex items-center justify-center group-hover:text-primary transition-colors">
+                    <i data-lucide={item.icon} class="w-3.5 h-3.5"></i>
+                  </div>
+                  <span class="text-xs sm:text-sm font-medium text-slate-800 dark:text-slate-200">
+                    {item.name}
+                  </span>
+                </div>
+              ))}
+            </div>
           </div>
-          <span class="text-xs font-bold text-slate-900 dark:text-white truncate max-w-full font-heading">
-            {tech.name}
-          </span>
-          <span class="text-[9px] text-slate-500 font-mono truncate max-w-full">
-            {tech.category}
-          </span>
         </div>
       ))}
     </div>
   </div>
-</div>
+</section>
