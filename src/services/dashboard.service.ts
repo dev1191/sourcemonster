@@ -50,7 +50,7 @@ export async function getDashboardMetrics(): Promise<DashboardMetrics> {
       totalProjectsCount,
       publishedProjectsCount,
       totalProductsCount: totalProjectsCount,
-      publishedProductsCount,
+      publishedProductsCount: publishedProjectsCount,
       totalLeadsCount,
       newLeadsCount,
       recentProjects,
