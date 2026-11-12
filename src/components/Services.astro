@@ -2,96 +2,158 @@
 import { getCollection } from 'astro:content';
 import { getAllServices } from '../services';
 
-let servicesList: Array<{
-  data: {
-    title: string;
-    description: string;
-    icon: string;
-    color?: string;
-    delay?: number;
-  };
-}> = [];
+interface ServiceItem {
+  title: string;
+  description: string;
+  icon: string;
+  tag?: string;
+  delay?: number;
+}
+
+const defaultCapabilities: ServiceItem[] = [
+  {
+    title: "Product Strategy & Architecture",
+    description: "Defining clear technical roadmaps, database schemas, and architectural blueprints that set your software up for long-term scalability.",
+    icon: "compass",
+    tag: "Strategy",
+  },
+  {
+    title: "Mobile App Development",
+    description: "Cross-platform Flutter & native iOS/Android applications built for 60fps fluid performance, offline-first reliability, and clean UX.",
+    icon: "smartphone",
+    tag: "Mobile",
+  },
+  {
+    title: "Full-Stack Web & SaaS Platforms",
+    description: "Modern, high-velocity web apps using Astro, Next.js, React, and Node.js. Sub-second page loads and seamless user onboarding.",
+    icon: "layout",
+    tag: "Web App",
+  },
+  {
+    title: "AI Development & Automation",
+    description: "Custom AI integrations, LLM workflows, automated data extraction, and intelligent customer agents built on OpenAI and LangChain.",
+    icon: "sparkles",
+    tag: "AI & ML",
+  },
+  {
+    title: "Backend & High-Concurrency APIs",
+    description: "Robust REST, GraphQL, and WebSocket backends with PostgreSQL, Redis caching, and automated background queues.",
+    icon: "database",
+    tag: "Backend",
+  },
+  {
+    title: "Turnkey Commercial Software",
+    description: "Production-ready source code, boilerplates, and multi-vendor suites customized and deployed directly to your own infrastructure.",
+    icon: "box",
+    tag: "Commercial",
+  },
+  {
+    title: "MVP Rapid Builds",
+    description: "Go from initial concept to a validated, customer-ready MVP in 3-6 weeks with zero technical debt.",
+    icon: "zap",
+    tag: "MVP",
+  },
+  {
+    title: "Cloud Infrastructure & DevOps",
+    description: "Containerized Docker environments, automated GitHub Actions CI/CD, AWS deployments, and automated SSL / security configurations.",
+    icon: "cloud",
+    tag: "DevOps",
+  },
+];
+
+let displayServices: ServiceItem[] = [];
 
 try {
   const dbServices = await getAllServices({ onlyPublished: true });
-
-  if (dbServices.length > 0) {
-    servicesList = dbServices.map((s, idx) => ({
-      data: {
-        title: s.title,
-        description: s.description,
-        icon: s.icon,
-        color: s.color || 'primary',
-        delay: idx * 100,
-      },
+  if (dbServices && dbServices.length > 0) {
+    displayServices = dbServices.map((s, idx) => ({
+      title: s.title,
+      description: s.description,
+      icon: s.icon || "code-2",
+      tag: "Service",
+      delay: idx * 60,
     }));
   } else {
-    const rawServices = await getCollection('services');
-    servicesList = rawServices.map((r) => ({ data: r.data }));
+    displayServices = defaultCapabilities;
   }
 } catch {
-  const rawServices = await getCollection('services');
-  servicesList = rawServices.map((r) => ({ data: r.data }));
+  displayServices = defaultCapabilities;
 }
 ---
-<!-- Services / Specializations Section -->
-<section id="services" class="py-20 sm:py-32 relative bg-slate-50 dark:bg-slate-950 transition-colors">
-    <div class="max-w-7xl mx-auto px-4 sm:px-6">
-        <div class="flex flex-col lg:flex-row lg:items-end justify-between mb-16 sm:mb-20">
-            <div data-aos="fade-up">
-                <div class="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-primary/10 text-primary text-xs font-mono font-bold tracking-widest uppercase mb-4">
-                    <span class="w-2 h-2 rounded-full bg-primary"></span>
-                    <span>Engineering Capabilities</span>
-                </div>
-                <h2 class="text-3xl xs:text-4xl sm:text-5xl md:text-6xl font-black font-heading leading-tight tracking-tight text-slate-900 dark:text-white">
-                    DOMINATE THE <br class="hidden sm:inline" />
-                    <span class="text-gradient">DIGITAL WILD.</span>
-                </h2>
-            </div>
-            <p class="mt-6 lg:mt-0 text-slate-600 dark:text-slate-400 max-w-md text-base sm:text-lg leading-relaxed" data-aos="fade-left">
-                We provide the precision engineering needed for your venture to outpace competitors with maximum velocity and zero compromise on reliability.
-            </p>
+
+<!-- Services Section (Lume Agency Inspired) -->
+<section id="services" class="py-20 sm:py-32 bg-slate-100/60 dark:bg-[#070913] relative overflow-hidden transition-colors border-t border-slate-200/80 dark:border-white/[0.08]">
+  <!-- Subtle ambient glow -->
+  <div class="absolute -top-40 right-10 w-96 h-96 bg-primary/10 rounded-full blur-[140px] pointer-events-none"></div>
+
+  <div class="max-w-6xl mx-auto px-4 sm:px-6 relative z-10">
+    <!-- Section Header -->
+    <div class="flex flex-col lg:flex-row lg:items-end justify-between mb-16 sm:mb-20" data-aos="fade-up">
+      <div>
+        <div class="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-white dark:bg-white/[0.04] border border-slate-200 dark:border-white/[0.1] text-xs font-mono uppercase tracking-widest text-primary font-bold mb-4">
+          <span class="w-1.5 h-1.5 rounded-full bg-primary"></span>
+          <span>End-to-End Capabilities</span>
         </div>
+        <h2 class="text-3xl xs:text-4xl sm:text-5xl lg:text-6xl font-black font-heading tracking-tight text-slate-900 dark:text-white leading-[1.1]">
+          End-to-End Services.
+        </h2>
+      </div>
 
-        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 sm:gap-8">
-            {servicesList.map((item, index) => (
-                <div
-                    class="group p-6 sm:p-8 bg-white dark:bg-slate-900/80 border border-slate-200/90 dark:border-slate-800/90 hover:border-primary/50 dark:hover:border-primary/50 rounded-3xl transition-all duration-300 shadow-lg hover:shadow-2xl hover:-translate-y-1.5 flex flex-col justify-between"
-                    data-aos="fade-up"
-                    data-aos-delay={item.data.delay || index * 80}
-                >
-                    <div>
-                        <!-- Icon Box -->
-                        <div class="w-14 h-14 sm:w-16 sm:h-16 rounded-2xl bg-primary/10 text-primary flex items-center justify-center mb-6 group-hover:bg-primary group-hover:text-white transition-all duration-300 shadow-sm">
-                            <i data-lucide={item.data.icon} class="w-7 h-7 sm:w-8 sm:h-8"></i>
-                        </div>
-
-                        <!-- Title -->
-                        <h3 class="text-xl sm:text-2xl font-black mb-3 font-heading text-slate-900 dark:text-white group-hover:text-primary transition-colors tracking-tight">
-                            {item.data.title}
-                        </h3>
-
-                        <!-- Description -->
-                        <p class="text-slate-600 dark:text-slate-400 text-sm sm:text-base leading-relaxed mb-6">
-                            {item.data.description}
-                        </p>
-                    </div>
-
-                    <!-- Footer Link -->
-                    <div class="pt-4 border-t border-slate-100 dark:border-slate-800/80 flex items-center justify-between text-xs font-bold text-primary group-hover:translate-x-1 transition-transform">
-                        <span>Initialize Service</span>
-                        <i data-lucide="arrow-right" class="w-4 h-4"></i>
-                    </div>
-                </div>
-            ))}
-        </div>
+      <p class="mt-4 lg:mt-0 text-slate-600 dark:text-slate-400 max-w-md text-base sm:text-lg leading-relaxed">
+        Everything you need to conceptualize, engineer, launch, and scale high-performance digital software.
+      </p>
     </div>
-</section>
 
-<style>
-	.text-gradient {
-		background: linear-gradient(135deg, #FF4D1C 0%, #FF8E6E 100%);
-		-webkit-background-clip: text;
-		-webkit-text-fill-color: transparent;
-	}
-</style>
+    <!-- Services Grid -->
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-5 sm:gap-6">
+      {displayServices.map((service, idx) => (
+        <div
+          class="p-6 sm:p-7 rounded-2xl bg-white dark:bg-white/[0.02] border border-slate-200 dark:border-white/[0.08] hover:border-primary/50 dark:hover:border-primary/50 transition-all duration-300 flex flex-col justify-between group shadow-sm hover:shadow-xl hover:-translate-y-1"
+          data-aos="fade-up"
+          data-aos-delay={(service.delay || idx * 50)}
+        >
+          <div>
+            <!-- Top Icon & Tag -->
+            <div class="flex items-center justify-between mb-6">
+              <div class="w-12 h-12 rounded-xl bg-slate-100 dark:bg-white/[0.05] text-slate-800 dark:text-slate-200 flex items-center justify-center group-hover:bg-primary group-hover:text-white transition-all duration-300">
+                <i data-lucide={service.icon} class="w-6 h-6"></i>
+              </div>
+              {service.tag && (
+                <span class="px-2.5 py-1 rounded-full text-[10px] font-mono font-medium text-slate-500 dark:text-slate-400 bg-slate-100 dark:bg-white/[0.04] border border-slate-200 dark:border-white/[0.06]">
+                  {service.tag}
+                </span>
+              )}
+            </div>
+
+            <!-- Title -->
+            <h3 class="text-lg sm:text-xl font-bold font-heading text-slate-900 dark:text-white group-hover:text-primary transition-colors tracking-tight mb-3">
+              {service.title}
+            </h3>
+
+            <!-- Description -->
+            <p class="text-xs sm:text-sm text-slate-600 dark:text-slate-400 leading-relaxed">
+              {service.description}
+            </p>
+          </div>
+
+          <!-- Bottom Micro Action -->
+          <div class="pt-5 mt-6 border-t border-slate-100 dark:border-white/[0.06] flex items-center justify-between text-xs font-semibold text-slate-500 group-hover:text-primary transition-colors">
+            <span>Explore Service</span>
+            <i data-lucide="arrow-right" class="w-3.5 h-3.5 group-hover:translate-x-1 transition-transform"></i>
+          </div>
+        </div>
+      ))}
+    </div>
+
+    <!-- Bottom CTA Bar -->
+    <div class="mt-12 sm:mt-16 text-center" data-aos="fade-up">
+      <a
+        href="#contact"
+        class="inline-flex items-center gap-2 px-8 py-3.5 rounded-full font-semibold text-sm bg-primary hover:bg-orange-600 text-white shadow-lg shadow-primary/20 hover:shadow-primary/30 transition-all hover:scale-105 active:scale-95"
+      >
+        <span>Start Your Project</span>
+        <i data-lucide="arrow-right" class="w-4 h-4"></i>
+      </a>
+    </div>
+  </div>
+</section>

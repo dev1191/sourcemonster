@@ -2,88 +2,84 @@
 import { getCollection } from 'astro:content';
 const teamMembers = await getCollection('team');
 ---
-<!-- Team Section -->
-<section id="team" class="py-20 sm:py-32 bg-slate-50 dark:bg-slate-900/90 relative overflow-hidden transition-colors border-t border-slate-200/80 dark:border-slate-800/80">
-    <div class="absolute top-0 right-0 w-96 h-96 bg-primary/10 rounded-full blur-[120px] -mr-40 -mt-40 pointer-events-none"></div>
-    <div class="absolute bottom-0 left-0 w-96 h-96 bg-secondary/10 rounded-full blur-[120px] -ml-40 -mb-40 pointer-events-none"></div>
 
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 relative z-10">
-        <div class="text-center mb-16 sm:mb-20" data-aos="fade-up">
-            <div class="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-primary/10 text-primary text-xs font-mono font-bold tracking-widest uppercase mb-4">
-                <span class="w-2 h-2 rounded-full bg-primary"></span>
-                <span>The Alpha Task Force</span>
-            </div>
-            <h2 class="text-3xl xs:text-4xl sm:text-5xl font-black font-heading tracking-tight text-slate-900 dark:text-white">
-                MEET THE <span class="text-gradient">PREDATORS.</span>
-            </h2>
-            <p class="mt-4 text-slate-600 dark:text-slate-400 max-w-xl mx-auto text-sm sm:text-base leading-relaxed">
-                A specialized collective of senior software architects, designers, and DevOps engineers executing complex digital missions.
-            </p>
-        </div>
-
-        <div class="swiper team-slider pb-14">
-            <div class="swiper-wrapper">
-                {teamMembers.map((member) => (
-                    <div class="swiper-slide group relative">
-                        <div class="bg-white dark:bg-slate-950/80 backdrop-blur-xl rounded-3xl p-5 border border-slate-200 dark:border-slate-800 transition-all duration-300 hover:shadow-xl hover:border-primary/40 shadow-sm flex flex-col justify-between">
-                            <div class="relative w-full aspect-square overflow-hidden rounded-2xl mb-4 bg-slate-100 dark:bg-slate-900">
-                                <img
-                                    src={`/assets/images/resource/${member.data.img}`}
-                                    class="w-full h-full object-cover grayscale transition-all duration-500 group-hover:grayscale-0 group-hover:scale-105"
-                                    alt={member.data.name}
-                                    loading="lazy"
-                                />
-                            </div>
-                            <div class="text-center">
-                                <h4 class="text-base sm:text-lg font-bold font-heading text-slate-900 dark:text-white mb-1">
-                                    {member.data.name}
-                                </h4>
-                                <p class="text-primary font-bold uppercase tracking-[0.18em] text-[10px] mb-3">
-                                    {member.data.role}
-                                </p>
-                                <div class="h-0.5 w-6 bg-slate-200 dark:bg-slate-800 mx-auto group-hover:w-10 group-hover:bg-primary transition-all duration-300"></div>
-                            </div>
-                        </div>
-                    </div>
-                ))}
-            </div>
-            <div class="swiper-pagination !bottom-0"></div>
-        </div>
+<!-- Team Section (Lume Agency Inspired) -->
+<section id="team" class="py-20 sm:py-32 bg-slate-50 dark:bg-[#070913] relative overflow-hidden transition-colors border-t border-slate-200/80 dark:border-white/[0.08]">
+  <div class="max-w-6xl mx-auto px-4 sm:px-6 relative z-10">
+    <!-- Header -->
+    <div class="text-center max-w-2xl mx-auto mb-16 sm:mb-20" data-aos="fade-up">
+      <div class="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-white dark:bg-white/[0.04] border border-slate-200 dark:border-white/[0.1] text-xs font-mono uppercase tracking-widest text-primary font-bold mb-4">
+        <span class="w-1.5 h-1.5 rounded-full bg-primary"></span>
+        <span>The Team</span>
+      </div>
+      <h2 class="text-3xl xs:text-4xl sm:text-5xl lg:text-6xl font-black font-heading tracking-tight text-slate-900 dark:text-white leading-tight mb-4">
+        The Makers Behind the Magic.
+      </h2>
+      <p class="text-base sm:text-lg text-slate-600 dark:text-slate-400">
+        We're a tight-knit team of software architects, engineers, and product designers building next-generation products.
+      </p>
     </div>
+
+    <!-- Team Swiper Slider -->
+    <div class="swiper team-slider pb-12">
+      <div class="swiper-wrapper">
+        {teamMembers.map((member) => (
+          <div class="swiper-slide group">
+            <div class="p-4 sm:p-5 rounded-3xl bg-white dark:bg-white/[0.02] border border-slate-200 dark:border-white/[0.08] hover:border-primary/40 dark:hover:border-primary/40 transition-all duration-300 shadow-sm hover:shadow-xl flex flex-col justify-between">
+              <!-- Avatar Container -->
+              <div class="relative w-full aspect-square overflow-hidden rounded-2xl mb-4 bg-slate-100 dark:bg-white/[0.04]">
+                <img
+                  src={`/assets/images/resource/${member.data.img}`}
+                  class="w-full h-full object-cover grayscale transition-all duration-500 group-hover:grayscale-0 group-hover:scale-105"
+                  alt={member.data.name}
+                  loading="lazy"
+                />
+              </div>
+
+              <!-- Name & Role -->
+              <div class="text-center">
+                <h4 class="text-base sm:text-lg font-bold font-heading text-slate-900 dark:text-white mb-1">
+                  {member.data.name}
+                </h4>
+                <p class="text-primary font-mono uppercase tracking-wider text-[11px] font-semibold">
+                  {member.data.role}
+                </p>
+              </div>
+            </div>
+          </div>
+        ))}
+      </div>
+      <div class="swiper-pagination !bottom-0"></div>
+    </div>
+  </div>
 </section>
 
 <script is:inline>
-    document.addEventListener('DOMContentLoaded', () => {
-        if (typeof Swiper !== 'undefined') {
-            new Swiper(".team-slider", {
-                slidesPerView: 1.25,
-                spaceBetween: 16,
-                loop: true,
-                autoplay: { delay: 3500, disableOnInteraction: false },
-                pagination: { el: ".swiper-pagination", clickable: true },
-                breakpoints: {
-                    480: { slidesPerView: 2, spaceBetween: 20 },
-                    768: { slidesPerView: 3, spaceBetween: 24 },
-                    1024: { slidesPerView: 4, spaceBetween: 28 },
-                    1280: { slidesPerView: 5, spaceBetween: 30 },
-                },
-            });
-        }
-    });
+  document.addEventListener('DOMContentLoaded', () => {
+    if (typeof Swiper !== 'undefined') {
+      new Swiper(".team-slider", {
+        slidesPerView: 1.25,
+        spaceBetween: 16,
+        loop: true,
+        autoplay: { delay: 3500, disableOnInteraction: false },
+        pagination: { el: ".swiper-pagination", clickable: true },
+        breakpoints: {
+          480: { slidesPerView: 2, spaceBetween: 20 },
+          768: { slidesPerView: 3, spaceBetween: 24 },
+          1024: { slidesPerView: 4, spaceBetween: 24 },
+        },
+      });
+    }
+  });
 </script>
 
 <style>
-	.text-gradient {
-		background: linear-gradient(135deg, #FF4D1C 0%, #FF8E6E 100%);
-		-webkit-background-clip: text;
-		-webkit-text-fill-color: transparent;
-	}
-	:global(.dark) .swiper-pagination-bullet {
-		background: #ffffff !important;
-		opacity: 0.25 !important;
-	}
-    :global(.dark) .swiper-pagination-bullet-active {
-		background: #FF4D1C !important;
-		opacity: 1 !important;
-	}
+  :global(.dark) .swiper-pagination-bullet {
+    background: #ffffff !important;
+    opacity: 0.2 !important;
+  }
+  :global(.dark) .swiper-pagination-bullet-active {
+    background: #ff4d1c !important;
+    opacity: 1 !important;
+  }
 </style>

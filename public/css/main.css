@@ -12,10 +12,10 @@
 .dark,
 :root[class~="dark"],
 html.dark {
-  --dark: #020617;
-  --glass: rgba(15, 23, 42, 0.75);
+  --dark: #070913;
+  --glass: rgba(10, 13, 24, 0.75);
   --glass-border: rgba(255, 255, 255, 0.08);
-  --glass-shadow: rgba(0, 0, 0, 0.5);
+  --glass-shadow: rgba(0, 0, 0, 0.6);
 }
 
 @layer base {
@@ -27,8 +27,8 @@ html.dark {
 
   .dark body,
   html.dark body {
-    color: #f8fafc;
-    background-color: #020617;
+    color: #f1f5f9;
+    background-color: #070913;
   }
 
   h1,
@@ -51,28 +51,57 @@ body {
   -webkit-text-fill-color: transparent;
 }
 
+.text-gradient-purple {
+  background: linear-gradient(135deg, #a855f7 0%, #6366f1 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
 .bg-mesh {
   background-color: #f8fafc;
   background-image:
     radial-gradient(at 0% 0%, hsla(210, 40%, 96%, 1) 0, transparent 50%),
-    radial-gradient(at 50% 0%, hsla(11, 81%, 55%, 0.1) 0, transparent 50%),
-    radial-gradient(at 100% 0%, hsla(225, 100%, 32%, 0.05) 0, transparent 50%);
+    radial-gradient(at 50% 0%, hsla(11, 81%, 55%, 0.08) 0, transparent 50%),
+    radial-gradient(at 100% 0%, hsla(225, 100%, 32%, 0.04) 0, transparent 50%);
 }
 
 .dark .bg-mesh,
 html.dark .bg-mesh {
-  background-color: #020617;
+  background-color: #070913;
   background-image:
-    radial-gradient(at 0% 0%, rgba(15, 23, 42, 0.9) 0, transparent 50%),
-    radial-gradient(at 50% 0%, hsla(11, 81%, 55%, 0.1) 0, transparent 50%),
-    radial-gradient(at 100% 0%, hsla(225, 100%, 32%, 0.08) 0, transparent 50%);
+    radial-gradient(at 50% 0%, rgba(255, 77, 28, 0.12) 0, transparent 60%),
+    radial-gradient(at 100% 50%, rgba(99, 102, 241, 0.08) 0, transparent 50%),
+    radial-gradient(at 0% 100%, rgba(15, 23, 42, 0.8) 0, transparent 50%);
 }
 
 .glass-card {
   background: var(--glass);
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
   border: 1px solid var(--glass-border);
+  box-shadow: 0 10px 30px -10px var(--glass-shadow);
+}
+
+.lume-card {
+  background: rgba(255, 255, 255, 0.8);
+  border: 1px solid rgba(226, 232, 240, 0.8);
+  border-radius: 1.5rem;
+  transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.dark .lume-card,
+html.dark .lume-card {
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.04) 0%, rgba(255, 255, 255, 0.01) 100%);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  box-shadow: 0 20px 40px -15px rgba(0, 0, 0, 0.5);
+}
+
+.dark .lume-card:hover,
+html.dark .lume-card:hover {
+  border-color: rgba(255, 77, 28, 0.4);
+  transform: translateY(-2px);
+}
   box-shadow: 0 10px 30px -10px var(--glass-shadow);
 }
 

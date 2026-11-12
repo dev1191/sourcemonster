@@ -2,14 +2,14 @@
 import BaseLayout from "../layouts/BaseLayout.astro";
 import Navbar from "../components/Navbar.astro";
 import Hero from "../components/Hero.astro";
+import About from "../components/About.astro";
 import TechStackTicker from "../components/TechStackTicker.astro";
+import Services from "../components/Services.astro";
 import FeaturedProjects from "../components/FeaturedProjects.astro";
 import Stats from "../components/Stats.astro";
-import About from "../components/About.astro";
-import Services from "../components/Services.astro";
 import Workflow from "../components/Workflow.astro";
-import Team from "../components/Team.astro";
 import Testimonials from "../components/Testimonials.astro";
+import Team from "../components/Team.astro";
 import FAQ from "../components/FAQ.astro";
 import Contact from "../components/Contact.astro";
 import Footer from "../components/Footer.astro";
@@ -18,7 +18,7 @@ import WhatsAppFloat from "../components/WhatsAppFloat.astro";
 
 <BaseLayout
   title="SourceMonster | High-Performance Software Collective & Commercial Products"
-  description="We engineer high-performance web applications, bespoke SaaS platforms, and enterprise digital solutions that scale without friction."
+  description="Custom web & mobile app development, end-to-end. We engineer scalable digital products, bespoke SaaS platforms, and enterprise solutions that scale without friction."
 >
   <Navbar />
 
@@ -26,31 +26,34 @@ import WhatsAppFloat from "../components/WhatsAppFloat.astro";
     <!-- Hero Section -->
     <Hero />
 
-    <!-- Featured Commercial Projects & Boilerplates -->
-    <FeaturedProjects />
-
-    <!-- Proven Metrics & High-Impact Stats Ribbon -->
-    <Stats />
-
-    <!-- About / DNA / Engineering Philosophy -->
+    <!-- About / Pillars Section -->
     <About />
 
-    <!-- Engineering Capabilities & Specializations -->
+    <!-- Tech Stack / Technologies -->
+    <TechStackTicker />
+
+    <!-- End-to-End Services -->
     <Services />
 
-    <!-- Tactical Execution Workflow -->
+    <!-- Built by SourceMonster / Recent Projects -->
+    <FeaturedProjects />
+
+    <!-- High-Impact Stats Ribbon -->
+    <Stats />
+
+    <!-- How It Works / Workflow -->
     <Workflow />
 
-    <!-- Specialized Engineering Task Force -->
-    <Team />
-
-    <!-- Verified Client Testimonials -->
+    <!-- Verified Client Reviews -->
     <Testimonials />
+
+    <!-- The Team Behind The Magic -->
+    <Team />
 
     <!-- Frequently Asked Questions -->
     <FAQ />
 
-    <!-- High-Conversion Project Initialization Dock -->
+    <!-- Contact / Project Initialization Dock -->
     <Contact />
   </main>
 
