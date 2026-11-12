@@ -1,0 +1,31 @@
+---
+import { Card, HtmlEditor, DatePicker } from "../../ui";
+
+interface Props {
+  defaultDate?: string;
+}
+
+const { defaultDate = new Date().toISOString().split("T")[0] } = Astro.props;
+---
+
+<Card
+  title="Append Release Notes"
+  subtitle="Optionally log an update record alongside this save"
+  icon="git-commit"
+>
+  <div class="space-y-3 pt-1">
+    <DatePicker
+      name="new_changelog_date"
+      label="Release Date"
+      placeholder="Select date..."
+      defaultDate={defaultDate}
+    />
+    <HtmlEditor
+      name="new_changelog_content"
+      minHeight="120px"
+      placeholder="<p><strong>What's new in this release:</strong></p><ul><li>Added feature...</li><li>Bug fixes...</li></ul>"
+      helperText="If provided, a new changelog record will automatically be appended when saving."
+    />
+  </div>
+</Card>
+

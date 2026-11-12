@@ -14,6 +14,7 @@ export interface CaptureLeadInput {
   message: string;
   company?: string | null;
   service?: string | null;
+  projectId?: string | null;
   productId?: string | null;
   budget?: string | null;
   sourcePage?: string | null;
@@ -63,7 +64,7 @@ export async function captureLead(input: CaptureLeadInput): Promise<Lead> {
       company: input.company || null,
       subject: input.service || "New Inquiry",
       serviceId: input.service || null,
-      productId: input.productId || null,
+      projectId: input.projectId || input.productId || null,
       budget: input.budget || null,
       message: input.message,
       sourcePage: input.sourcePage || "/",

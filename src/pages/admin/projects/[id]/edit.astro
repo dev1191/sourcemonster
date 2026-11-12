@@ -1,0 +1,333 @@
+---
+import AdminLayout from "../../../../layouts/AdminLayout.astro";
+import {
+  getAdminProjectById,
+  updateProject,
+  deleteProject,
+  deleteProjectGalleryImage,
+  getAllAdminAddons,
+  createProjectChangeLog,
+  updateProjectChangeLog,
+  deleteProjectChangeLog,
+} from "../../../../services";
+import { Button, Toast } from "../../../../components/ui";
+import {
+  ProjectGeneralInfo,
+  ProjectFeaturesTech,
+  ProjectMediaUpload,
+  ProjectSidebarStatus,
+  ProjectLinksVersion,
+  ProjectSeoSection,
+  ProjectChangelogsManager,
+  ProjectAddonsManager,
+  ProjectDangerZone,
+  ProjectQuickReleaseChangelog,
+} from "../../../../components/admin/projects";
+
+const { id } = Astro.params;
+
+if (!id) {
+  return Astro.redirect("/admin/projects");
+}
+
+let errorMessage = "";
+let successMessage = "";
+
+// Flash notifications from redirect parameters
+if (Astro.url.searchParams.has("created")) {
+  successMessage = "Project created successfully!";
+} else if (Astro.url.searchParams.has("updated")) {
+  successMessage = "Project updated successfully!";
+} else if (Astro.url.searchParams.has("cl_added")) {
+  successMessage = "Changelog entry published successfully!";
+} else if (Astro.url.searchParams.has("cl_updated")) {
+  successMessage = "Changelog entry updated successfully!";
+} else if (Astro.url.searchParams.has("cl_deleted")) {
+  successMessage = "Changelog entry deleted successfully!";
+} else if (Astro.url.searchParams.has("img_deleted")) {
+  successMessage = "Gallery screenshot removed successfully!";
+}
+
+// Initial check
+const initialProjectData = await getAdminProjectById(id);
+if (!initialProjectData) {
+  return Astro.redirect("/admin/projects");
+}
+
+if (Astro.request.method === "POST") {
+  try {
+    const formData = await Astro.request.formData();
+    const action = formData.get("_action")?.toString();
+
+    if (action === "delete") {
+      await deleteProject(id);
+      return Astro.redirect("/admin/projects");
+    }
+
+    if (action === "delete_gallery_image") {
+      const pmId = formData.get("product_media_id")?.toString() || formData.get("project_media_id")?.toString();
+      if (pmId) {
+        await deleteProjectGalleryImage(pmId);
+        return Astro.redirect(`/admin/projects/${id}/edit?img_deleted=1`);
+      }
+    }
+
+    if (action === "add_changelog") {
+      const changelogVersion = formData.get("changelog_version")?.toString().trim() || null;
+      const changelogDateRaw = formData.get("changelog_date")?.toString().trim();
+      const changelogContent = formData.get("changelog_content")?.toString().trim() || "";
+      if (changelogContent) {
+        const clDate = changelogDateRaw ? new Date(changelogDateRaw) : new Date();
+        await createProjectChangeLog({
+          projectId: id,
+          version: changelogVersion,
+          content: changelogContent,
+          createdAt: !isNaN(clDate.getTime()) ? clDate : new Date(),
+        });
+        return Astro.redirect(`/admin/projects/${id}/edit?cl_added=1`);
+      }
+    }
+
+    if (action === "update_changelog") {
+      const changelogId = formData.get("changelog_id")?.toString();
+      const changelogVersion = formData.get("changelog_version")?.toString().trim() || null;
+      const changelogDateRaw = formData.get("changelog_date")?.toString().trim();
+      const changelogContent = formData.get("changelog_content")?.toString().trim() || "";
+      if (changelogId && changelogContent) {
+        const clDate = changelogDateRaw ? new Date(changelogDateRaw) : null;
+        await updateProjectChangeLog(changelogId, {
+          version: changelogVersion,
+          content: changelogContent,
+          createdAt: clDate && !isNaN(clDate.getTime()) ? clDate : undefined,
+        });
+        return Astro.redirect(`/admin/projects/${id}/edit?cl_updated=1`);
+      }
+    }
+
+    if (action === "delete_changelog") {
+      const clId = formData.get("changelog_id")?.toString();
+      if (clId) {
+        await deleteProjectChangeLog(clId);
+        return Astro.redirect(`/admin/projects/${id}/edit?cl_deleted=1`);
+      }
+    }
+
+    const title = formData.get("title")?.toString().trim() || "";
+    const slug = formData.get("slug")?.toString().trim().toLowerCase() || "";
+    const shortDescription = formData.get("shortDescription")?.toString().trim() || "";
+    const description = formData.get("description")?.toString().trim() || "";
+    const codecanyonUrl = formData.get("codecanyonUrl")?.toString().trim() || "";
+    const demoUrl = formData.get("demoUrl")?.toString().trim() || "";
+    const documentationUrl = formData.get("documentationUrl")?.toString().trim() || "";
+    const version = formData.get("version")?.toString().trim() || "";
+    const status = (formData.get("status")?.toString() || "draft") as "draft" | "published";
+    const isFeatured = formData.get("isFeatured") === "on";
+    const sortOrder = parseInt(formData.get("sortOrder")?.toString() || "0", 10);
+    const seoTitle = formData.get("seoTitle")?.toString().trim() || "";
+    const seoDescription = formData.get("seoDescription")?.toString().trim() || "";
+
+    const rawTech = formData.get("technologies")?.toString() || "";
+    const technologies = rawTech
+      .split(/[,\n]/)
+      .map((t) => t.trim())
+      .filter(Boolean);
+
+    const features = formData.get("features")?.toString().trim() || "";
+
+    const thumbnailFile = formData.get("thumbnail") as File | null;
+    const rawScreenshots = [
+      ...(formData.getAll("screenshot") as File[]),
+      ...(formData.getAll("screenshots") as File[]),
+    ];
+    const screenshotFiles = rawScreenshots.filter((f) => f && f.size > 0);
+
+    await updateProject(
+      id,
+      {
+        title,
+        slug,
+        shortDescription,
+        description,
+        codecanyonUrl,
+        demoUrl,
+        documentationUrl,
+        version,
+        technologies,
+        features,
+        status,
+        isFeatured,
+        sortOrder,
+        seoTitle,
+        seoDescription,
+      },
+      thumbnailFile,
+      screenshotFiles
+    );
+
+    const newChangelog = formData.get("new_changelog_content")?.toString().trim();
+    const newChangelogDateRaw = formData.get("new_changelog_date")?.toString().trim();
+    if (newChangelog) {
+      const clDate = newChangelogDateRaw ? new Date(newChangelogDateRaw) : new Date();
+      await createProjectChangeLog({
+        projectId: id,
+        version: version || initialProjectData.project.version || null,
+        content: newChangelog,
+        createdAt: !isNaN(clDate.getTime()) ? clDate : new Date(),
+      });
+    }
+
+    successMessage = "Project updated successfully!";
+  } catch (err: any) {
+    console.error("Update project failed:", err);
+    errorMessage = err?.message || "Failed to update project.";
+  }
+}
+
+// Re-query current project & media for rendering
+const projectData = await getAdminProjectById(id);
+if (!projectData) {
+  return Astro.redirect("/admin/projects");
+}
+
+const { project, thumbnailUrl: currentThumbnailUrl, galleryItems, changelogs = [] } = projectData;
+const addons = await getAllAdminAddons(id);
+---
+
+<AdminLayout title={`Edit ${project.title} | SourceMonster Admin`} activeNav="projects">
+  <!-- Top Command & Breadcrumb Bar -->
+  <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 pb-6 border-b border-slate-200 dark:border-slate-800">
+    <div>
+      <div class="flex items-center gap-2 text-xs text-slate-500 dark:text-slate-400 mb-1.5 font-medium">
+        <a href="/admin/projects" class="hover:text-primary transition flex items-center gap-1">
+          <i data-lucide="arrow-left" class="w-3.5 h-3.5"></i>
+          <span>Projects</span>
+        </a>
+        <span class="text-slate-400 dark:text-slate-600">/</span>
+        <span class="text-slate-800 dark:text-white truncate max-w-xs">{project.title}</span>
+        <span class="text-slate-400 dark:text-slate-600">/</span>
+        <span class="text-primary font-semibold">Edit</span>
+      </div>
+      <div class="flex flex-wrap items-center gap-3">
+        <h1 class="text-2xl sm:text-3xl font-black text-slate-900 dark:text-white tracking-tight">
+          {project.title}
+        </h1>
+        <div class="flex items-center gap-2">
+          {project.status === "published" ? (
+            <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-semibold bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20">
+              <span class="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span>
+              Live Project
+            </span>
+          ) : (
+            <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-semibold bg-amber-500/10 text-amber-600 dark:text-amber-400 border border-amber-500/20">
+              <span class="w-1.5 h-1.5 rounded-full bg-amber-500"></span>
+              Draft
+            </span>
+          )}
+          {project.version && (
+            <span class="px-2.5 py-1 rounded-full text-xs font-mono font-medium bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 border border-slate-200 dark:border-slate-700">
+              {project.version}
+            </span>
+          )}
+        </div>
+      </div>
+    </div>
+
+    <!-- Quick Action Dock -->
+    <div class="flex items-center gap-2.5 shrink-0">
+      {project.status === "published" && (
+        <Button
+          href={`/projects/${project.slug}`}
+          target="_blank"
+          variant="secondary"
+          size="sm"
+          icon="external-link"
+        >
+          View Public Page
+        </Button>
+      )}
+      <Button href="/admin/projects" variant="secondary" size="sm">
+        Back to List
+      </Button>
+      <Button
+        id="save-project-top-btn"
+        type="submit"
+        form="project-edit-form"
+        variant="primary"
+        size="sm"
+        icon="save"
+      >
+        Save Changes
+      </Button>
+    </div>
+  </div>
+
+  <Toast variant="error" message={errorMessage} />
+  <Toast variant="success" message={successMessage} />
+
+  <!-- Main 2-Column Responsive Form -->
+  <form
+    id="project-edit-form"
+    method="POST"
+    enctype="multipart/form-data"
+    class="my-8 grid grid-cols-1 lg:grid-cols-12 gap-8 items-start"
+  >
+    <input type="hidden" name="_action" value="update" />
+
+    <!-- Left Column: Core Project Content (8 Columns) -->
+    <div class="lg:col-span-8 space-y-8 min-w-0">
+      <ProjectGeneralInfo product={project} />
+      <ProjectFeaturesTech product={project} />
+      <ProjectMediaUpload
+        currentThumbnailUrl={currentThumbnailUrl}
+        galleryItems={galleryItems}
+        isEdit={true}
+      />
+      <ProjectAddonsManager productId={id} addons={addons} />
+      <ProjectChangelogsManager
+        productId={id}
+        defaultVersion={project.version}
+        changelogs={changelogs}
+      />
+    </div>
+
+    <!-- Right Column: Sticky Sidebar (4 Columns) -->
+    <div class="lg:col-span-4 space-y-6 lg:sticky lg:top-6 self-start min-w-0">
+      <ProjectSidebarStatus product={project} isEdit={true} />
+      <ProjectLinksVersion product={project} />
+      <ProjectSeoSection product={project} />
+      <ProjectQuickReleaseChangelog />
+    </div>
+  </form>
+
+  <!-- Danger Zone (Kept outside main form to prevent accidental submission) -->
+  <ProjectDangerZone product={project} />
+
+  <script>
+    const form = document.getElementById("project-edit-form") as HTMLFormElement | null;
+    const topSaveBtn = document.getElementById("save-project-top-btn") as HTMLButtonElement | null;
+
+    if (topSaveBtn && form) {
+      topSaveBtn.addEventListener("click", () => {
+        if (typeof form.requestSubmit === "function") {
+          form.requestSubmit();
+        } else {
+          form.submit();
+        }
+      });
+    }
+
+    if (form) {
+      form.addEventListener("submit", (e) => {
+        if (e.defaultPrevented) return;
+
+        const submitBtns = document.querySelectorAll<HTMLButtonElement>(
+          '#save-project-top-btn, button[form="project-edit-form"][type="submit"], #project-edit-form button[type="submit"]'
+        );
+        submitBtns.forEach((btn) => {
+          btn.disabled = true;
+          btn.classList.add("opacity-80", "cursor-wait");
+        });
+      });
+    }
+  </script>
+</AdminLayout>

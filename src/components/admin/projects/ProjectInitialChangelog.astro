@@ -1,0 +1,48 @@
+---
+import { Card, InputLabel, HtmlEditor, DatePicker } from "../../ui";
+import { Input } from "../../starwind/input";
+
+interface Props {
+  defaultDate?: string;
+}
+
+const { defaultDate = new Date().toISOString().split("T")[0] } = Astro.props;
+---
+
+<Card
+  title="Initial Release Notes / Changelog"
+  subtitle="Optionally seed the version history with launch notes"
+  icon="history"
+>
+  <div class="space-y-4 pt-2">
+    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+      <div>
+        <InputLabel label="Release Version" optional subtext="e.g. v1.0.0" />
+        <Input
+          name="initialChangelogVersion"
+          type="text"
+          placeholder="Defaults to product version..."
+          class="bg-white dark:bg-slate-950/80 border-slate-300 dark:border-slate-700/80 text-slate-900 dark:text-white placeholder:text-slate-400 dark:placeholder:text-slate-500 rounded-xl text-xs font-mono"
+        />
+      </div>
+
+      <div>
+        <DatePicker
+          name="initialChangelogDate"
+          label="Release Date"
+          placeholder="Select release date..."
+          defaultDate={defaultDate}
+        />
+      </div>
+    </div>
+
+    <HtmlEditor
+      name="initialChangelog"
+      label="Initial Release Notes"
+      minHeight="140px"
+      placeholder="<p><strong>Initial Public Launch:</strong></p><ul><li>Initial complete system release</li><li>Modern web interface with full dark mode</li><li>Complete architectural documentation</li></ul>"
+      helperText="Write notes about what is included in this initial release to seed the product version history."
+    />
+  </div>
+</Card>
+

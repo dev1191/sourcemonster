@@ -112,7 +112,7 @@
                             </div>
                             <div>
                                 <label class="block text-xs uppercase tracking-wider font-mono font-bold text-slate-500 dark:text-slate-400 mb-2">
-                                    Service / Product Needed *
+                                    Service / Project Needed *
                                 </label>
                                 <select
                                     id="service-select"
@@ -121,7 +121,7 @@
                                     class="w-full bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 p-3.5 sm:p-4 rounded-2xl focus:ring-2 focus:ring-primary focus:border-transparent outline-none transition-all text-slate-900 dark:text-white text-base"
                                 >
                                     <option value="Custom Development">Custom Development</option>
-                                    <option value="Product Customization">Product Customization</option>
+                                    <option value="Project Customization">Project Customization</option>
                                     <option value="Web Engineering">Web Engineering</option>
                                     <option value="SaaS Architecture">SaaS Architecture</option>
                                     <option value="Mobile App Development">Mobile App Development</option>
@@ -172,26 +172,26 @@
     const serviceSelect = document.getElementById('service-select') as HTMLSelectElement;
     const messageTextarea = document.getElementById('contact-message') as HTMLTextAreaElement;
 
-    // Check for query parameters (?product=... or ?service=...)
+    // Check for query parameters (?project=..., ?product=..., or ?service=...)
     try {
         if (typeof window !== "undefined") {
             const urlParams = new URLSearchParams(window.location.search);
-            const productParam = urlParams.get('product');
+            const projectParam = urlParams.get('project') || urlParams.get('product');
             const serviceParam = urlParams.get('service');
 
             if (sourcePageInput) {
                 sourcePageInput.value = window.location.pathname + window.location.search;
             }
 
-            if (productParam && serviceSelect) {
+            if (projectParam && serviceSelect) {
                 const option = document.createElement("option");
-                option.value = `Customization: ${productParam}`;
-                option.text = `Customization: ${productParam}`;
+                option.value = `Customization: ${projectParam}`;
+                option.text = `Customization: ${projectParam}`;
                 option.selected = true;
                 serviceSelect.prepend(option);
 
                 if (messageTextarea && !messageTextarea.value) {
-                    messageTextarea.placeholder = `I am interested in customizing ${productParam}. Here are my requirements...`;
+                    messageTextarea.placeholder = `I am interested in customizing ${projectParam}. Here are my requirements...`;
                 }
             } else if (serviceParam && serviceSelect) {
                 serviceSelect.value = serviceParam;

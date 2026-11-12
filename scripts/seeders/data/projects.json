@@ -1,0 +1,95 @@
+[
+  {
+    "title": "MonsterSaaS — Multi-Tenant SaaS Boilerplate",
+    "slug": "monstersaas-saas-boilerplate",
+    "shortDescription": "Production-ready, multi-tenant SaaS starter kit with built-in subscription billing, user teams, and admin telemetry.",
+    "description": "MonsterSaaS is engineered for developers and agencies launching modern cloud products with zero friction. Built with cutting-edge TypeScript and PostgreSQL, it provides turnkey multi-tenancy, authentication, subscription checkout via Stripe, audit logs, and customizable role-based access control. Ship your next software business weeks faster.",
+    "codecanyonUrl": "https://codecanyon.net/item/monstersaas-saas-boilerplate/12345678",
+    "demoUrl": "https://demo.sourcemonster.in/monstersaas",
+    "documentationUrl": "https://docs.sourcemonster.in/monstersaas",
+    "version": "v1.4.0",
+    "technologies": ["TypeScript", "Astro SSR", "TailwindCSS", "PostgreSQL", "Stripe"],
+    "features": [
+      "Turnkey multi-tenant workspace isolation",
+      "Stripe subscriptions, webhooks, and customer billing portal",
+      "Robust role-based permission system (Owner, Admin, Member)",
+      "Dark-mode ready modern UI component architecture",
+      "Automated transactional emails and onboarding flows"
+    ],
+    "status": "published",
+    "isFeatured": true,
+    "sortOrder": 1,
+    "seoTitle": "MonsterSaaS — Premium Multi-Tenant SaaS Boilerplate",
+    "seoDescription": "Launch production software products in days with SourceMonster's full-stack multi-tenant SaaS boilerplate."
+  },
+  {
+    "title": "MonsterTask — Freelance Agency & Project Management CRM",
+    "slug": "monstertask-freelance-crm",
+    "shortDescription": "All-in-one client portal, task tracker, and invoicing platform tailored for modern freelance task forces and digital agencies.",
+    "description": "MonsterTask streamlines digital service delivery. Keep clients updated with dedicated project portals, manage tasks across Kanban and sprint boards, log billable hours, and send branded PDF invoices with instant online payment gateways.",
+    "codecanyonUrl": "https://codecanyon.net/item/monstertask-freelance-crm/12345679",
+    "demoUrl": "https://demo.sourcemonster.in/monstertask",
+    "documentationUrl": "https://docs.sourcemonster.in/monstertask",
+    "version": "v2.1.0",
+    "technologies": ["Node.js", "PostgreSQL", "Drizzle ORM", "TailwindCSS"],
+    "features": [
+      "White-labeled client portal for project transparency",
+      "Interactive Kanban and milestone tracking boards",
+      "Built-in invoice generator with online payment links",
+      "Time tracking and hourly billing calculation",
+      "Automated deadline notifications and team activity feeds"
+    ],
+    "status": "published",
+    "isFeatured": true,
+    "sortOrder": 2,
+    "seoTitle": "MonsterTask — High-Performance Agency & Freelance CRM",
+    "seoDescription": "Organize client missions, tasks, contracts, and revenue with SourceMonster's digital agency CRM solution."
+  },
+  {
+    "title": "MonsterAI — Automated Content & Workflow Bot Platform",
+    "slug": "monsterai-workflow-automation",
+    "shortDescription": "Enterprise-grade workflow bot engine for AI chat, content generation, and webhook automations across multiple LLMs.",
+    "description": "MonsterAI lets you deploy custom automated bots and AI workflows in minutes. Featuring multi-model support, vector-based semantic retrieval, custom prompts marketplace, and full webhook integration for Slack, Discord, and CRM pipelines.",
+    "codecanyonUrl": "https://codecanyon.net/item/monsterai-workflow-automation/12345680",
+    "demoUrl": "https://demo.sourcemonster.in/monsterai",
+    "documentationUrl": "https://docs.sourcemonster.in/monsterai",
+    "version": "v1.1.2",
+    "technologies": ["Python", "FastAPI", "OpenAI / Claude API", "Redis", "Vector DB"],
+    "features": [
+      "Multi-provider LLM support (OpenAI, Anthropic, Gemini)",
+      "Semantic knowledge-base indexing with RAG",
+      "Configurable webhook triggers and outgoing actions",
+      "Usage-based token metering and rate limiting",
+      "Responsive embeddable web chat widget"
+    ],
+    "status": "published",
+    "isFeatured": true,
+    "sortOrder": 3,
+    "seoTitle": "MonsterAI — Workflow & Intelligent Bot Platform",
+    "seoDescription": "Automate digital workflows and deploy custom AI agents with SourceMonster's versatile AI bot engine."
+  },
+  {
+    "title": "MonsterCommerce — Ultra-Fast Headless E-Commerce Kit",
+    "slug": "monstercommerce-headless-ecommerce",
+    "shortDescription": "Speed-optimized headless e-commerce store template with sub-second catalog navigation and high-conversion checkout.",
+    "description": "MonsterCommerce is designed for brands that prioritize speed, SEO dominance, and high conversions. Features a headless architecture with instant search, facet filtering, cart management, and seamless integrations with popular payment processors.",
+    "codecanyonUrl": "https://codecanyon.net/item/monstercommerce-headless-ecommerce/12345681",
+    "demoUrl": "https://demo.sourcemonster.in/monstercommerce",
+    "documentationUrl": "https://docs.sourcemonster.in/monstercommerce",
+    "version": "v1.0.5",
+    "technologies": ["Astro SSR", "TailwindCSS", "PostgreSQL", "GraphQL"],
+    "features": [
+      "Sub-second catalog browsing and instant search filters",
+      "High-converting streamlined checkout flow",
+      "Dynamic inventory management and stock alerts",
+      "100/100 Google Lighthouse performance score out-of-the-box",
+      "Comprehensive OpenGraph and rich snippet schema markup"
+    ],
+    "status": "published",
+    "isFeatured": false,
+    "sortOrder": 4,
+    "seoTitle": "MonsterCommerce — Headless E-Commerce Template",
+    "seoDescription": "Achieve unmatched e-commerce speed and higher conversion rates with SourceMonster's headless store platform."
+  }
+]
+

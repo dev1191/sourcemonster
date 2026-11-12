@@ -1,5 +1,5 @@
 import { pgTable, uuid, varchar, text, timestamp } from "drizzle-orm/pg-core";
-import { products } from "./products";
+import { projects } from "./projects";
 
 export const leads = pgTable("leads", {
   id: uuid("id").primaryKey().defaultRandom(),
@@ -8,7 +8,7 @@ export const leads = pgTable("leads", {
   company: text("company"),
   subject: text("subject"),
   message: text("message").notNull(),
-  productId: uuid("product_id").references(() => products.id, { onDelete: "set null" }),
+  projectId: uuid("project_id").references(() => projects.id, { onDelete: "set null" }),
   serviceId: text("service_id"),
   budget: varchar("budget", { length: 100 }),
   sourcePage: text("source_page"),

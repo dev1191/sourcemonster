@@ -1,0 +1,134 @@
+---
+import { Card, InputLabel, Dropzone } from "../../ui";
+import { getPublicUrl } from "../../../lib/storage";
+
+interface GalleryItem {
+  id: string;
+  productMediaId: string;
+  caption: string | null;
+  objectKey: string | null;
+  disk: string | null;
+  url: string | null;
+}
+
+interface Props {
+  currentThumbnailUrl?: string | null;
+  galleryItems?: GalleryItem[];
+  isEdit?: boolean;
+}
+
+const { currentThumbnailUrl, galleryItems = [], isEdit = false } = Astro.props;
+---
+
+<Card
+  title={isEdit ? "Screenshots & Media Gallery" : "Product Cover Thumbnail"}
+  subtitle={isEdit ? "Manage product cover thumbnail and high-resolution showcase captures" : "Primary showcase image used across store cards and social snippets"}
+  icon={isEdit ? "images" : "image"}
+>
+  <div class="space-y-6 pt-2">
+    <!-- Primary Thumbnail Section -->
+    <div>
+      <InputLabel label="Primary Cover Thumbnail" optional subtext="Recommended: 1200x800px" />
+      {currentThumbnailUrl && (
+        <div class="mb-4 flex items-center gap-4 p-3 bg-slate-50 dark:bg-slate-950/60 rounded-xl border border-slate-200 dark:border-slate-800 w-fit">
+          <img
+            src={currentThumbnailUrl}
+            alt="Current thumbnail"
+            class="w-20 h-14 rounded-lg object-cover border border-slate-200 dark:border-slate-700/60 shadow-xs"
+          />
+          <div>
+            <div class="text-xs font-semibold text-slate-900 dark:text-white">Active Thumbnail</div>
+            <div class="text-[11px] text-slate-500 dark:text-slate-400">Upload below to overwrite existing image</div>
+          </div>
+        </div>
+      )}
+      <Dropzone
+        name="thumbnail"
+        label={currentThumbnailUrl ? "Replace Cover Thumbnail" : "Upload Cover Thumbnail"}
+        helperText="PNG, JPG, WebP, or SVG (Recommended: 1200x800px, max 5MB)"
+        maxSizeLabel="Max 5MB"
+        accept="image/png,image/jpeg,image/webp,image/svg+xml"
+      />
+    </div>
+
+    <!-- Gallery Screenshots Grid (for Edit mode) -->
+    {isEdit && (
+      <div class="pt-4 border-t border-slate-200 dark:border-slate-800">
+        <div class="flex items-center justify-between mb-3">
+          <InputLabel label="Gallery Showcase Screenshots" optional />
+          <span class="text-xs font-mono font-medium text-slate-500">
+            {galleryItems.length} {galleryItems.length === 1 ? "image" : "images"} uploaded
+          </span>
+        </div>
+
+        {galleryItems.length > 0 && (
+          <div class="grid grid-cols-2 sm:grid-cols-4 md:grid-cols-5 gap-3.5 mb-4">
+            {galleryItems.map((item, idx) => (
+              <div class="group relative rounded-xl overflow-hidden border border-slate-200 dark:border-slate-800 bg-slate-100 dark:bg-slate-950 aspect-video shadow-xs transition hover:border-slate-300 dark:hover:border-slate-700">
+                <img
+                  src={getPublicUrl(item.objectKey, item.disk)}
+                  alt={item.caption || `Screenshot ${idx + 1}`}
+                  class="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
+                />
+                <div class="absolute inset-0 bg-slate-950/50 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+                  <button
+                    type="button"
+                    data-delete-gallery-id={item.productMediaId}
+                    class="p-2 rounded-lg bg-rose-500 hover:bg-rose-600 text-white transition shadow-md cursor-pointer transform hover:scale-110"
+                    title="Delete screenshot"
+                  >
+                    <i data-lucide="trash-2" class="w-4 h-4"></i>
+                  </button>
+                </div>
+                <span class="absolute bottom-1 left-1.5 px-1.5 py-0.5 rounded-md bg-black/60 backdrop-blur-xs text-[10px] font-mono text-white/90">
+                  #{idx + 1}
+                </span>
+              </div>
+            ))}
+          </div>
+        )}
+
+        <Dropzone
+          name="screenshot"
+          label="Add Showcase Screenshots (Multi-Upload)"
+          helperText={"Drag & drop multiple high-res product screenshots (PNG, JPG, WebP)"}
+          maxSizeLabel="Max 5MB per image"
+          accept="image/png,image/jpeg,image/webp"
+          multiple={true}
+          icon="image-plus"
+        />
+      </div>
+    )}
+  </div>
+</Card>
+
+{isEdit && (
+  <script>
+    function submitAction(fields: Record<string, string>) {
+      const form = document.createElement("form");
+      form.method = "POST";
+      form.style.display = "none";
+      for (const [key, value] of Object.entries(fields)) {
+        const input = document.createElement("input");
+        input.type = "hidden";
+        input.name = key;
+        input.value = value;
+        form.appendChild(input);
+      }
+      document.body.appendChild(form);
+      form.submit();
+    }
+
+    document.querySelectorAll("[data-delete-gallery-id]").forEach((btn) => {
+      btn.addEventListener("click", () => {
+        const pmId = btn.getAttribute("data-delete-gallery-id");
+        if (pmId && confirm("Remove this screenshot from the gallery?")) {
+          submitAction({
+            _action: "delete_gallery_image",
+            product_media_id: pmId,
+          });
+        }
+      });
+    });
+  </script>
+)}
