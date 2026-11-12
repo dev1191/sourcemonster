@@ -2,38 +2,41 @@
 
 ---
 
-<!-- Hero Section (Lume Agency Inspired) -->
+<!-- Hero Section (Lume Agency Inspired & Elevated UI/UX) -->
 <section
   id="home"
-  class="relative pt-32 sm:pt-40 pb-20 sm:pb-32 overflow-hidden bg-slate-50 dark:bg-[#070913] transition-colors duration-200"
+  class="relative pt-32 sm:pt-44 pb-20 sm:pb-36 overflow-hidden bg-slate-50 dark:bg-[#070913] transition-colors duration-200"
 >
-  <!-- Ambient Radial Glows -->
-  <div class="absolute top-10 left-1/2 -translate-x-1/2 w-[700px] h-[400px] bg-gradient-to-b from-primary/20 via-primary/5 to-transparent rounded-full blur-[120px] pointer-events-none"></div>
-  <div class="absolute top-1/3 -left-40 w-96 h-96 bg-primary/10 rounded-full blur-[140px] pointer-events-none"></div>
-  <div class="absolute top-1/4 -right-40 w-96 h-96 bg-indigo-500/10 rounded-full blur-[140px] pointer-events-none"></div>
+  <!-- Ambient Atmospheric Lighting -->
+  <div class="absolute top-0 left-1/2 -translate-x-1/2 w-[1000px] h-[550px] bg-gradient-to-b from-primary/20 via-primary/5 to-transparent rounded-full blur-[160px] pointer-events-none -z-10"></div>
+  <div class="absolute top-1/4 -left-48 w-[500px] h-[500px] bg-primary/10 rounded-full blur-[180px] pointer-events-none -z-10"></div>
+  <div class="absolute top-1/3 -right-48 w-[500px] h-[500px] bg-indigo-500/10 rounded-full blur-[180px] pointer-events-none -z-10"></div>
 
-  <!-- Background subtle grid pattern -->
+  <!-- Background Subtle Grid Mesh -->
   <div class="absolute inset-0 bg-grid-pattern opacity-[0.03] dark:opacity-[0.05] pointer-events-none"></div>
 
   <div class="max-w-6xl mx-auto px-4 sm:px-6 relative z-10 text-center">
     <!-- Eyebrow Pill Badge -->
     <div
-      class="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-white dark:bg-white/[0.04] border border-slate-200 dark:border-white/[0.1] text-slate-800 dark:text-slate-200 text-xs sm:text-[13px] font-medium shadow-xs mb-8 hover:border-primary/40 transition-colors"
+      class="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-white dark:bg-white/[0.04] border border-slate-200 dark:border-white/[0.09] text-slate-800 dark:text-slate-200 text-xs sm:text-[13px] font-medium shadow-xs mb-8 hover:border-primary/40 transition-all hover:scale-105"
       data-aos="fade-down"
     >
-      <span class="w-2 h-2 rounded-full bg-primary animate-pulse"></span>
+      <span class="relative flex h-2 w-2">
+        <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-primary opacity-75"></span>
+        <span class="relative inline-flex rounded-full h-2 w-2 bg-primary"></span>
+      </span>
       <span class="text-slate-500 dark:text-slate-400">Software Development Collective</span>
-      <span class="text-slate-300 dark:text-slate-600">|</span>
+      <span class="text-slate-300 dark:text-slate-700">·</span>
       <span class="text-primary font-semibold">SourceMonster</span>
     </div>
 
-    <!-- Main Big Headline -->
+    <!-- Massive High-Impact Headline -->
     <h1
-      class="text-4xl xs:text-5xl sm:text-6xl md:text-7xl lg:text-[76px] font-black font-heading leading-[1.06] tracking-tight text-slate-900 dark:text-white max-w-4xl mx-auto mb-6 sm:mb-8"
+      class="text-4xl xs:text-5xl sm:text-6xl md:text-7xl lg:text-[80px] font-black font-heading leading-[1.04] tracking-tight text-slate-900 dark:text-white max-w-5xl mx-auto mb-6 sm:mb-8"
       data-aos="fade-up"
       data-aos-delay="100"
     >
-      Custom Web &amp; Mobile App Development, <br />
+      Custom Web &amp; Mobile App Development, <br class="hidden sm:inline" />
       <span class="text-gradient">End-to-End.</span>
     </h1>
 
@@ -43,35 +46,45 @@
       data-aos="fade-up"
       data-aos-delay="200"
     >
-      From product architecture and UI/UX design to backend engineering and turnkey boilerplates, we ship scalable digital products that users love — all under one roof.
+      From product architecture and UI/UX design to backend engineering and turnkey commercial boilerplates, we ship scalable digital products that users love — all under one roof.
     </p>
 
     <!-- Call to Actions -->
     <div
-      class="flex flex-col sm:flex-row items-center justify-center gap-3 sm:gap-4 mb-16"
+      class="flex flex-col sm:flex-row items-center justify-center gap-3.5 sm:gap-4 mb-14"
       data-aos="fade-up"
       data-aos-delay="300"
     >
       <a
         href="#contact"
-        class="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-7 sm:px-8 py-3.5 sm:py-4 rounded-full font-semibold text-sm sm:text-base bg-primary hover:bg-orange-600 active:scale-95 text-white shadow-lg shadow-primary/25 hover:shadow-xl hover:shadow-primary/40 transition-all hover:-translate-y-0.5"
+        class="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-8 py-4 rounded-full font-semibold text-sm sm:text-base bg-primary hover:bg-orange-600 active:scale-95 text-white shadow-xl shadow-primary/25 hover:shadow-2xl hover:shadow-primary/40 transition-all hover:-translate-y-0.5 group"
       >
         <span>Start Your Project</span>
-        <i data-lucide="arrow-right" class="w-4 h-4"></i>
+        <i data-lucide="arrow-right" class="w-4 h-4 group-hover:translate-x-1 transition-transform"></i>
       </a>
 
       <a
         href="/projects"
-        class="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-7 sm:px-8 py-3.5 sm:py-4 rounded-full font-semibold text-sm sm:text-base bg-white dark:bg-white/[0.05] hover:bg-slate-100 dark:hover:bg-white/[0.1] text-slate-900 dark:text-white border border-slate-200 dark:border-white/10 hover:border-slate-300 dark:hover:border-white/20 transition-all"
+        class="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-8 py-4 rounded-full font-semibold text-sm sm:text-base bg-white dark:bg-white/[0.04] hover:bg-slate-100 dark:hover:bg-white/[0.08] text-slate-900 dark:text-white border border-slate-200 dark:border-white/10 hover:border-slate-300 dark:hover:border-white/20 transition-all shadow-xs"
       >
         <i data-lucide="layers" class="w-4 h-4 text-primary"></i>
-        <span>Explore Commercial Projects</span>
+        <span>Explore Commercial Works</span>
+      </a>
+
+      <a
+        href="https://wa.me/918607248802?text=Hello%20SourceMonster,%20I%20want%20to%20schedule%20a%20call%20for%20a%20project."
+        target="_blank"
+        rel="noopener noreferrer"
+        class="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-5 py-4 rounded-full font-semibold text-sm text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100/80 dark:hover:bg-white/[0.04] transition-all"
+      >
+        <i data-lucide="video" class="w-4 h-4 text-emerald-500"></i>
+        <span>Book an Intro Call</span>
       </a>
     </div>
 
     <!-- Trust Proof & Reviews Pill -->
     <div
-      class="inline-flex flex-wrap items-center justify-center gap-4 sm:gap-6 px-6 py-3 rounded-full bg-white/80 dark:bg-white/[0.03] border border-slate-200/80 dark:border-white/[0.08] backdrop-blur-md mb-16"
+      class="inline-flex flex-wrap items-center justify-center gap-3 sm:gap-6 px-6 py-3 rounded-full bg-white/80 dark:bg-white/[0.03] border border-slate-200/80 dark:border-white/[0.08] backdrop-blur-md mb-16 shadow-xs"
       data-aos="fade-up"
       data-aos-delay="400"
     >
@@ -93,7 +106,7 @@
         />
       </div>
 
-      <div class="flex items-center gap-1.5 text-xs text-slate-600 dark:text-slate-300">
+      <div class="flex items-center gap-2 text-xs text-slate-600 dark:text-slate-300">
         <div class="flex text-amber-400">
           <i data-lucide="star" class="w-3.5 h-3.5 fill-current"></i>
           <i data-lucide="star" class="w-3.5 h-3.5 fill-current"></i>
@@ -102,8 +115,8 @@
           <i data-lucide="star" class="w-3.5 h-3.5 fill-current"></i>
         </div>
         <span class="font-bold text-slate-900 dark:text-white">4.9/5</span>
-        <span class="text-slate-400 dark:text-slate-500">·</span>
-        <span>Trusted by <strong class="text-slate-900 dark:text-white font-semibold">110+ brands &amp; developers</strong> globally</span>
+        <span class="text-slate-400 dark:text-slate-600">·</span>
+        <span>Trusted by <strong class="text-slate-900 dark:text-white font-semibold">110+ brands &amp; developers</strong> worldwide</span>
       </div>
     </div>
 
@@ -114,7 +127,7 @@
       data-aos-delay="500"
     >
       <!-- Subtle Glow Behind Mockup -->
-      <div class="absolute -inset-2 bg-gradient-to-r from-primary/20 via-indigo-500/10 to-primary/20 rounded-[2.5rem] blur-2xl opacity-40 dark:opacity-60 -z-10"></div>
+      <div class="absolute -inset-3 bg-gradient-to-r from-primary/20 via-indigo-500/10 to-primary/20 rounded-[2.5rem] blur-3xl opacity-40 dark:opacity-60 -z-10"></div>
 
       <div class="relative rounded-3xl overflow-hidden border border-slate-200 dark:border-white/10 bg-white/90 dark:bg-[#0c101d]/90 backdrop-blur-2xl shadow-2xl">
         <!-- Window Titlebar -->
@@ -125,13 +138,14 @@
             <span class="w-3 h-3 rounded-full bg-[#27c93f] inline-block"></span>
           </div>
 
-          <div class="hidden sm:flex items-center gap-2 px-3 py-1 rounded-full bg-slate-200/60 dark:bg-white/[0.05] text-[11px] font-mono text-slate-600 dark:text-slate-400">
+          <!-- Browser Address Bar -->
+          <div class="hidden sm:flex items-center gap-2 px-4 py-1 rounded-full bg-slate-200/60 dark:bg-white/[0.05] text-[11px] font-mono text-slate-600 dark:text-slate-400">
             <i data-lucide="lock" class="w-3 h-3 text-emerald-500"></i>
-            <span>https://sourcemonster.in/production-suite</span>
+            <span>sourcemonster.in/production-suite</span>
           </div>
 
           <div class="flex items-center gap-2">
-            <span class="px-2 py-0.5 rounded-full text-[10px] font-mono font-semibold bg-emerald-500/10 text-emerald-500 border border-emerald-500/20">
+            <span class="px-2.5 py-0.5 rounded-full text-[10px] font-mono font-semibold bg-emerald-500/10 text-emerald-500 border border-emerald-500/20">
               LIVE SYSTEM
             </span>
           </div>
@@ -142,30 +156,46 @@
           <img
             src="/assets/images/resource/banner-1.png"
             alt="SourceMonster Engineering Platform"
-            class="w-full h-auto rounded-2xl object-cover max-h-[360px] sm:max-h-[460px] transition-transform duration-700 hover:scale-[1.01]"
+            class="w-full h-auto rounded-2xl object-cover max-h-[360px] sm:max-h-[480px] transition-transform duration-700 hover:scale-[1.01]"
           />
 
-          <!-- Floating Performance Metric Pill (Top-Right) -->
+          <!-- Floating Metric Chip: Uptime (Top-Right) -->
           <div
-            class="absolute top-6 right-6 hidden sm:flex items-center gap-3 px-4 py-2.5 rounded-2xl bg-white/90 dark:bg-[#070913]/90 border border-slate-200 dark:border-white/10 backdrop-blur-xl shadow-xl"
+            class="absolute top-6 right-6 hidden sm:flex items-center gap-3 px-4 py-2.5 rounded-2xl bg-white/95 dark:bg-[#070913]/95 border border-slate-200 dark:border-white/10 backdrop-blur-xl shadow-xl"
           >
-            <div class="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-pulse"></div>
+            <div class="relative flex h-2.5 w-2.5">
+              <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
+              <span class="relative inline-flex rounded-full h-2.5 w-2.5 bg-emerald-500"></span>
+            </div>
             <div class="text-left">
               <div class="text-[10px] font-mono uppercase tracking-wider text-slate-400">Uptime SLA</div>
               <div class="text-sm font-black text-slate-900 dark:text-white font-mono">99.99%</div>
             </div>
           </div>
 
-          <!-- Floating Security Badge Pill (Bottom-Left) -->
+          <!-- Floating Metric Chip: Security (Bottom-Left) -->
           <div
-            class="absolute bottom-6 left-6 hidden sm:flex items-center gap-3 px-4 py-2.5 rounded-2xl bg-white/90 dark:bg-[#070913]/90 border border-slate-200 dark:border-white/10 backdrop-blur-xl shadow-xl"
+            class="absolute bottom-6 left-6 hidden sm:flex items-center gap-3 px-4 py-2.5 rounded-2xl bg-white/95 dark:bg-[#070913]/95 border border-slate-200 dark:border-white/10 backdrop-blur-xl shadow-xl"
           >
-            <div class="w-7 h-7 rounded-xl bg-primary/10 text-primary flex items-center justify-center">
+            <div class="w-8 h-8 rounded-xl bg-primary/10 text-primary flex items-center justify-center">
               <i data-lucide="shield-check" class="w-4 h-4"></i>
             </div>
             <div class="text-left">
               <div class="text-xs font-bold text-slate-900 dark:text-white">Production Ready</div>
               <div class="text-[10px] font-mono text-slate-400">Zero-Vulnerability Baseline</div>
+            </div>
+          </div>
+
+          <!-- Floating Metric Chip: Performance (Bottom-Right) -->
+          <div
+            class="absolute bottom-6 right-6 hidden md:flex items-center gap-3 px-4 py-2.5 rounded-2xl bg-white/95 dark:bg-[#070913]/95 border border-slate-200 dark:border-white/10 backdrop-blur-xl shadow-xl"
+          >
+            <div class="w-8 h-8 rounded-xl bg-indigo-500/10 text-indigo-400 flex items-center justify-center">
+              <i data-lucide="zap" class="w-4 h-4"></i>
+            </div>
+            <div class="text-left">
+              <div class="text-xs font-bold text-slate-900 dark:text-white">&lt; 350ms Latency</div>
+              <div class="text-[10px] font-mono text-slate-400">High-Concurrency Core</div>
             </div>
           </div>
         </div>
