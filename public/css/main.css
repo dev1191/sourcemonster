@@ -1,4 +1,4 @@
-@import url("https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Outfit:wght@600;700;800;900&display=swap");
+@import url("https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap");
 
 :root {
   --primary: #ff4d1c;
@@ -20,7 +20,7 @@ html.dark {
 
 @layer base {
   body {
-    font-family: "Inter", sans-serif;
+    font-family: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
     color: #1e293b;
     background-color: #f8fafc;
   }
@@ -36,7 +36,8 @@ html.dark {
   h3,
   h4,
   .font-heading {
-    font-family: "Outfit", sans-serif;
+    font-family: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    letter-spacing: -0.025em;
   }
 }
 
