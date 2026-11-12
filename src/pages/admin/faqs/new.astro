@@ -5,6 +5,7 @@ import { Button, Toast } from "../../../components/ui";
 import { Card, CardHeader, CardTitle, CardContent } from "../../../components/starwind/card";
 import { Input } from "../../../components/starwind/input";
 import { Textarea } from "../../../components/starwind/textarea";
+import { Checkbox } from "../../../components/starwind/checkbox";
 
 let errorMessage = "";
 const existingCategories = await getFaqCategories();
@@ -16,7 +17,8 @@ if (Astro.request.method === "POST") {
     const answer = formData.get("answer")?.toString().trim() || "";
     const category = formData.get("category")?.toString().trim() || "General";
     const sortOrder = parseInt(formData.get("sortOrder")?.toString() || "0", 10);
-    const isPublished = formData.get("isPublished") === "on";
+    const isPublishedRaw = formData.get("isPublished");
+    const isPublished = isPublishedRaw === "on" || isPublishedRaw === "true" || isPublishedRaw === "1";
 
     if (!question) {
       throw new Error("Question is required.");
@@ -137,18 +139,20 @@ if (Astro.request.method === "POST") {
 
         <!-- Published status -->
         <div class="pt-2">
-          <label class="flex items-center gap-3 cursor-pointer">
-            <input
-              type="checkbox"
+          <div class="flex items-center gap-3">
+            <Checkbox
+              id="isPublished"
               name="isPublished"
-              checked
-              class="w-4 h-4 rounded text-primary bg-white dark:bg-slate-950 border-slate-300 dark:border-slate-700 focus:ring-primary"
+              value="on"
+              checked={true}
+              defaultChecked={true}
+              variant="primary"
             />
-            <div>
+            <label for="isPublished" class="cursor-pointer select-none">
               <span class="text-sm font-semibold text-slate-900 dark:text-white">Published</span>
               <p class="text-[11px] text-slate-500 dark:text-slate-400">Make this question visible to visitors on the website.</p>
-            </div>
-          </label>
+            </label>
+          </div>
         </div>
       </CardContent>
     </Card>
