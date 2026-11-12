@@ -138,6 +138,12 @@
       "version": "2.1.0",
       "framework": "astro",
       "registry": "default"
+    },
+    {
+      "name": "pagination",
+      "version": "5.0.1",
+      "framework": "astro",
+      "registry": "default"
     }
   ],
   "tailwind": {
