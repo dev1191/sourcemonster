@@ -1,10 +1,15 @@
 ---
+import { logger } from "../lib/logger";
+
 interface Props {
   error: unknown;
 }
 
 const { error } = Astro.props;
-console.error("[Astro 500 Internal Server Error Caught]:", error);
+logger.error("[Astro 500 Internal Server Error Caught]", error, {
+  page: "500.astro",
+  url: Astro.url.href,
+});
 
 let errorMessage = "An unexpected server error occurred.";
 if (error instanceof Error) {
