@@ -1,6 +1,7 @@
 import { db } from "../lib/db";
 import { projects, leads } from "../lib/db/schema";
 import { desc, eq, count } from "drizzle-orm";
+import { logger } from "../lib/logger";
 
 export interface DashboardMetrics {
   totalProjectsCount: number;
@@ -58,7 +59,10 @@ export async function getDashboardMetrics(): Promise<DashboardMetrics> {
       recentLeads,
     };
   } catch (error) {
-    console.error("[DashboardService] Failed to load dashboard metrics:", error);
+    logger.error("[DashboardService] Failed to load dashboard metrics", error, {
+      service: "dashboard.service",
+      action: "getDashboardMetrics",
+    });
     return {
       totalProjectsCount: 0,
       publishedProjectsCount: 0,
