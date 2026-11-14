@@ -68,12 +68,12 @@ export async function getAllAdminAddons(selectedProductId?: string): Promise<Add
       mediaRecord: media,
     })
     .from(productAddons)
-    .leftJoin(products, eq(productAddons.productId, products.id))
+    .leftJoin(products, eq(productAddons.projectId, products.id))
     .leftJoin(media, eq(productAddons.thumbnailMediaId, media.id))
     .orderBy(desc(productAddons.sortOrder), desc(productAddons.createdAt));
 
   return result
-    .filter((r) => (!selectedProductId ? true : r.addon.productId === selectedProductId))
+    .filter((r) => (!selectedProductId ? true : r.addon.projectId === selectedProductId))
     .map(({ addon, product, mediaRecord }) => ({
       id: addon.id,
       projectId: addon.projectId,
@@ -98,6 +98,11 @@ export async function getAllAdminAddons(selectedProductId?: string): Promise<Add
 }
 
 export async function getAddonById(id: string): Promise<AddonDetail | null> {
+  const UUID_REGEX = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
+  if (!id || !UUID_REGEX.test(id)) {
+    return null;
+  }
+
   const [record] = await db
     .select({
       addon: productAddons,
@@ -109,7 +114,7 @@ export async function getAddonById(id: string): Promise<AddonDetail | null> {
       mediaRecord: media,
     })
     .from(productAddons)
-    .leftJoin(products, eq(productAddons.productId, products.id))
+    .leftJoin(products, eq(productAddons.projectId, products.id))
     .leftJoin(media, eq(productAddons.thumbnailMediaId, media.id))
     .where(eq(productAddons.id, id))
     .limit(1);
@@ -136,7 +141,8 @@ export async function getAddonById(id: string): Promise<AddonDetail | null> {
 
   return {
     id: record.addon.id,
-    productId: record.addon.productId,
+    projectId: record.addon.projectId,
+    productId: record.addon.projectId,
     title: record.addon.name,
     name: record.addon.name,
     description: record.addon.description,
@@ -149,6 +155,8 @@ export async function getAddonById(id: string): Promise<AddonDetail | null> {
     thumbnailUrl: record.mediaRecord
       ? getPublicUrl(record.mediaRecord.objectKey, record.mediaRecord.disk)
       : null,
+    projectTitle: record.product?.title || null,
+    projectSlug: record.product?.slug || null,
     productTitle: record.product?.title || null,
     productSlug: record.product?.slug || null,
     createdAt: record.addon.createdAt,

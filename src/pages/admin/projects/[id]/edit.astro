@@ -10,6 +10,7 @@ import {
   updateProjectChangeLog,
   deleteProjectChangeLog,
 } from "../../../../services";
+import { logger } from "../../../../lib/logger";
 import { Button, Toast } from "../../../../components/ui";
 import {
   ProjectGeneralInfo,
@@ -49,7 +50,13 @@ if (Astro.url.searchParams.has("created")) {
 }
 
 // Initial check
-const initialProjectData = await getAdminProjectById(id);
+let initialProjectData;
+try {
+  initialProjectData = await getAdminProjectById(id);
+} catch (err: any) {
+  logger.error("Failed to load initial project data for edit:", err, { projectId: id });
+  return Astro.redirect("/admin/projects");
+}
 if (!initialProjectData) {
   return Astro.redirect("/admin/projects");
 }
@@ -178,19 +185,28 @@ if (Astro.request.method === "POST") {
 
     successMessage = "Project updated successfully!";
   } catch (err: any) {
-    console.error("Update project failed:", err);
+    logger.error("Update project failed:", err, { projectId: id });
     errorMessage = err?.message || "Failed to update project.";
   }
 }
 
 // Re-query current project & media for rendering
-const projectData = await getAdminProjectById(id);
-if (!projectData) {
-  return Astro.redirect("/admin/projects");
+let projectData;
+let addons: any[] = [];
+try {
+  projectData = await getAdminProjectById(id);
+  if (!projectData) {
+    return Astro.redirect("/admin/projects");
+  }
+  addons = await getAllAdminAddons(id);
+} catch (err: any) {
+  logger.error("Failed to load project or addons for edit view:", err, { projectId: id });
+  if (!projectData) {
+    return Astro.redirect("/admin/projects");
+  }
 }
 
 const { project, thumbnailUrl: currentThumbnailUrl, galleryItems, changelogs = [] } = projectData;
-const addons = await getAllAdminAddons(id);
 ---
 
 <AdminLayout title={`Edit ${project.title} | SourceMonster Admin`} activeNav="projects">

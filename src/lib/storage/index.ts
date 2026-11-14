@@ -87,7 +87,10 @@ export async function uploadFile(
   };
 }
 
-export function getPublicUrl(objectKey: string, disk: string = "local"): string {
+export function getPublicUrl(objectKey?: string | null, disk: string = "local"): string {
+  if (!objectKey) {
+    return "";
+  }
   if (objectKey.startsWith("http://") || objectKey.startsWith("https://")) {
     return objectKey;
   }

@@ -206,6 +206,11 @@ export async function getAllAdminProjects(): Promise<ProjectWithThumbnail[]> {
 }
 
 export async function getAdminProjectById(id: string): Promise<AdminProjectDetail | null> {
+  const UUID_REGEX = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
+  if (!id || !UUID_REGEX.test(id)) {
+    return null;
+  }
+
   const [project] = await db
     .select()
     .from(projects)
